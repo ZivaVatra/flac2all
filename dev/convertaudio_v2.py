@@ -1,5 +1,6 @@
 #!/usr/bin/python
 #Version 1.3.000
+# vim: ts=4 autoindent expandtab
 """
 ===============================================================================
 
@@ -32,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import sys
 import os
 import string,re
-import pdb
+#import pdb
 
 #CODE
 
@@ -508,8 +509,9 @@ def encode_thread(current_file,filecounter,opts):
     #a flac file)
     if (string.lower(current_file [-4:]) != "flac"):
         if (opts['copy'] == True):
-            print "Copying file %d to destination"
+            print "Copying file #%d (%s) to destination" % (filecounter,current_file.split('/')[-1])
             os.system("cp \"%s\" \"%s\"" % (current_file,outdirFinal) )
+            filecounter += 1
 
     if(opts['overwrite'] == False): #if we said not to overwrite files
         #if a file with the same filname/path does not already exist
@@ -519,9 +521,9 @@ def encode_thread(current_file,filecounter,opts):
             #file and skip it
             if (string.lower(current_file [-4:]) == "flac"):
                 if (opts['mode'] != "test"):
-                    print "converting file #%d to %s" % (x,mode)
+                    print "converting file #%d to %s" % (filecounter,opts['mode'])
                 else:
-                    print "testing file #" + str(x)
+                    print "testing file #" + str(filecounter)
 
                 if(opts['mode'] == "mp3"):
                     mp3Class.mp3convert(opts['lameopts'],current_file,outfile)
@@ -598,9 +600,11 @@ parser.add_option("-c","--copy",action="store_true",dest="copy",
       default=True,help="Copy non flac files across (default=False)")
 
 parser.add_option("-o","--outdir",dest="outdir",metavar="DIR", 
-      help="Set custom output directory (default='./')")
+      help="Set custom output directory (default='./')",
+      default="./"),
 parser.add_option("-f","--force",dest="overwrite",action="store_true",
-      help="Force overwrite of existing files (by default we skip)")
+      help="Force overwrite of existing files (by default we skip)",
+      default=False),
 parser.add_option("-t","--threads",dest="threads",default=2,
       help="How many encoding threads to run in parallel (default 2)")
 parser.add_option("-n","--nodirs",dest="nodirs",action="store_true",
@@ -615,7 +619,7 @@ parser.add_option("-B","--buffer",dest="buffer",metavar="size",
 #update the opts dictionary with new values
 opts.update(eval(options.__str__()))
 
-pdb.set_trace()
+#pdb.set_trace()
 try:
     opts['mode'] = args[0]
 
@@ -632,9 +636,7 @@ except(IndexError):
 
 #end command line checking
 
-
 #start main code
-init()
 
 #create instances of classes
 mp3Class = mp3()
@@ -647,7 +649,7 @@ filelist=shellClass.getfiles(opts['dirpath'])
 flacnum = 0 #tells us number of flac media files
 filenum = 0 #tells us number of files
 
-pdb.set_trace()
+#pdb.set_trace()
 for files in filelist:
     filenum += 1
     #make sure both flac and FLAC are read
