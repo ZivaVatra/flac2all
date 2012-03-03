@@ -1,11 +1,13 @@
 #!/usr/bin/python
-#Version 1.2.717
+# vim: ts=4 autoindent expandtab
+
+version="1.2.625"
 """
 ============================================================================================
 
 Python script for conversion of flac files to flac/mp3/ogg.
 
-Copyright 2006 Ognjen Bezanov, Belgrade (www.ziva-vatra.com, mail: ziva_vatra@mailshack.com)
+Copyright 2006, Belgrade (www.ziva-vatra.com, mail: ziva_vatra@mailshack.com)
 
 Licensed under the GPLv2. Do not remove any information from this header (or the header itself). If you have modified this code, feel free to add your details below this (and by all means, mail me, I like to see what other people have done)
 
@@ -30,7 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 	
 """
 
-
 import sys
 import os
 import string
@@ -45,18 +46,16 @@ metaflacpath="" #path to metaflac, blank be default
 oggencpath="" #path to oggenc binary, blank by default
 lamepath="" #path to lame binary, blank by default
 
-lameopts="--preset standard  -q 0 " #your settings for the lame mp3 encoder
+lameopts="--preset medium -q 2 " #your settings for the lame mp3 encoder
 flacopts="-q 8" #your settings for the flac encoder
-oggencopts= "-q 2" #your setting for the ogg vorbis encoder here
+oggencopts= "-q 1" #your setting for the ogg vorbis encoder here
 
 outdir="./" #the directory we output to, defaults to current directory
 overwrite=False #do we overwrite existing files
 nodirs=False #do not create directories (dump all files into single dir)
 threads=2 #How many encoding threads to run simultaniously.
-copy=True #Copy non flac files (default is to ignore)
-
+	
 #CODE
-
 
 
 #Class that deals with vorbis
@@ -432,7 +431,7 @@ class mp3:
 #Functions defined here
 	
 def infohelp():
-	sys.stdout.write("Convert Audio python script, v1.0 beta. Copyright 2006 Ognjen Bezanov. Licensed under the GPLv2 (http://www.ziva-vatra.com) \n \n usage: convertaudio.py [convert type] [input dir] \n where \'convert type\' is one of: \n \t [mp3]: convert file to mp3 \n \t [vorbis]: convert file to vorbis \n \t [flac]: convert file to flac \n")
+	sys.stdout.write("Convert Audio python script, version "+version+". Copyright 2006 Z.V . Licensed under the GPLv2 (http://www.ziva-vatra.com) \n \n usage: convertaudio.py [convert type] [input dir] \n where \'convert type\' is one of: \n \t [mp3]: convert file to mp3 \n \t [vorbis]: convert file to vorbis \n \t [flac]: convert file to flac \n")
 			
 
 def init():
@@ -462,12 +461,7 @@ def encode_thread(current_file,nodirs,x,lameopts,flacopts,oggencopts,mode):
     outfile = string.split(outfile, ".flac")[0] #return the name on its own, without the extension
     if mode == "vorbis":
         mode = "ogg" #internally "vorbis" is referred to as "ogg", this is a quick hack to fix it until we redo those chunks properly
-
-    #This part deals with copying non-music data over (so everything that isn't a flac file)
-    if (string.lower(current_file [-4:]) != "flac"):
-        if (copy == True):
-            os.system("cp -v '" + current_file + "' '" + outdirFinal + "'") 
-
+        
     if(overwrite == False): #if we said not to overwrite files
         if not (os.path.exists(outfile + "." + mode)): #if a file with the same filname/path does not already exist		
             if (string.lower(current_file [-4:]) == "flac"): #[case insensitive] check if the last 4 characters say flac (as in flac extension, if it doesn't, then we assume it is not a flac file and skip it
@@ -489,7 +483,6 @@ def encode_thread(current_file,nodirs,x,lameopts,flacopts,oggencopts,mode):
         else:
             print "file #" + str(x) + " exists, skipping"
     else:
-        
         if (string.lower(current_file [-4:]) == "flac"): #[case insensitive] check if the last 4 characters say flac (as in flac extension, if it doesn't, then we assume it is not a flac file and skip it
                 
                 if (mode != "test"):
@@ -505,8 +498,7 @@ def encode_thread(current_file,nodirs,x,lameopts,flacopts,oggencopts,mode):
                     vorbisClass.oggconvert(oggencopts,current_file,outdirFinal)
                 elif(mode == "test"):
                     flacClass.flactest(current_file, outdirFinal)		
-        
-
+                    
 
     return x + 1 #increment the file we are doing
 
@@ -580,13 +572,12 @@ threads = threads + 1 #one thread is always for the main program, so if we want 
 
 while len(filelist) != 0: #while the length of the list is not 0 (i.e. not empty) 
 	current_file = filelist.pop() #remove and return the first element in the list	
-	#threading.Thread(target=encode_thread,args=(current_file,nodirs,x,lameopts,flacopts,oggencopts,mode)).start()
-	x = encode_thread(current_file,nodirs,x,lameopts,flacopts,oggencopts,mode)
+	threading.Thread(target=encode_thread,args=(current_file,nodirs,x,lameopts,flacopts,oggencopts,mode)).start()
+
+        #Don't use threads, single process, used for debugging
+	#x = encode_thread(filelist,nodirs,x,lameopts,flacopts)
 	while threading.activeCount() == threads:
 		time.sleep(0.1) #just sit and wait. we check every tenth second to see if it has finished
 	x = x + 1
 
-
-
-		 
 #END	
