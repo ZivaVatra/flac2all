@@ -515,7 +515,15 @@ def encode_thread(current_file,filecounter,opts):
 
     if(opts['overwrite'] == False): #if we said not to overwrite files
         #if a file with the same filname/path does not already exist
-        if not (os.path.exists(outfile + "." + opts['mode'])):
+
+        #the below is because "vorbis" is "ogg" extension, so we need the right extension
+        #if we are to correctly check for existing files.
+        if opts['mode'] == "vorbis":
+            ext = "ogg"
+        else:
+            ext = opts['mode']
+
+        if not (os.path.exists(outfile + "." + ext)):
             #[case insensitive] check if the last 4 characters say flac (as in
             #flac extension, if it doesn't, then we assume it is not a flac
             #file and skip it
