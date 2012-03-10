@@ -9,6 +9,8 @@ Python script for conversion of flac files to flac/mp3/ogg.
 Copyright 2006-2012 Ziva-Vatra, Belgrade
 (www.ziva-vatra.com, mail: ziva_vatra@mailshack.com)
 
+Project website: http://code.google.com/p/flac2all/
+
 Licensed under the GNU GPL. Do not remove any information from this header
 (or the header itself). If you have modified this code, feel free to add your
 details below this (and by all means, mail me, I like to see what other people
@@ -33,7 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import sys
 import os
 import string,re
-#import pdb
+import pdb
 
 #CODE
 
@@ -466,7 +468,8 @@ class mp3:
 def header():
     return """
 Flac2all python script, v1.3 . Copyright 2006-2012 Ziva-Vatra.com.
-Licensed under the GPLv2 (http://www.ziva-vatra.com)
+Licensed under the GPLv2 (http://www.ziva-vatra.com).
+Project website: http://code.google.com/p/flac2all/
 
     """
 def infohelp():
@@ -601,7 +604,7 @@ opts = {
 "copy":False, #Copy non flac files (default is to ignore)
 "buffer":2048, #How much to read in at a time
 "lameopts":"--preset standard -q 0", #your mp3 encoding settings
-"oggencopts":"-q 2", # your vorbis encoder settings
+"oggencopts":"quality=2", # your vorbis encoder settings
 "flacopts":"-q 8" #your flac encoder settings
 }
 
@@ -614,9 +617,13 @@ parser.add_option("-c","--copy",action="store_true",dest="copy",
       default=True,help="Copy non flac files across (default=False)")
 
 parser.add_option("-v","--vorbis-options",dest="oggencopts",
-      default="-q 2",help="Options to pass to oggenc, for example '-q 5'")
+      default="quality=2",help="Colon delimited options to pass to oggenc,for example:" +
+      " 'quality=5:resample 32000:downmix:bitrate_average=96'." +
+      " Any oggenc long option (one with two '--' in front) can be specified in the above format.")
 parser.add_option("-l","--lame-options",dest="lameopts",
-      default="--preset standard -q 0",help="Options to pass to lame, for example '--preset extreme'")
+      default="-preset standard:q 0",help="Options to pass to lame, for example:           '-preset extreme:q 0:h:-abr'. "+
+      "Any lame option can be specified here, if you want a short option (e.g. -h), then just do 'h'. "+
+      "If you want a long option (e.g. '--abr'), then you need a dash: '-abr'")
 parser.add_option("-o","--outdir",dest="outdir",metavar="DIR", 
       help="Set custom output directory (default='./')",
       default="./"),
@@ -634,9 +641,17 @@ parser.add_option("-B","--buffer",dest="buffer",metavar="size",
            "before encoding.")
 
 (options,args) = parser.parse_args()
+
 #update the opts dictionary with new values
 opts.update(eval(options.__str__()))
 
+#convert the formats in the args to valid formats for lame and oggenc
+opts['oggencopts'] = ' --'+' --'.join(opts['oggencopts'].split(':'))
+#lame is stupid, it is not consistent, somteims using long opts, sometimes not
+#so we need to specify on command line with dashes whether it is a long op or short
+opts['lameopts'] = ' -'+' -'.join(opts['lameopts'].split(':'))
+
+print header()
 #pdb.set_trace()
 try:
     opts['mode'] = args[0]
