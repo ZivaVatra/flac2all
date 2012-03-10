@@ -6,7 +6,7 @@
 
 Python script for conversion of flac files to flac/mp3/ogg.
 
-Copyright 2006-2011 Ziva-Vatra, Belgrade
+Copyright 2006-2012 Ziva-Vatra, Belgrade
 (www.ziva-vatra.com, mail: ziva_vatra@mailshack.com)
 
 Licensed under the GNU GPL. Do not remove any information from this header
@@ -465,16 +465,16 @@ class mp3:
 #Functions defined here
 def header():
     return """
-Convert Audio python script, v1.3 . Copyright 2006-2011 Ziva-Vatra.com.
+Flac2all python script, v1.3 . Copyright 2006-2012 Ziva-Vatra.com.
 Licensed under the GPLv2 (http://www.ziva-vatra.com)
 
     """
 def infohelp():
     return """
-convertaudio.py [convert type] [input dir] <options>
+flac2all [convert type] [input dir] <options>
 where \'convert type\' is one of:
 \t [mp3]: convert file to mp3
-\t [ogg]: convert file to ogg vorbis
+\t [vorbis]: convert file to ogg vorbis
 \t [flac]: convert file to flac"""
 
 def init():
@@ -541,6 +541,9 @@ def encode_thread(current_file,filecounter,opts):
                     vorbisClass.oggconvert(opts['oggencopts'],current_file,outfile)
                 elif(opts['mode'] == "test"):
                     flacClass.flactest(current_file, outfile)
+                else:
+                    print "Error, Mode %s not recognised. Thread dying" % opts['mode']
+                    sys.exit(-2)
         else:
             print "file #%d exists, skipping" % filecounter 
     else:
@@ -561,6 +564,9 @@ def encode_thread(current_file,filecounter,opts):
                 vorbisClass.oggconvert(opts['oggencopts'],current_file,outfile)
             elif(opts['mode'] == "test"):
                 flacClass.flactest(current_file, outfile)
+            else:
+                print "Error, Mode %s not recognised. Thread dying" % opts['mode']
+                sys.exit(-2)
 
     return filecounter + 1 #increment the file we are doing
 
@@ -607,6 +613,10 @@ parser = OptionParser(usage=infohelp())
 parser.add_option("-c","--copy",action="store_true",dest="copy",
       default=True,help="Copy non flac files across (default=False)")
 
+parser.add_option("-v","--vorbis-options",dest="oggencopts",
+      default="-q 2",help="Options to pass to oggenc, for example '-q 5'")
+parser.add_option("-l","--lame-options",dest="lameopts",
+      default="--preset standard -q 0",help="Options to pass to lame, for example '--preset extreme'")
 parser.add_option("-o","--outdir",dest="outdir",metavar="DIR", 
       help="Set custom output directory (default='./')",
       default="./"),
@@ -667,7 +677,10 @@ for files in filelist:
 
 print "There are %d files, of which %d are convertable FLAC files" % \
 (filenum,flacnum)
-  
+ 
+if flacnum == 0:
+    print "Error, we got no flac files. Are you sure you put in the correct directory?"
+    sys.exit(-1) 
 x = 0 #temporary variable, only to keep track of number of files we have done
 
 #Why did we not use "for file in filelist" for the code below? Because this is
