@@ -39,6 +39,35 @@ import pdb
 
 #CODE
 
+#Class that deals with AAC+
+class aacplus:
+    def __init__(self):
+        pass #keep the constructor empty for now
+
+    def AACPconvert(self,aacopts,infile,outfile): 
+        #Uncomment the line below if you want the file currently being
+        #converted to be displayed
+        #print parseEscapechars(infile)
+
+        #rb stands for read-binary, which is what we are doing, with a 1024 byte buffer
+        decoder = os.popen(flacpath + "flac -d -s -c " + shell().parseEscapechars(infile),'rb',1024)
+        #wb stands for write-binary
+        encoder = os.popen("%saacplusenc - %s.aac %s > /tmp/aacplusLog" % (
+            aacpath,
+            shell().parseEscapechars(outfile),
+            aacopts,
+            ) ,'wb',8192) 
+
+
+        for line in decoder.readlines(): #while data exists in the decoders buffer
+            encoder.write(line) #write it to the encoders buffer
+
+        decoder.flush() #if there is any data left in the buffer, clear it
+        decoder.close() #somewhat self explanetory
+
+        encoder.flush() #as above
+        encoder.close()
+
 
 #Class that deals with vorbis
 class vorbis:
@@ -478,7 +507,8 @@ flac2all [convert type] [input dir] <options>
 where \'convert type\' is one of:
 \t [mp3]: convert file to mp3
 \t [vorbis]: convert file to ogg vorbis
-\t [flac]: convert file to flac"""
+\t [flac]: convert file to flac
+\t [aacplus]: convert file to aacplus"""
 
 def init():
     pass #do nothing, prolly remove this function
@@ -542,6 +572,8 @@ def encode_thread(current_file,filecounter,opts):
                     flacClass.flacconvert(opts['flacopts'],current_file,outfile)
                 elif(opts['mode'] == "vorbis"):
                     vorbisClass.oggconvert(opts['oggencopts'],current_file,outfile)
+                elif(opts['mode'] == "aacplus"):
+                    aacpClass.AACPconvert(opts['aacplusopts'],current_file,outfile)
                 elif(opts['mode'] == "test"):
                     flacClass.flactest(current_file, outfile)
                 else:
@@ -565,6 +597,8 @@ def encode_thread(current_file,filecounter,opts):
                 flacClass.flacconvert(opts['flacopts'],current_file,outfile)
             elif(opts['mode'] == "vorbis"):
                 vorbisClass.oggconvert(opts['oggencopts'],current_file,outfile)
+            elif(opts['mode'] == "aacplus"):
+                aacpClass.AACPconvert(opts['aacplusopts'],current_file,outfile)
             elif(opts['mode'] == "test"):
                 flacClass.flactest(current_file, outfile)
             else:
@@ -594,7 +628,7 @@ flacpath="" #path to flac binary, blank by default
 metaflacpath="" #path to metaflac, blank be default
 oggencpath="" #path to oggenc binary, blank by default
 lamepath="" #path to lame binary, blank by default
-
+aacpath="" #path to aacplus binary, blank by default
 
 opts = {
 "outdir":"./", #the directory we output to, defaults to current directory
@@ -605,7 +639,8 @@ opts = {
 "buffer":2048, #How much to read in at a time
 "lameopts":"--preset standard -q 0", #your mp3 encoding settings
 "oggencopts":"quality=2", # your vorbis encoder settings
-"flacopts":"-q 8" #your flac encoder settings
+"flacopts":"-q 8", #your flac encoder settings
+"aacplusopts":"64" #aacplus only seems to offer bitrate option
 }
 
 #This area deals with checking the command line options,
@@ -624,6 +659,8 @@ parser.add_option("-l","--lame-options",dest="lameopts",
       default="-preset standard:q 0",help="Options to pass to lame, for example:           '-preset extreme:q 0:h:-abr'. "+
       "Any lame option can be specified here, if you want a short option (e.g. -h), then just do 'h'. "+
       "If you want a long option (e.g. '--abr'), then you need a dash: '-abr'")
+parser.add_option("-a","--aacplus-options",dest="aacplusopts",
+      default="64", help="AACplus options, currently only bitrate supported. e.g: \" -a 64 \""),
 parser.add_option("-o","--outdir",dest="outdir",metavar="DIR", 
       help="Set custom output directory (default='./')",
       default="./"),
@@ -634,11 +671,12 @@ parser.add_option("-t","--threads",dest="threads",default=2,
       help="How many encoding threads to run in parallel (default 2)")
 parser.add_option("-n","--nodirs",dest="nodirs",action="store_true",
       default=False,help="Don't create Directories, put everything together")
-parser.add_option("-B","--buffer",dest="buffer",metavar="size", 
-      help="How much we should buffer before encoding to mp3 (in KB). The larger "+
-           "you set this too, the more of the song will be buffered before "+
-           "encoding. Set it high enough and it will buffer everything to RAM"+
-           "before encoding.")
+##The below isn't used anymore, so removed as an option (to re-add in future?)
+#parser.add_option("-B","--buffer",dest="buffer",metavar="size", 
+#      help="How much we should buffer before encoding to mp3 (in KB). The larger "+
+#           "you set this too, the more of the song will be buffered before "+
+#           "encoding. Set it high enough and it will buffer everything to RAM"+
+#           "before encoding.")
 
 (options,args) = parser.parse_args()
 
@@ -676,6 +714,7 @@ mp3Class = mp3()
 shellClass = shell()
 flacClass = flac()
 vorbisClass = vorbis()
+aacpClass = aacplus()
 
 filelist=shellClass.getfiles(opts['dirpath'])
 
