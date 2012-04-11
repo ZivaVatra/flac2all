@@ -40,7 +40,7 @@ import pdb
 #CODE
 
 #Class that deals with AAC+
-class aacplus:
+class aacplusNero:
     def __init__(self):
         pass #keep the constructor empty for now
 
@@ -52,10 +52,10 @@ class aacplus:
         #rb stands for read-binary, which is what we are doing, with a 1024 byte buffer
         decoder = os.popen(flacpath + "flac -d -s -c " + shell().parseEscapechars(infile),'rb',1024)
         #wb stands for write-binary
-        encoder = os.popen("%saacplusenc - %s.aac %s > /tmp/aacplusLog" % (
+        encoder = os.popen("%sneroAacEnc %s -if - -of %s.aac  > /tmp/aacplusLog" % (
             aacpath,
-            shell().parseEscapechars(outfile),
             aacopts,
+            shell().parseEscapechars(outfile),
             ) ,'wb',8192) 
 
 
@@ -508,7 +508,7 @@ where \'convert type\' is one of:
 \t [mp3]: convert file to mp3
 \t [vorbis]: convert file to ogg vorbis
 \t [flac]: convert file to flac
-\t [aacplus]: convert file to aacplus"""
+\t [aacplusNero]: convert file to aacplus using the proprietery (but excellent) Nero AAC encoder."""
 
 def init():
     pass #do nothing, prolly remove this function
@@ -572,7 +572,7 @@ def encode_thread(current_file,filecounter,opts):
                     flacClass.flacconvert(opts['flacopts'],current_file,outfile)
                 elif(opts['mode'] == "vorbis"):
                     vorbisClass.oggconvert(opts['oggencopts'],current_file,outfile)
-                elif(opts['mode'] == "aacplus"):
+                elif(opts['mode'] == "aacplusNero"):
                     aacpClass.AACPconvert(opts['aacplusopts'],current_file,outfile)
                 elif(opts['mode'] == "test"):
                     flacClass.flactest(current_file, outfile)
@@ -597,7 +597,7 @@ def encode_thread(current_file,filecounter,opts):
                 flacClass.flacconvert(opts['flacopts'],current_file,outfile)
             elif(opts['mode'] == "vorbis"):
                 vorbisClass.oggconvert(opts['oggencopts'],current_file,outfile)
-            elif(opts['mode'] == "aacplus"):
+            elif(opts['mode'] == "aacplusNero"):
                 aacpClass.AACPconvert(opts['aacplusopts'],current_file,outfile)
             elif(opts['mode'] == "test"):
                 flacClass.flactest(current_file, outfile)
@@ -640,7 +640,7 @@ opts = {
 "lameopts":"--preset standard -q 0", #your mp3 encoding settings
 "oggencopts":"quality=2", # your vorbis encoder settings
 "flacopts":"-q 8", #your flac encoder settings
-"aacplusopts":"64" #aacplus only seems to offer bitrate option
+"aacplusopts":"-q 0.3 " 
 }
 
 #This area deals with checking the command line options,
@@ -660,7 +660,7 @@ parser.add_option("-l","--lame-options",dest="lameopts",
       "Any lame option can be specified here, if you want a short option (e.g. -h), then just do 'h'. "+
       "If you want a long option (e.g. '--abr'), then you need a dash: '-abr'")
 parser.add_option("-a","--aacplus-options",dest="aacplusopts",
-      default="64", help="AACplus options, currently only bitrate supported. e.g: \" -a 64 \""),
+      default="-q 0.3", help="AACplus options, currently only bitrate supported. e.g: \" -a 64 \""),
 parser.add_option("-o","--outdir",dest="outdir",metavar="DIR", 
       help="Set custom output directory (default='./')",
       default="./"),
@@ -714,7 +714,7 @@ mp3Class = mp3()
 shellClass = shell()
 flacClass = flac()
 vorbisClass = vorbis()
-aacpClass = aacplus()
+aacpClass = aacplusNero()
 
 filelist=shellClass.getfiles(opts['dirpath'])
 
