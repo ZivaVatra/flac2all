@@ -89,10 +89,13 @@ class vorbis:
 #Class that deals with FLAC
 
 class flac:
-    def flacconvert(lameopts, infile, outdir):
+    def flacconvert(self,flacopts, infile, outfile):
+        #TODO: see about tag copying across as well
         print "converting flac"
-        #TODO: Actually include flac to flac conversion
-        #This does not yet exist
+        os.system("%sflac -d %s -o - | %sflac %s -o %s.flac -" %
+            (flacpath, infile, flacpath, flacopts, outfile)
+        )
+
 
     def getflacmeta(self,flacfile):
         #The FLAC file format states that song info will be stored in block 2, so
@@ -752,8 +755,6 @@ while len(filelist) != 0: #while the length of the list is not 0 (i.e. not empty
     current_file = filelist.pop()
 
     #threaded process, used by default
-#TODO:    def enco(current_file,filecounter,mode,opts):
-
 
     threading.Thread(target=encode_thread,args=(
         current_file,
