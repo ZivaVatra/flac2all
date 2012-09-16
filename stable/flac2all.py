@@ -36,6 +36,8 @@ import sys
 import os
 import string,re
 import pdb
+import threading,time,multiprocessing
+
 
 #CODE
 
@@ -92,7 +94,7 @@ class flac:
     def flacconvert(self,flacopts, infile, outfile):
         #TODO: see about tag copying across as well
         print "converting flac"
-        os.system("%sflac -d %s -o - | %sflac %s -o %s.flac -" %
+        os.system("%sflac -d -c \"%s\" | %sflac %s -o \"%s.flac\" -" %
             (flacpath, infile, flacpath, flacopts, outfile)
         )
 
@@ -511,7 +513,7 @@ where \'convert type\' is one of:
 \t [mp3]: convert file to mp3
 \t [vorbis]: convert file to ogg vorbis
 \t [flac]: convert file to flac
-\t [aacplusNero]: convert file to aacplus using the proprietery (but excellent) Nero AAC encoder."""
+\t [aacplusnero]: (NO TAGGING SUPPORT) convert file to aacplus using the proprietery (but excellent) Nero AAC encoder."""
 
 def init():
     pass #do nothing, prolly remove this function
@@ -575,7 +577,7 @@ def encode_thread(current_file,filecounter,opts):
                     flacClass.flacconvert(opts['flacopts'],current_file,outfile)
                 elif(opts['mode'] == "vorbis"):
                     vorbisClass.oggconvert(opts['oggencopts'],current_file,outfile)
-                elif(opts['mode'] == "aacplusNero"):
+                elif(opts['mode'] == "aacplusnero"):
                     aacpClass.AACPconvert(opts['aacplusopts'],current_file,outfile)
                 elif(opts['mode'] == "test"):
                     flacClass.flactest(current_file, outfile)
@@ -637,7 +639,6 @@ opts = {
 "outdir":"./", #the directory we output to, defaults to current directory
 "overwrite":False, #do we overwrite existing files
 "nodirs":False, #do not create directories (dump all files into single dir)
-"threads":4, #How many encoding threads to run simultaniously.
 "copy":False, #Copy non flac files (default is to ignore)
 "buffer":2048, #How much to read in at a time
 "lameopts":"--preset standard -q 0", #your mp3 encoding settings
@@ -652,7 +653,7 @@ from optparse import OptionParser
 
 parser = OptionParser(usage=infohelp())
 parser.add_option("-c","--copy",action="store_true",dest="copy",
-      default=True,help="Copy non flac files across (default=False)")
+      default=False,help="Copy non flac files across (default=False)")
 
 parser.add_option("-v","--vorbis-options",dest="oggencopts",
       default="quality=2",help="Colon delimited options to pass to oggenc,for example:" +
@@ -670,8 +671,8 @@ parser.add_option("-o","--outdir",dest="outdir",metavar="DIR",
 parser.add_option("-f","--force",dest="overwrite",action="store_true",
       help="Force overwrite of existing files (by default we skip)",
       default=False),
-parser.add_option("-t","--threads",dest="threads",default=2,
-      help="How many encoding threads to run in parallel (default 2)")
+parser.add_option("-t","--threads",dest="threads",default=multiprocessing.cpu_count(),
+      help="How many threads to run in parallel (default: autodetect [found %d cpu(s)] )" % multiprocessing.cpu_count()) 
 parser.add_option("-n","--nodirs",dest="nodirs",action="store_true",
       default=False,help="Don't create Directories, put everything together")
 ##The below isn't used anymore, so removed as an option (to re-add in future?)
@@ -734,6 +735,7 @@ for files in filelist:
 
 print "There are %d files, of which %d are convertable FLAC files" % \
 (filenum,flacnum)
+print "We are running %d simultaneous transcodes" % opts['threads']
  
 if flacnum == 0:
     print "Error, we got no flac files. Are you sure you put in the correct directory?"
@@ -745,7 +747,6 @@ x = 0 #temporary variable, only to keep track of number of files we have done
 #can do filelist.pop() multiple times (well, along with some threading, but its
 #good to plan for the future.
 
-import threading,time
 #one thread is always for the main program, so if we want two encoding threads,
 #we need three threads in total
 opts['threads'] = int(opts['threads']) + 1
