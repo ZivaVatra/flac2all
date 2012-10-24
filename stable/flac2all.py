@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#Version 1.3
+#Version 3
 # vim: ts=4 autoindent expandtab
 """
 ===============================================================================
@@ -501,7 +501,7 @@ class mp3:
 #Functions defined here
 def header():
     return """
-Flac2all python script, v1.3 . Copyright 2006-2012 Ziva-Vatra.com.
+Flac2all python script, v3 . Copyright 2006-2012 Ziva-Vatra.com.
 Licensed under the GPLv2 (http://www.ziva-vatra.com).
 Project website: http://code.google.com/p/flac2all/
 
