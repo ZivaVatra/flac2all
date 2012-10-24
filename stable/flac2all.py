@@ -93,8 +93,7 @@ class vorbis:
 class flac:
     def flacconvert(self,flacopts, infile, outfile):
         #TODO: see about tag copying across as well
-        print "converting flac"
-        os.system("%sflac -d -c \"%s\" | %sflac %s -o \"%s.flac\" -" %
+        os.system("%sflac -s -d -c \"%s\" | %sflac -s %s -o \"%s.flac\" -" %
             (flacpath, infile, flacpath, flacopts, outfile)
         )
 
