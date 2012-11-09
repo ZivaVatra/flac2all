@@ -190,7 +190,7 @@ class shell:
             #characters which must be escaped in the shell, note
             #"[" and "]" seems to be automatically escaped
             #(strange, look into this)
-            escChars = ["\"","*",";"," ","'","(",")","&","`"]
+            escChars = ["\"","*",";"," ","'","(",")","&","`","$"]
 
             for char in escChars:
                 #add an escape character to the character
