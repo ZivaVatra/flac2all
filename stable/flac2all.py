@@ -103,10 +103,10 @@ class flac:
         #we do not look at the other blocks
         flacdata = os.popen("%smetaflac --list --block-number 2 %s" %
             (
-	    metaflacpath,
-	    flacfile
-	    )
-	)
+            metaflacpath,
+            flacfile
+            )
+        )
 
         datalist = [] #init a list for storing all the data in this block
 
@@ -121,7 +121,7 @@ class flac:
             #check if the tag is a comment field (shown by the first 7 chars
             #spelling out "comment")
             if(data[:8] == "comment["):
-                datalist.append(string.split(data,":"))
+                datalist.append(string.split(data,":",1))
 
         for data in datalist:
             #split according to [NAME]=[VALUE] structure
@@ -461,7 +461,7 @@ class mp3:
         #outfile = os.path.join(outdir+"/",os.path.split(infile)[-1]).strip(".flac")
 
 
-	#pdb.set_trace()
+    #pdb.set_trace()
         try:
             metastring = generateLameMeta(infile)
         except(UnboundLocalError):
@@ -527,7 +527,7 @@ def encode_thread(current_file,filecounter,opts):
     #directory
         current_file_local = current_file.replace(opts['dirpath'],'')
         outdirFinal = opts['outdir'] + os.path.split(current_file_local)[0]
-	
+    
         #if the path does not exist, then make it
         if (os.path.exists(outdirFinal) == False):
             #the try/catch here is to deal with race condition, sometimes one
