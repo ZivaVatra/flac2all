@@ -1,4 +1,4 @@
-# vim: ts=4 ai expandtab
+# vim: ts=4 autoindent expandtab
 
 #Class that deals with vorbis
 class vorbis:
