@@ -152,15 +152,52 @@ time.sleep(1) #Delay to resolve queue "broken pipe" errors
 #for testing, we timeout after 5 seconds (normally we block until 
 #processing is done
 count = 0
-while True:
-    try:
-        print pQ.get(timeout=5)
-    except: break
-    count += 1
+#while True:
+#    try:
+#        print pQ.get(timeout=5)
+#    except: break
+#    count += 1
 
-print "We have %d flac filesi to convert" % count
+print "We have %d flac files to convert" % count
 print "We have %d non-flac files to copy across" % cQ.qsize()
 
-print cQ.get()
+#print cQ.get()
+
+# Right, how this will work here, is that we will pass the whole queue
+# to the encode threads (one per processor) and have them pop off/on as
+# necessary. Allows for far more fine grained control
+
+opts['threads'] += 1 # $x for processing, +1 control thread
+
+threading.Thread(target=encode_thread, args=(
+	pQ, opts )
+	)
+
+# keep flags for state (pQ,cQ)
+sflags = (0,0)
+while True:
+	# Believe it or not, the only way way to be sure a queue is actually
+	# empty is to try to get with a timeout. So we get and put back
+	# and if we get a timeout error (10 secs), register it
+	
+	try:
+		pQ.put(pQ.get(timeout=10))
+	except TimeoutError as e:
+		print "Process queue finished."
+		sflags[0] = 1
+	else:
+		sflags[0] = 0
+
+	try:
+		cQ.put(cQ.get(timeout=10))
+	except TimeoutError as e:
+		print "Copy Queue finished."
+		sflags[1] = 1
+	else:
+		sflags[1] = 0
+
+	if sflags == (1,1):
+		print "Processing Complete!"
+		break
 
 sys.exit()
