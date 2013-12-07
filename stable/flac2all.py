@@ -114,14 +114,33 @@ class flac:
         #for the music file
         commentlist = {}
 
+        #parse the metaflac output looking for a Vorbis comment metablock, identified as:
+        #    METADATA block #?
+        #      type: 4 (VORBIS_COMMENT)
+        #then start scanning for Vorbis comments. This localised searching ensures that
+        #"comment" tags in non Vorbis metablocks don't corrupt the music tags
+        foundnewmetadatablock = 0
+        lookingforvorbiscomments = 0
         for data in flacdata.readlines():
             #get rid of any whitespace from the left to the right
             data = string.strip(data)
 
-            #check if the tag is a comment field (shown by the first 7 chars
-            #spelling out "comment")
-            if(data[:8] == "comment["):
-                datalist.append(string.split(data,":",1))
+            #only start looking for Vorbis comments once we have latched onto a
+            #new metadata block of type 4
+            if(foundnewmetadatablock == 1 and data == "type: 4 (VORBIS_COMMENT)"):
+                lookingforvorbiscomments = 1
+            if(foundnewmetadatablock == 1):
+                foundnewmetadatablock = 0
+            if(data[:16] == "METADATA block #"):
+                foundnewmetadatablock = 1
+                lookingforvorbiscomments = 0
+
+            if (lookingforvorbiscomments == 1):
+                #check if the tag is a comment field (shown by the first 8 chars
+                #spelling out "comment[")
+                if(data[:8] == "comment["):
+                    datalist.append(string.split(data,":",1))
+     
 
         for data in datalist:
             #split according to [NAME]=[VALUE] structure
@@ -185,7 +204,7 @@ class shell:
             return outdir
 
     def parseEscapechars(self,file,quoteonly=False):
-
+	#TODO: look at docs.python.org/2/library/codecs.html for info on how to do this better 
         if(quoteonly == False):
             #characters which must be escaped in the shell, note
             #"[" and "]" seems to be automatically escaped
