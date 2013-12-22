@@ -540,24 +540,26 @@ def init():
 
 def encode_thread(current_file,filecounter,opts):
 
-    #Recursive directory creation script, if selected
-    if (opts['nodirs'] == False):
     #remove the dirpath placed in parameters, so that we work from that
     #directory
-        current_file_local = current_file.replace(opts['dirpath'],'')
+    current_file_local = current_file.replace(opts['dirpath'],'')
+    if (opts['nodirs'] == False):    
         outdirFinal = opts['outdir'] + os.path.split(current_file_local)[0]
+    else:
+        outdirFinal = os.path.join(opts['dirpath'],opts['outdir'])
     
-        #if the path does not exist, then make it
-        if (os.path.exists(outdirFinal) == False):
-            #the try/catch here is to deal with race condition, sometimes one
-            #thread creates the path before the other, causing errors
-            try:
-                #recursive, will make the entire path if required
-                os.makedirs(outdirFinal)
-            except(OSError):
-                print "Directory already exists! Reusing..."
+    #if the path does not exist, then make it
+    if (os.path.exists(outdirFinal) == False):
+        #the try/catch here is to deal with race condition, sometimes one
+        #thread creates the path before the other, causing errors
+        try:
+           #recursive, will make the entire path if required
+           os.makedirs(outdirFinal)
+        except(OSError):
+           print "Directory already exists! Reusing..."
 
-#this chunk of code provides us with the full path sans extension
+
+    #this chunk of code provides us with the full path sans extension
     outfile = os.path.join(outdirFinal,os.path.split(current_file_local)[1])
     #return the name on its own, without the extension
     outfile = string.split(outfile, ".flac")[0]
@@ -570,7 +572,7 @@ def encode_thread(current_file,filecounter,opts):
             filecounter += 1
 
     if(opts['overwrite'] == False): #if we said not to overwrite files
-        #if a file with the same filname/path does not already exist
+        #if a file with the same filename/path does not already exist
 
         #the below is because "vorbis" is "ogg" extension, so we need the right extension
         #if we are to correctly check for existing files.
