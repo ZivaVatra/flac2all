@@ -1,5 +1,9 @@
 #vim ts=4 expandtab si 
 
+import os
+
+from config import *
+
 #Class that deals with FLAC
 
 class flac:
@@ -16,10 +20,10 @@ class flac:
         #we do not look at the other blocks
         flacdata = os.popen("%smetaflac --list --block-number 2 %s" %
             (
-	    metaflacpath,
-	    flacfile
-	    )
-	)
+        metaflacpath,
+        flacfile
+        )
+    )
 
         datalist = [] #init a list for storing all the data in this block
 
@@ -29,23 +33,24 @@ class flac:
 
         for data in flacdata.readlines():
             #get rid of any whitespace from the left to the right
-            data = string.strip(data)
+            data = data.strip()
 
             #check if the tag is a comment field (shown by the first 7 chars
             #spelling out "comment")
             if(data[:8] == "comment["):
-                datalist.append(string.split(data,":"))
+                datalist.append( data.split(':') )
 
         for data in datalist:
             #split according to [NAME]=[VALUE] structure
-            comment = string.split(data[1],"=")
-            comment[0] = string.strip(comment[0])
-            comment[1] = string.strip(comment[1])
+            comment = data[1].split('=')
+            comment[0] = comment[0].strip()
+            comment[1] = comment[1].strip()
+
             #convert to upper case
             #we want the key values to always be the same case, we decided on
             #uppercase (whether the string is upper or lowercase, is dependent
             # on the tagger used)
-            comment[0] = string.upper(comment[0])
+            comment[0] = comment[0].upper()
 
             #assign key:value pair, comment[0] will be the key, and comment[1]
             #the value

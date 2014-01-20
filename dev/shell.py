@@ -1,5 +1,6 @@
 # vim ts=4 expandtab si 
 import os
+import string
 
 class shell:
     def generateoutdir(self,indir, outdir,dirpath):

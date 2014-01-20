@@ -1,6 +1,10 @@
 # vim: ts=4 expandtab si
 
-#mp3 class:
+import os
+
+from config import *
+from flac import flac
+from shell import shell
 
 class lameMp3:
     def __init__(self,lame_options):
@@ -170,12 +174,12 @@ class lameMp3:
         for genre in acceptable_genres:
             #print string.strip(metastring['GENRE'])+" ==> "+string.strip(genre)
             try:
-                current_genre = string.upper(metastring['GENRE'].strip())
+                current_genre = metastring['GENRE'].strip().upper()
             except(KeyError):
                 current_genre = "NO GENRE TAG"
 
             #case-insesitive comparison
-            if current_genre == string.upper(genre.strip()):
+            if current_genre == genre.strip().upper():
                 genre_is_acceptable = 1   #we can use the genre
 
 
@@ -185,7 +189,7 @@ class lameMp3:
 
         else:
             #Capitalise the Genre, as per lame requirements
-            metastring['GENRE'] = string.capitalize(metastring['GENRE'])
+            metastring['GENRE'] = metastring['GENRE'].capitalize()
             genre_is_acceptable = 0 #reset the boolean value for the next time
 
 
@@ -245,8 +249,10 @@ class lameMp3:
         #(minus the working directory path) and with the extension stripped
         #outfile = os.path.join(outdir+"/",os.path.split(infile)[-1]).strip(".flac")
 
+        inmetadata = flac().getflacmeta("\"" + infile + "\"")
+
         try:
-            metastring = generateLameMeta(infile)
+            metastring = self.generateLameMeta(inmetadata)
         except(UnboundLocalError):
             metastring = "" #If we do not get meta information. leave blank
 

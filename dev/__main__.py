@@ -145,7 +145,7 @@ for infile in files:
 #        )
         outfile = infile.replace(opts['dirpath'], opts['outdir'])
         if infile.endswith(".flac"):
-            pQ.put([infile, outfile, opts['mode']])        
+            pQ.put([infile, outfile.rstrip('.flac') + '.' + opts['mode'] , opts['mode']])        
             count += 1
         else:
             if opts['copy'] == True:
@@ -166,11 +166,18 @@ modeError = Exception("Error understanding mode. Is mode valid?")
 def encode_thread(taskq, opts):
     while taskq.empty() == False:
         task = taskq.get(timeout=60) #Get the task, with one minute timeout
-        if opts['mode'].lower() == "mp3":
+        #if opts['mode'].lower() == "mp3":
+        if task[2].lower() == "mp3":
             encoder = mp3(opts)
             encf = encoder.mp3convert
         else:
             raise modeError
+
+        encf(task[0],task[1])
+#["/mnt/Muzika/Lossless/Soundtracks/Who Framed Roger Rabbit (Complete Motion Picture Score)/Disc 2/24. Eddie's Theme.flac", "/storage/flac2mp3/Soundtracks/Who Framed Roger Rabbit (Complete Motion Picture Score)/Disc 2/24. Eddie's Theme.flac", 'mp3']
+
+        
+        #encf( $arguments )
         print task
 
 opts['threads'] += 1 # $x for processing, +1 control thread
