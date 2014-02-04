@@ -755,7 +755,7 @@ for files in filelist:
 
 print "There are %d files, of which %d are convertable FLAC files" % \
 (filenum,flacnum)
-print "We are running %d simultaneous transcodes" % opts['threads']
+print "We are running %s simultaneous transcodes" % opts['threads']
  
 if flacnum == 0:
     print "Error, we got no flac files. Are you sure you put in the correct directory?"
