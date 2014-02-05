@@ -54,7 +54,7 @@ class aacplusNero:
         #rb stands for read-binary, which is what we are doing, with a 1024 byte buffer
         decoder = os.popen(flacpath + "flac -d -s -c " + shell().parseEscapechars(infile),'rb',1024)
         #wb stands for write-binary
-        encoder = os.popen("%sneroAacEnc %s -if - -of %s.aac  > /tmp/aacplusLog" % (
+        encoder = os.popen("%sneroAacEnc %s -if - -of %s.mp4  2> /tmp/aacplusLog" % (
             aacpath,
             aacopts,
             shell().parseEscapechars(outfile),
@@ -684,7 +684,7 @@ parser.add_option("-l","--lame-options",dest="lameopts",
       "Any lame option can be specified here, if you want a short option (e.g. -h), then just do 'h'. "+
       "If you want a long option (e.g. '--abr'), then you need a dash: '-abr'")
 parser.add_option("-a","--aacplus-options",dest="aacplusopts",
-      default="-q 0.3", help="AACplus options, currently only bitrate supported. e.g: \" -a 64 \""),
+      default="-q 0.3", help="AACplus options, currently only bitrate supported. e.g: \" -br 64 \""),
 parser.add_option("-o","--outdir",dest="outdir",metavar="DIR", 
       help="Set custom output directory (default='./')",
       default="./"),
