@@ -116,7 +116,7 @@ if os.path.exists(opts['outdir']) == False:
     os.mkdir(opts['outdir'])
 
 # In this version, we can convert multiple format at once, so for e.g.
-# mode = mp3,vorbis will create both in parrallel
+# mode = mp3,vorbis will create both in parallel
 for mode in opts['mode'].split(','):
     if mode != "":
         try:
@@ -145,7 +145,7 @@ for infile in files:
 #        )
         outfile = infile.replace(opts['dirpath'], opts['outdir'])
         if infile.endswith(".flac"):
-            pQ.put([infile, outfile.rstrip('.flac') + '.' + opts['mode'] , opts['mode']])        
+            pQ.put([infile, outfile.rstrip('.flac'), opts['mode']])        
             count += 1
         else:
             if opts['copy'] == True:
@@ -168,18 +168,15 @@ def encode_thread(taskq, opts):
         task = taskq.get(timeout=60) #Get the task, with one minute timeout
         #if opts['mode'].lower() == "mp3":
         if task[2].lower() == "mp3":
-            encoder = mp3(opts)
+            encoder = mp3(opts['lameopts'])
             encf = encoder.mp3convert
         else:
             raise modeError
 
         encf(task[0],task[1])
-#["/mnt/Muzika/Lossless/Soundtracks/Who Framed Roger Rabbit (Complete Motion Picture Score)/Disc 2/24. Eddie's Theme.flac", "/storage/flac2mp3/Soundtracks/Who Framed Roger Rabbit (Complete Motion Picture Score)/Disc 2/24. Eddie's Theme.flac", 'mp3']
-
-        
-        #encf( $arguments )
         print task
 
+opts['threads'] = int(opts['threads'])
 opts['threads'] += 1 # $x for processing, +1 control thread
 
 # keep flags for state (pQ,cQ)
@@ -190,7 +187,6 @@ while True:
     ap = [] #active processes
 
     while int(cc) >= len(ap):
-        print int(cc), len(ap)
         print "Spawning process..."
         proc = mp.Process(target=encode_thread, args=(pQ, opts ) )
         proc.start()
@@ -202,7 +198,8 @@ while True:
     # Believe it or not, the only way way to be sure a queue is actually
     # empty is to try to get with a timeout. So we get and put back
     # and if we get a timeout error (10 secs), register it
-    
+   
+    print sflags
     try:
         pQ.put(pQ.get(timeout=10))
     except mp.TimeoutError as e:
@@ -214,16 +211,19 @@ while True:
     else:
         sflags[0] = 0
 
-    try:
-        cQ.put(cQ.get(timeout=10))
-    except mp.TimeoutError as e:
-        print "Copy Queue finished."
-        sflags[1] = 1
-    except Queue.Empty as e:
-        print "Copy Queue finished."
-        sflags[1] = 1
-    else:
-        sflags[1] = 0
+    sflags[1] = 1
+    # Commented out until we get the shell_process_thread function written
+    # 
+    #try:
+    #    cQ.put(cQ.get(timeout=10))
+    #except mp.TimeoutError as e:
+    #    print "Copy Queue finished."
+    #    sflags[1] = 1
+    #except Queue.Empty as e:
+    #    print "Copy Queue finished."
+    #    sflags[1] = 1
+    #else:
+    #    sflags[1] = 0
 
     if sflags == [1,1]:
         print "Processing Complete!"

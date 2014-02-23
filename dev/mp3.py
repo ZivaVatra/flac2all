@@ -245,21 +245,12 @@ class lameMp3:
 
     def mp3convert(self,infile,outfile):
 
-        #give us an output file, full path, which is the same as the infile 
-        #(minus the working directory path) and with the extension stripped
-        #outfile = os.path.join(outdir+"/",os.path.split(infile)[-1]).strip(".flac")
-
         inmetadata = flac().getflacmeta("\"" + infile + "\"")
 
         try:
             metastring = self.generateLameMeta(inmetadata)
         except(UnboundLocalError):
             metastring = "" #If we do not get meta information. leave blank
-
-
-        #Uncomment the line below if you want the file currently being
-        #converted to be displayed
-        #print parseEscapechars(infile)
 
         #rb stands for read-binary, which is what we are doing, with a 1024 byte buffer
         decoder = os.popen(flacpath + "flac -d -s -c " + shell().parseEscapechars(infile),'rb',1024)
