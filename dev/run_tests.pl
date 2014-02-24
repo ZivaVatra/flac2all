@@ -19,7 +19,7 @@ my @testypes = ("mp3","vorbis","flac","aacplusnero");
 
 for $test (@testypes) {
 	my $larg = "--lame-options='-preset standard' ";
-	my $aarg = "--aacplus-options 64";
+	my $aarg = "--aacplus-options 'br 64'";
 	my $varg = "--vorbis-options='quality=5:resample 32000:downmix'";
 
 	for $opt ('-c','-f','-t 4','-n') {

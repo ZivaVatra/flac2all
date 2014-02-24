@@ -1,23 +1,89 @@
-# vim: ts=4 ai expandtabi list
+# vim: ts=4 ai expandtab 
 
 #Class that deals with AAC+ 
+import os
+from shell import shell
+from flac import flac
+from config import *
 
 #For the binary-only Nero AAC encoder
 class aacplusNero:
-    def __init__(self):
-        pass #keep the constructor empty for now
+    def __init__(self, aacopts):
+        self.opts = aacopts
 
-    def AACPconvert(self,aacopts,infile,outfile):
-        #Uncomment the line below if you want the file currently being
-        #converted to be displayed
-        #print parseEscapechars(infile)
+    def generateNeroTags(self,indata):
+        ''' The new versions of nero AAC encoder for Linux provides neroAacTag '''
+        tags = ""
+
+        #NeroTag format (for 'standard Nero Digital') along with 'indata' keys
+            #  title = TITLE
+            #  artist = ARTIST
+            #  year = DATE
+            #  album = ALBUM
+            #  genre = GENERE
+            #  track = TRACKNUMBER
+            #  totaltracks = 
+            #  disc
+            #  totaldiscs
+            #  url = URL
+            #  copyright = PUBLISHER
+            #  comment = COMMENT (if blank, put in something like 'converted by flac2all ($url)' )
+            #  lyrics
+            #  credits = ENCODEDBY
+            #  rating
+            #  label = PUBLISHER
+            #  composer = COMPOSER
+            #  isrc
+            #  mood
+            #  tempo
+        #  In format: -meta:<name>=<value> 
+        #  User-defined fields are -meta-user:<name>=<value> 
+
+        validnerotags = {
+            'title':'TITLE',
+            'artist':'ARTIST',
+            'year':'DATE',
+            'album':'ALBUM',
+            'genre':'GENRE',
+            'track':'TRACKNUMBER',
+            'copyright':'PUBLISHER',
+            'comment':'COMMENT',
+            'credits':'ENCODEDBY',
+            'label':'PUBLISHER',
+            'composer':'COMPOSER',
+            'url':'URL',
+        }
+
+        for nerokey in validnerotags:
+            try:
+                tag = indata[ validnerotags[nerokey] ] 
+            except KeyError as e:
+                if e.message == 'COMMENT':
+                    tag = " converted by flac2all  - http://code.google.com/p/flac2all/ "
+                else:
+                    continue
+            tags += " -meta:\"%s\"=\"%s\" " % (nerokey.strip(), tag.strip() )
+
+        return tags
+
+    def AACPconvert(self,infile,outfile):
+
+        inmetadata = flac().getflacmeta("\"" + infile + "\"")
+
+        tagcmd = "%sneroAacTag " % aacpath
+        try:
+            metastring = self.generateNeroTags(inmetadata)
+        except(UnboundLocalError):
+            metastring = ""
+
+
 
         #rb stands for read-binary, which is what we are doing, with a 1024 byte buffer
         decoder = os.popen(flacpath + "flac -d -s -c " + shell().parseEscapechars(infile),'rb',1024)
         #wb stands for write-binary
-        encoder = os.popen("%sneroAacEnc %s -if - -of %s.aac  > /tmp/aacplusLog" % (
+        encoder = os.popen("%sneroAacEnc %s -if - -of %s.mp4 > /tmp/aacplusLog" % (
             aacpath,
-            aacopts,
+            self.opts,
             shell().parseEscapechars(outfile),
             ) ,'wb',8192)
 
@@ -30,4 +96,8 @@ class aacplusNero:
         encoder.flush() #as above
         encoder.close()
 
-
+        #Now as the final event, load up the tags
+        rc = os.system("%s \"%s.mp4\" %s" % (tagcmd, outfile, metastring))
+        print "%s %s.mp4 %s" % (tagcmd, outfile, metastring)
+        if rc != 0:
+            print "ERROR!  Could not tag AAC file '%s'" % outfile

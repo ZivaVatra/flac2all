@@ -43,7 +43,7 @@ Main project website: http://code.google.com/p/flac2all/
 """
 
 # I've decided that the encoder options should just be long options.
-# quite frankly, because we are running out of letters that make sense.
+# quite frankly, we are running out of letters that make sense.
 # plus it makes a distinction between encoder opts, and program opts
 # (which will continue to use single letters)
 parser = OptionParser(usage=prog_usage())
@@ -63,8 +63,8 @@ parser.add_option("","--lame-options",dest="lameopts",
       "Any lame option can be specified here, if you want a short option (e.g. -h), then just do 'h'. "+
       "If you want a long option (e.g. '--abr'), then you need a dash: '-abr'")
 
-parser.add_option("","--aacplus-options",dest="aacplusopts",
-      default="-q 0.3", help="AACplus options, currently only bitrate supported. e.g: \" -a 64 \""),
+parser.add_option("","--aacplus-options",dest="neroaacplusopts",
+      default="q 0.3", help="Nero AACplus options, valid options is one of: Quality (q $float), bitrate (br $int), or streaming bitrate (cbr $int) "),
 
 parser.add_option("-o","--outdir",dest="outdir",metavar="DIR", 
       help="Set custom output directory (default='./')",
@@ -88,6 +88,15 @@ opts.update(eval(options.__str__()))
 
 #convert the formats in the args to valid formats for lame and oggenc
 opts['oggencopts'] = ' --'+' --'.join(opts['oggencopts'].split(':'))
+
+# Nero codec is annoying, as it takes bitrate in actual bits/s, rather than kbit/s
+# as every other codec on earth works. So we need to parse things out and convert
+enctype,rate = opts['neroaacplusopts'].split(' ')
+if enctype == "br" or enctype == "cbr":
+    opts['neroaacplusopts'] = ' -%s %d' % (enctype, int(rate) * 1000 )
+else:
+    opts['neroaacplusopts'] = ' -%s %s' % (enctype, rate)
+
 #lame is stupid, it is not consistent, sometimes using long opts, sometimes not
 #so we need to specify on command line with dashes whether it is a long op or short
 opts['lameopts'] = ' -'+' -'.join(opts['lameopts'].split(':'))
@@ -162,10 +171,17 @@ modeError = Exception("Error understanding mode. Is mode valid?")
 def encode_thread(taskq, opts):
     while taskq.empty() == False:
         task = taskq.get(timeout=60) #Get the task, with one minute timeout
-        #if opts['mode'].lower() == "mp3":
-        if task[3].lower() == "mp3":
+        #if opts['mode'].lower() == "mp3":a
+        mode = task[3].lower()
+        if mode == "mp3":
             encoder = mp3(opts['lameopts'])
             encf = encoder.mp3convert
+        elif mode == "ogg":
+            encoder = vorbis(opts['oggencopts'])
+            encf = encoder.oggconvert
+        elif mode == "aacplusnero":
+            encoder = aacplusNero(opts['neroaacplusopts'])
+            encf = encoder.AACPconvert
         else:
             raise modeError
 
