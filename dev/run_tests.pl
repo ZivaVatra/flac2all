@@ -13,6 +13,8 @@ if (scalar(@flacfiles) == 0) {
 
 unless ( -e $outfolder ) { mkdir($outfolder); }
 
+system("rm -rf $outfolder/*"); # Make sure we are starting from a clean slate
+
 my @testypes = ("mp3","vorbis","flac","aacplusnero");
 
 for $test (@testypes) {
@@ -21,7 +23,7 @@ for $test (@testypes) {
 	my $varg = "--vorbis-options='quality=5:resample 32000:downmix'";
 
 	for $opt ('-c','-f','-t 4','-n') {
-		my $cmd = "python ./__main__.py $test $larg $aarg $varg $opt -o $outfolder/$test/ $infolder\n";
+		my $cmd = "python ./__main__.py $test $larg $aarg $varg $opt -o $outfolder/ $infolder\n";
 		die($cmd);
 		print '-'x80;
 		print "Executing: $cmd";

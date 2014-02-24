@@ -139,17 +139,13 @@ files = sh.getfiles(opts['dirpath'])
 count = 0
 for infile in files:
     for mode in opts['mode'].split(','):
-#        outfile = os.path.join( 
-#            opts['outdir'], 
-#            infile.replace(opts['dirpath'],'')
-#        )
-        outfile = infile.replace(opts['dirpath'], opts['outdir'])
+
         if infile.endswith(".flac"):
-            pQ.put([infile, outfile.rstrip('.flac'), opts['mode']])        
+            pQ.put([infile, opts['dirpath'], opts['outdir'], opts['mode']])        
             count += 1
         else:
             if opts['copy'] == True:
-                cQ.put([infile,outfile]) 
+                cQ.put([infile, opts['dirpath'], opts['outdir'], opts['mode']]) 
 
 time.sleep(1) #Delay to resolve queue "broken pipe" errors
 
@@ -167,13 +163,15 @@ def encode_thread(taskq, opts):
     while taskq.empty() == False:
         task = taskq.get(timeout=60) #Get the task, with one minute timeout
         #if opts['mode'].lower() == "mp3":
-        if task[2].lower() == "mp3":
+        if task[3].lower() == "mp3":
             encoder = mp3(opts['lameopts'])
             encf = encoder.mp3convert
         else:
             raise modeError
 
-        encf(task[0],task[1])
+        outfile = task[0].replace(task[1], os.path.join(task[2], task[3]) )
+        outfile = outfile.rstrip('.flac')
+        encf(task[0],outfile)
         print task
 
 opts['threads'] = int(opts['threads'])
