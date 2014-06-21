@@ -6,8 +6,8 @@
 
 Python script for conversion of flac files to flac/mp3/ogg.
 
-Copyright 2006-2012 Ziva-Vatra, Belgrade
-(www.ziva-vatra.com, mail: ziva_vatra@mailshack.com)
+Copyright 2006-2014 Ziva-Vatra, Belgrade
+(www.ziva-vatra.com, mail: zv@ziva-vatra.com)
 
 Project website: http://code.google.com/p/flac2all/
 
