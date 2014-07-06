@@ -7,7 +7,7 @@ class opus:
         #and what is needed before we can write it
         return None
 
-        os.system("%sopusenc %s -Q -o %s.ops %s" %
+        os.system("%sopusenc %s -Q -o %s.opus %s" %
             (
             opusencpath,
             opusencopts,
