@@ -6,7 +6,7 @@
 
 Python script for conversion of flac files to flac/mp3/ogg.
 
-Copyright 2006-2014 Ziva-Vatra, Belgrade
+Copyright 2006-2015 Ziva-Vatra, Belgrade
 (www.ziva-vatra.com, mail: zv@ziva-vatra.com)
 
 Project website: http://code.google.com/p/flac2all/
@@ -92,16 +92,20 @@ class vorbis:
 
 class flac:
     def flacconvert(self,flacopts, infile, outfile):
-        #TODO: see about tag copying across as well
         os.system("%sflac -s -d -c \"%s\" | %sflac -s %s -o \"%s.flac\" -" %
             (flacpath, infile, flacpath, flacopts, outfile)
         )
+        os.system("%smetaflac --no-uft8-convert --export-tags-to=- %s | %smetaflac --import-tags-from=- --remove-all-tags %s" %
+            (flacpath,infile,flacpath,outfile)
+        )
+        
 
 
     def getflacmeta(self,flacfile):
-        #The FLAC file format states that song info will be stored in block 2, so
-        #we do not look at the other blocks
-        flacdata = os.popen("%smetaflac --list --block-number 2 %s" %
+        #The FLAC file format states that song info will be stored in block 2, and the reference
+    #encoder does so, but other encoders do not! This caused issue 14 and issue 16. 
+    #As such, we now search by block time VORBIS_COMMENT. There should only be one such. 
+        flacdata = os.popen("%smetaflac --list --block-type VORBIS_COMMENT  %s" %
             (
             metaflacpath,
             flacfile
@@ -204,7 +208,7 @@ class shell:
             return outdir
 
     def parseEscapechars(self,file,quoteonly=False):
-	#TODO: look at docs.python.org/2/library/codecs.html for info on how to do this better 
+    #TODO: look at docs.python.org/2/library/codecs.html for info on how to do this better 
         if(quoteonly == False):
             #characters which must be escaped in the shell, note
             #"[" and "]" seems to be automatically escaped
@@ -519,8 +523,8 @@ class mp3:
 #Functions defined here
 def header():
     return """
-Flac2all python script, v3 . Copyright 2006-2012 Ziva-Vatra.com.
-Licensed under the GPLv2 (http://www.ziva-vatra.com).
+Flac2all python script, v3 . Copyright 2006-2015 Ziva-Vatra.com.
+Licensed under the GPLv3 .
 Project website: http://code.google.com/p/flac2all/
 
     """
