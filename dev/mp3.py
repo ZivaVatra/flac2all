@@ -245,7 +245,7 @@ class lameMp3:
         #Metadata population complete
         return tagstring
 
-    def mp3convert(self,infile,outfile,logq,outq):
+    def mp3convert(self,infile,outfile,logq):
         startTime = time()
         inmetadata = flac().getflacmeta("\"" + infile + "\"")
 
@@ -273,7 +273,6 @@ class lameMp3:
 
         encoder.flush() #as above
         encoder.close()
-        logq.put([infile,outfile,"SUCCESS:->mp3",0])
-        outq.put([infile,outfile,"mp3",time() - startTime])
+        logq.put([infile,outfile,"mp3","SUCCESS",0, time() - startTime])
 
 

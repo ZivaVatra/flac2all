@@ -25,12 +25,8 @@ pQ = mp.Queue()
 cQ = mp.Queue()
 
 # logging Queue, the encoders log progress to this 
-# fomat: [ $infile, $outfile, $error_status, $return_code ]
+# fomat: [ $infile, $outfile, $format, $error_status, $return_code, $execution_time ]
 lQ = mp.Queue()
-
-# output Queue (this is where we write the following):
-# [ $infile, $outfile, $format, $execution_time ]
-oQ = mp.Queue()
 
 
 #This area deals with checking the command line options,
@@ -150,17 +146,6 @@ files = sh.getfiles(opts['dirpath'])
 count = 0
 for infile in files:
     for mode in opts['mode'].split(','):
-        #Create the base directory structure.
-        #1. remove the dirpath, to give us relative file structure
-#        relpath = infile.lstrip(opts['dirpath'])
-#        relpath = os.path.dirname(relpath)
-        #2. Then merge it with outdir and the output mode
-#        outputdir = os.path.join(opts['outdir'],mode,relpath)
-
-#        if not os.path.exists(outputdir):
-#            print "Creating output dir %s" % outputdir
-#            os.makedirs( outputdir )
-
         if infile.endswith(".flac"):
             pQ.put([infile, opts['dirpath'], opts['outdir'], opts['mode']])        
             count += 1
@@ -178,9 +163,9 @@ modeError = Exception("Error understanding mode. Is mode valid?")
 
 # Right, how this will work here, is that we will pass the whole queue
 # to the encode threads (one per processor) and have them pop off/on as
-# necessary. Allows for far more fine grained control
+# necessary. Allows for far more fine grained control. 
 
-def encode_thread(taskq, opts, logq,outq):
+def encode_thread(taskq, opts, logq):
     while taskq.empty() == False:
         task = taskq.get(timeout=60) #Get the task, with one minute timeout
         mode = task[3].lower()
@@ -205,18 +190,21 @@ def encode_thread(taskq, opts, logq,outq):
             encoder = aacplusNero(opts['neroaacplusopts'])
             encf = encoder.AACPconvert
         elif mode == "opus":
-            logq.put([infile,outfile,"ERROR: Opus not implemented yet", 1])
+            logq.put([infile,outfile,mode,"ERROR: Flac->Opus not implemented yet", 1,0])
+        elif mode == "flac":
+            logq.put([infile,outfile,mode,"ERROR: Flac->Flac not implemented yet", 1,0])
+        elif mode == "test":
+            logq.put([infile,outfile,mode,"ERROR: Flac testing not implemented yet", 1,0])
         else:
-            logq.put([infile,outfile,"ERROR: Error understanding mode '%s' is mode valid?" % mode,1])
+            logq.put([infile,outfile,mode,"ERROR: Error understanding mode '%s' is mode valid?" % mode,1,0])
             raise modeError
 
 
         outfile = outfile.rstrip('.flac')
-        encf(infile,outfile,logq,outq)
+        encf(infile,outfile,logq)
         print task
 
 opts['threads'] = int(opts['threads'])
-opts['threads'] += 1 # $x for processing, +1 control thread
 
 # keep flags for state (pQ,cQ)
 sflags = [0,0]
@@ -224,9 +212,9 @@ ap = [] #active processes
 while True:
     cc = opts['threads']
 
-    while int(cc) > len(ap):
+    while int(cc) > (len(ap)):
         print "Spawning encoding process #%d" % len(ap)
-        proc = mp.Process(target=encode_thread, args=(pQ, opts, lQ, cQ ) )
+        proc = mp.Process(target=encode_thread, args=(pQ, opts, lQ ) )
         proc.start()
         #proc.join() #This makes it single threaded (for debugging). We wait for proc.
         ap.append(proc)
@@ -274,8 +262,5 @@ for item in ap:
 print "Log result"
 while lQ.empty() == False:
     print lQ.get(timeout=2)
-print "Output result"
-while oQ.empty() == False:
-    print oQ.get(timeout=2)
 
 sys.exit()
