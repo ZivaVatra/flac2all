@@ -1,4 +1,5 @@
 fulltest::
+	make clean
 	python ./run_tests.py
 
 mp3convert:

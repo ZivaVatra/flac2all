@@ -191,10 +191,13 @@ def encode_thread(taskq, opts, logq):
             encf = encoder.AACPconvert
         elif mode == "opus":
             logq.put([infile,outfile,mode,"ERROR: Flac->Opus not implemented yet", 1,0])
+            continue
         elif mode == "flac":
             logq.put([infile,outfile,mode,"ERROR: Flac->Flac not implemented yet", 1,0])
+            continue
         elif mode == "test":
             logq.put([infile,outfile,mode,"ERROR: Flac testing not implemented yet", 1,0])
+            continue
         else:
             logq.put([infile,outfile,mode,"ERROR: Error understanding mode '%s' is mode valid?" % mode,1,0])
             raise modeError
@@ -259,8 +262,35 @@ while True:
 for item in ap:
     item.join()
 
-print "Log result"
+# Now we fetch the log results, for the summary
+log = []
 while lQ.empty() == False:
-    print lQ.get(timeout=2)
+    log.append(lQ.get(timeout=2))
 
-sys.exit()
+total = len(log)
+successes = len(filter(lambda x: x[4] == 0, log))
+failures = total - successes
+print "\n\n"
+print "="*80
+print "| Summary "
+print "-"*80
+print """
+Total files on input: %d
+Total files actually processed: %d
+--
+Execution success rate: %.2f
+
+
+Files we managed to convert successfully: %d
+Files we failed to convert due to errors: %d
+--
+Conversion error rate: %.2f
+
+""" % (count, total, ( (total/count) * 100 ),  successes, failures, (( failures/total) * 100 ) )
+
+if failures != 0:
+   print "We had some failures in encoding :-("
+   print "Returning non-zero exit status! "
+   sys.exit(-1)
+else:
+    sys.exit(0)

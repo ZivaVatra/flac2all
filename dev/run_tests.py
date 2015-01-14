@@ -2,6 +2,7 @@
 import os,shutil
 from sys import exit
 import subprocess as sp
+from time import sleep
 
 infolder = "testinput"
 outfolder = "testoutput"
@@ -21,6 +22,7 @@ if not os.path.exists(outfolder): os.mkdir(outfolder)
 testypes = ["mp3","vorbis","flac","aacplusnero"];
 
 for test in testypes:
+	sleep(10)
 	args = [
 	 "--lame-options='-preset standard' ",
 	 "--aacplus-options 'br 64'",
