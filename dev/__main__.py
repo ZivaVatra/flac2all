@@ -147,11 +147,11 @@ count = 0
 for infile in files:
     for mode in opts['mode'].split(','):
         if infile.endswith(".flac"):
-            pQ.put([infile, opts['dirpath'], opts['outdir'], opts['mode']])        
+            pQ.put([infile, opts['dirpath'], opts['outdir'], mode])        
             count += 1
         else:
             if opts['copy'] == True:
-                cQ.put([infile, opts['dirpath'], opts['outdir'], opts['mode']]) 
+                cQ.put([infile, opts['dirpath'], opts['outdir'], mode]) 
 
 time.sleep(1) #Delay to resolve queue "broken pipe" errors
 
