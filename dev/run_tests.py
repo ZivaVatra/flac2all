@@ -19,7 +19,7 @@ if len(flacfiles) == 0:
 
 if not os.path.exists(outfolder): os.mkdir(outfolder)
 
-testypes = ["mp3","vorbis","flac","aacplusnero"];
+testypes = ["mp3","vorbis","flac","aacplusnero","mp3,vorbis"];
 
 for test in testypes:
 	sleep(10)
