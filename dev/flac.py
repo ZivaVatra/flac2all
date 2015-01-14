@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #vim ts=4 expandtab si 
 
 import os
@@ -18,7 +19,7 @@ class flac:
     def getflacmeta(self,flacfile):
         #The FLAC file format states that song info will be stored in block 2, so
         #we do not look at the other blocks
-        flacdata = os.popen("%smetaflac --list --block-number 2 %s" %
+        flacdata = os.popen("%smetaflac --list --block-type VORBIS_COMMENT  %s" %
             (
         metaflacpath,
         flacfile

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # vim: ts=4 expandtab si
 
 import os
@@ -5,6 +6,7 @@ import os
 from config import *
 from flac import flac
 from shell import shell
+from time import time
 
 class lameMp3:
     def __init__(self,lame_options):
@@ -243,8 +245,8 @@ class lameMp3:
         #Metadata population complete
         return tagstring
 
-    def mp3convert(self,infile,outfile):
-
+    def mp3convert(self,infile,outfile,logq,outq):
+        startTime = time()
         inmetadata = flac().getflacmeta("\"" + infile + "\"")
 
         try:
@@ -271,5 +273,7 @@ class lameMp3:
 
         encoder.flush() #as above
         encoder.close()
+        logq.put([infile,outfile,"SUCCESS:->mp3",0])
+        outq.put([infile,outfile,"mp3",time() - startTime])
 
 

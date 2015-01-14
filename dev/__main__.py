@@ -1,5 +1,6 @@
 #!/bin/python2.6
-# vim: ts=4 si expandtab
+# -*- coding: utf-8 -*-
+# vim: ts=4 ai expandtab
 
 from aac import aacplusNero
 from vorbis import vorbis
@@ -36,8 +37,8 @@ oQ = mp.Queue()
 
 def prog_usage():
     return """
-Flac2all python script, version 4. Copyright 2006-2013 ziva-vatra
-Licensed under the GPLv2 or later (http://www.ziva-vatra.com).
+Flac2all python script, version 4. Copyright 2006-2015 ziva-vatra
+Licensed under the GPLv3 or later (http://www.ziva-vatra.com).
 Please see http://www.gnu.org/licenses/gpl.txt for the full licence.
 Main project website: http://code.google.com/p/flac2all/
 """
@@ -88,6 +89,7 @@ opts.update(eval(options.__str__()))
 
 #convert the formats in the args to valid formats for lame and oggenc
 opts['oggencopts'] = ' --'+' --'.join(opts['oggencopts'].split(':'))
+opts['opusencopts'] = ' --'+' --'.join(opts['opusencopts'].split(':'))
 
 # Nero codec is annoying, as it takes bitrate in actual bits/s, rather than kbit/s
 # as every other codec on earth works. So we need to parse things out and convert
@@ -148,6 +150,16 @@ files = sh.getfiles(opts['dirpath'])
 count = 0
 for infile in files:
     for mode in opts['mode'].split(','):
+        #Create the base directory structure.
+        #1. remove the dirpath, to give us relative file structure
+#        relpath = infile.lstrip(opts['dirpath'])
+#        relpath = os.path.dirname(relpath)
+        #2. Then merge it with outdir and the output mode
+#        outputdir = os.path.join(opts['outdir'],mode,relpath)
+
+#        if not os.path.exists(outputdir):
+#            print "Creating output dir %s" % outputdir
+#            os.makedirs( outputdir )
 
         if infile.endswith(".flac"):
             pQ.put([infile, opts['dirpath'], opts['outdir'], opts['mode']])        
@@ -168,26 +180,39 @@ modeError = Exception("Error understanding mode. Is mode valid?")
 # to the encode threads (one per processor) and have them pop off/on as
 # necessary. Allows for far more fine grained control
 
-def encode_thread(taskq, opts):
+def encode_thread(taskq, opts, logq,outq):
     while taskq.empty() == False:
         task = taskq.get(timeout=60) #Get the task, with one minute timeout
-        #if opts['mode'].lower() == "mp3":a
         mode = task[3].lower()
+        infile = task[0]
+        outfile = task[0].replace(task[1], os.path.join(task[2], task[3]) )
+        outpath = os.path.dirname(outfile)
+        try:
+            if not os.path.exists(outpath): os.makedirs(outpath)
+        except OSError as e:
+            #Error 17 means folder exists already. We can reach this despite the check above
+            #due to a race condition when a bunch of processes spawned all try to mkdir
+            #So if Error 17, continue, otherwise re-raise the exception
+            if e.errno != 17: raise(e) 
+
         if mode == "mp3":
             encoder = mp3(opts['lameopts'])
             encf = encoder.mp3convert
-        elif mode == "ogg":
+        elif mode == "ogg" or mode == "vorbis":
             encoder = vorbis(opts['oggencopts'])
             encf = encoder.oggconvert
         elif mode == "aacplusnero":
             encoder = aacplusNero(opts['neroaacplusopts'])
             encf = encoder.AACPconvert
+        elif mode == "opus":
+            logq.put([infile,outfile,"ERROR: Opus not implemented yet", 1])
         else:
+            logq.put([infile,outfile,"ERROR: Error understanding mode '%s' is mode valid?" % mode,1])
             raise modeError
 
-        outfile = task[0].replace(task[1], os.path.join(task[2], task[3]) )
+
         outfile = outfile.rstrip('.flac')
-        encf(task[0],outfile)
+        encf(infile,outfile,logq,outq)
         print task
 
 opts['threads'] = int(opts['threads'])
@@ -195,25 +220,24 @@ opts['threads'] += 1 # $x for processing, +1 control thread
 
 # keep flags for state (pQ,cQ)
 sflags = [0,0]
+ap = [] #active processes
 while True:
-    print "Checkpoint."
     cc = opts['threads']
-    ap = [] #active processes
 
-    while int(cc) >= len(ap):
-        print "Spawning process..."
-        proc = mp.Process(target=encode_thread, args=(pQ, opts ) )
+    while int(cc) > len(ap):
+        print "Spawning encoding process #%d" % len(ap)
+        proc = mp.Process(target=encode_thread, args=(pQ, opts, lQ, cQ ) )
         proc.start()
-        proc.join()
+        #proc.join() #This makes it single threaded (for debugging). We wait for proc.
         ap.append(proc)
 
-    print "Spawn complete"
+    time.sleep(0.5)
 
     # Believe it or not, the only way way to be sure a queue is actually
     # empty is to try to get with a timeout. So we get and put back
     # and if we get a timeout error (10 secs), register it
    
-    print sflags
+#    print sflags   #Debug
     try:
         pQ.put(pQ.get(timeout=10))
     except mp.TimeoutError as e:
@@ -242,5 +266,16 @@ while True:
     if sflags == [1,1]:
         print "Processing Complete!"
         break
+
+# Now wait for all running processes to complete
+for item in ap:
+    item.join()
+
+print "Log result"
+while lQ.empty() == False:
+    print lQ.get(timeout=2)
+print "Output result"
+while oQ.empty() == False:
+    print oQ.get(timeout=2)
 
 sys.exit()

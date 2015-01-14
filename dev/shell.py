@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # vim ts=4 expandtab si 
 import os
 import string
@@ -31,20 +32,6 @@ class shell:
             file = string.replace(file, "\"", "\\\"")
 
         return file
-
-
-#    def getfiles(self,path):
-#        infiles = os.listdir(path) #the files going in for reading
-#        outfiles = [] #the files going out in a list
-#
-#        for file in infiles:
-#            if(os.path.isdir(os.path.join(path,file))):
-#                #recursive call
-#                outfiles = outfiles + self.getfiles(os.path.join(path,file))
-#            else:
-#                outfiles.append(os.path.join(path,file))
-#
-#        return outfiles
 
     def getfiles(self,path):
         outfiles = []
