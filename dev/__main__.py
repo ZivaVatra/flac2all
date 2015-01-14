@@ -278,15 +278,43 @@ print """
 Total files on input: %d
 Total files actually processed: %d
 --
-Execution success rate: %.2f
+Execution success rate: %.2f %%
 
 
 Files we managed to convert successfully: %d
 Files we failed to convert due to errors: %d
 --
-Conversion error rate: %.2f
-
+Conversion error rate: %.2f %%
 """ % (count, total, ( (total/count) * 100 ),  successes, failures, (( failures/total) * 100 ) )
+
+for mode in opts['mode'].split(','):
+    # 1. find all the logs corresponding to a particular mode
+    x = filter(lambda x: x[2] == mode, log)
+    # 2. Get the execution time for all relevant logs
+    execT = map(lambda y: y[5], x)
+
+    esum = sum(execT)
+    emean = sum(execT)/len(execT)
+
+    execT.sort()
+    if len(execT) % 2 != 0:
+        #Odd number, so median is middle
+        emedian = execT[ (len(execT) -1 ) / 2 ]
+    else:
+        #Even set. So median is average of two middle numbers
+        num1 =  execT[ ( (len(execT) -1 ) / 2) - 1 ]
+        num2 =  execT[ ( (len(execT) -1 ) / 2)  ]
+        emedian = ( sum(num1,num2) / 2.0 )
+
+    emode = 0
+
+    print """
+For mode: %s
+Total execution time: %.4f seconds
+Per file conversion:
+\tMean execution time: %.4f seconds
+\tMedian execution time: %.4f seconds
+""" % (mode,esum, emean, emedian)
 
 if failures != 0:
    print "We had some failures in encoding :-("
