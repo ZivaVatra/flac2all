@@ -24,9 +24,10 @@ for test in testypes:
 	larg = "--lame-options='-preset standard' "
 	aarg = "-a 64"
 	varg = "--vorbis-options='quality=5:resample 32000:downmix'"
+	exc = " -x'.*.flac'" #Exclude all flac files, for testing
 
 	for opt in ('-c','-f','-t 4','-n'):
-		cmd = "python ./flac2all.py %s %s %s %s %s -o %s %s" % (test,larg,aarg,varg,opt,outfolder,infolder)
+		cmd = "python2 ./flac2all.py %s %s %s %s %s -o %s %s" % (test,larg,aarg,varg,opt,outfolder,infolder)
 		print '-'*80
 		print "Executing: %s" % cmd
 		print '-'*80
@@ -34,6 +35,12 @@ for test in testypes:
 		if (rc != 0) :
 			print "ERROR Executing command: \"%s\"\n" % cmd
 			exit(rc)
+ 	print "Testing exclude (excluding all flac files from input, so processable flac files should == 0 )"
+	cmd = "python2 ./flac2all.py %s %s %s %s %s -o %s %s" % (test,larg,aarg,varg,exc,outfolder,infolder)
+	rc = sp.call(cmd,shell=True)
+	if (rc != 0):
+		print "ERROR executing command with 'exclude' set. Investigate..."
+		exit(rc)
 		
 	
 #print "All successful! Deleting output folder"

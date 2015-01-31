@@ -699,6 +699,8 @@ parser.add_option("-t","--threads",dest="threads",default=multiprocessing.cpu_co
       help="How many threads to run in parallel (default: autodetect [found %d cpu(s)] )" % multiprocessing.cpu_count()) 
 parser.add_option("-n","--nodirs",dest="nodirs",action="store_true",
       default=False,help="Don't create Directories, put everything together")
+parser.add_option("-x","--exclude",dest="exclude",default=None, help="exclude certain files from processing by PATTERN (regular expressions supported)")
+
 ##The below isn't used anymore, so removed as an option (to re-add in future?)
 #parser.add_option("-B","--buffer",dest="buffer",metavar="size", 
 #      help="How much we should buffer before encoding to mp3 (in KB). The larger "+
@@ -743,8 +745,13 @@ shellClass = shell()
 flacClass = flac()
 vorbisClass = vorbis()
 aacpClass = aacplusNero()
-
 filelist=shellClass.getfiles(opts['dirpath'])
+
+
+#if "exclude" set, filter out by regular expression
+if opts['exclude'] != None:
+    rex = re.compile(opts['exclude'])
+    filelist = filter(lambda x: re.search(rex,x) == None, filelist) #Only return items that don't match
 
 flacnum = 0 #tells us number of flac media files
 filenum = 0 #tells us number of files
@@ -793,7 +800,7 @@ while len(filelist) != 0: #while the length of the list is not 0 (i.e. not empty
     while threading.activeCount() == opts['threads']:
         #just sit and wait. we check every tenth second to see if it has
         #finished
-        time.sleep(0.1)
+        time.sleep(0.3)
     x += 1
 
 #END
