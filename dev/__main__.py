@@ -259,10 +259,26 @@ while True:
         break
 
 # Now wait for all running processes to complete
-for item in ap:
-    item.join()
+print "Waiting for all running process to complete."
+print ap
+
+#We don't use os.join because if a child hangs, it takes the entire program with it
+st = time.time()
+while True:
+    if len(filter(lambda x: x.is_alive() == True, ap)) == 0: break
+    for proc in filter(lambda x: x.is_alive() == True, ap):
+        print "Process %s (PID: %s) is still running! Waiting..." % ( proc.name, proc.pid )
+    time.sleep(1)
+    if (time.time() - st) > 600:
+        print "Process timeout reached, terminating stragglers and continuing anyway"
+        map(lambda x: x.terminate(), filter(lambda x: x.is_alive() == True, ap) )
+        break
+
+#for item in ap:
+#    item.join()
 
 # Now we fetch the log results, for the summary
+print "Processing run log..."
 log = []
 while lQ.empty() == False:
     log.append(lQ.get(timeout=2))
@@ -285,7 +301,7 @@ Files we managed to convert successfully: %d
 Files we failed to convert due to errors: %d
 --
 Conversion error rate: %.2f %%
-""" % (count, total, ( (total/count) * 100 ),  successes, failures, (( failures/total) * 100 ) )
+""" % (count, total, ( (float(total)/count) * 100 ),  successes, failures, (( failures/float(total)) * 100 ) )
 
 for mode in opts['mode'].split(','):
     # 1. find all the logs corresponding to a particular mode
@@ -316,9 +332,22 @@ Per file conversion:
 \tMedian execution time: %.4f seconds
 """ % (mode,esum, emean, emedian)
 
+    
+errout_file = opts['outdir'] + "/conversion_results.log"
+print "Writing log file (%s)" % errout_file
+fd = open(errout_file,"w")
+fd.write("infile,outfile,format,conversion_status,return_code,execution_time\n")
+for item in log: 
+    item = map(lambda x: str(x), item)
+    line = ','.join(item)
+    fd.write("%s\n" % line)
+fd.close()
+print "Done!"
+
 if failures != 0:
-   print "We had some failures in encoding :-("
-   print "Returning non-zero exit status! "
-   sys.exit(-1)
+    print "We had some failures in encoding :-("
+    print "Writing out error log to file %s" % errout_file
+    print "Done! Returning non-zero exit status! "
+    sys.exit(-1)
 else:
     sys.exit(0)

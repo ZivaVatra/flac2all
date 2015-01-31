@@ -4,7 +4,7 @@
 import os
 
 from config import *
-from flac import flac
+from flac import flac, flacdecode
 from shell import shell
 from time import time
 
@@ -255,7 +255,7 @@ class lameMp3:
             metastring = "" #If we do not get meta information. leave blank
 
         #rb stands for read-binary, which is what we are doing, with a 1024 byte buffer
-        decoder = os.popen(flacpath + "flac -d -s -c " + shell().parseEscapechars(infile),'rb',1024)
+        decoder = flacdecode(infile)()
         #wb stands for write-binary
         encoder = os.popen("%slame --silent %s - -o %s.mp3 %s" % (
             lamepath,

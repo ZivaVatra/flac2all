@@ -1,9 +1,18 @@
 # -*- coding: utf-8 -*-
-#vim ts=4 expandtab si 
+# vim: ts=4 expandtab si 
 
 import os
 
 from config import *
+
+#This class is called by every other conversion function, to return a "decode" object
+class flacdecode:
+    def __init__(self,infile):
+        from shell import shell
+        self.infile = infile
+        self.shell = shell
+    def __call__(self):
+        return os.popen(flacpath + "flac -d -s -c " + self.shell().parseEscapechars(self.infile),'rb',1024)
 
 #Class that deals with FLAC
 
@@ -17,14 +26,12 @@ class flac:
 
 
     def getflacmeta(self,flacfile):
-        #The FLAC file format states that song info will be stored in block 2, so
-        #we do not look at the other blocks
         flacdata = os.popen("%smetaflac --list --block-type VORBIS_COMMENT  %s" %
             (
-        metaflacpath,
-        flacfile
+            metaflacpath,
+            flacfile
+            )
         )
-    )
 
         datalist = [] #init a list for storing all the data in this block
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 import os,shutil
 from sys import exit
 import subprocess as sp
@@ -31,7 +31,7 @@ for test in testypes:
 	 ]
 
 	for opt in ('-c','-f','-t 4','-n'):
-		cmd = "python ./__main__.py %s %s %s -o %s %s" % (test,' '.join(args),opt,outfolder,infolder)
+		cmd = "python2 ./__main__.py %s %s %s -o %s %s" % (test,' '.join(args),opt,outfolder,infolder)
 		print '-'*80
 		print "Executing: %s" % cmd
 		print '-'*80
