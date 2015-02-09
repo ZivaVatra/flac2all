@@ -18,13 +18,13 @@ if len(flacfiles) == 0:
 
 if not os.path.exists(outfolder): os.mkdir(outfolder)
 
-testypes = ["mp3","vorbis","flac","aacplusnero"];
+testypes = ["mp3","vorbis","flac","aacplusnero","opus"];
 
 for test in testypes:
 	larg = "--lame-options='-preset standard' "
 	aarg = "-a 64"
 	varg = "--vorbis-options='quality=5:resample 32000:downmix'"
-	exc = " -x'.*.flac'" #Exclude all flac files, for testing
+	exc = " -x'.*.[1|3|5|7|9].*.flac'" #Exclude odd numbered flac files, for testing
 
 	for opt in ('-c','-f','-t 4','-n'):
 		cmd = "python2 ./flac2all.py %s %s %s %s %s -o %s %s" % (test,larg,aarg,varg,opt,outfolder,infolder)

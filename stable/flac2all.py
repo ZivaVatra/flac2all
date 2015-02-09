@@ -4,7 +4,7 @@
 """
 ===============================================================================
 
-Python script for conversion of flac files to flac/mp3/ogg.
+Python script for conversion of flac files to flac/mp3/ogg/opus.
 
 Copyright 2006-2015 Ziva-Vatra, Belgrade
 (www.ziva-vatra.com, mail: zv@ziva-vatra.com)
@@ -86,6 +86,57 @@ class vorbis:
             shell().parseEscapechars(infile)
             )
         )
+
+# Class that deals with opus. initial opus support (version > 0.1.7) in version 3 
+# of flac2all was kindly provided by Christian Elmerot <christian [atsign] elmerot.se > - 3/2/2015
+class opus:
+    def __init__(self):
+        #Work out what version of opus we have
+        self.version=None #Unknown by default
+        fd = os.popen("%sopusenc -V" % opusencpath)
+        data = fd.read(256)
+        fd.close()
+        data = re.search("\d\.\d\.\d",data).group(0)
+        (release,major,minor) =  map(lambda x: int(x), data.split('.'))
+        self.version=(release,major,minor)
+
+    def opusconvert(self,opusencopts,infile,outfile):
+        #As the new versions of opus support flac natively, I think that the best option is to use >0.1.7 by default, but support earlier ones without tagging.
+        if self.version == None:
+            print "ERROR! Could not discover opus version, assuming version >= 0.1.7. THIS MAY NOT WORK!"
+            version = (9,9,9)
+        else: version=self.version
+ 
+        #If we are a release prior to 0.1.7, use non-tagging type conversion, with warning
+        if (version[0] == 0) and (version[1] <= 1) and (version[2] <= 6):
+            print "WARNING: Opus version prior to 0.1.7 detected, NO TAGGING SUPPORT"
+            decoder = os.popen(flacpath + "flac -d -s -c " + shell().parseEscapechars(infile),'rb',1024)
+            encoder = os.popen("%sopusenc %s - %s.opus  2> /tmp/opusLog" % (
+                opusencpath,
+                opusencopts,
+                shell().parseEscapechars(outfile),
+                ) ,'wb',8192)
+
+            for line in decoder.readlines(): #while data exists in the decoders buffer
+                encoder.write(line) #write it to the encoders buffer
+
+            decoder.flush() #if there is any data left in the buffer, clear it
+            decoder.close() #somewhat self explanetory
+
+            encoder.flush() #as above
+            encoder.close()
+
+        else:
+            #opusenc >0.1.7  automatically parses the flac file + metadata, similar to oggenc
+            #The binary itself deals with the tag conversion etc... so no need for anything special
+            os.system("%sopusenc %s --quiet %s %s.opus" %
+                (
+                opusencpath,
+                opusencopts,
+                shell().parseEscapechars(infile),
+                shell().parseEscapechars(outfile)
+                )
+            )
 
 
 #Class that deals with FLAC
@@ -534,6 +585,7 @@ flac2all [convert type] [input dir] <options>
 where \'convert type\' is one of:
 \t [mp3]: convert file to mp3
 \t [vorbis]: convert file to ogg vorbis
+\t [opus]: convert file to opus
 \t [flac]: convert file to flac
 \t [aacplusnero]: (NO TAGGING SUPPORT) convert file to aacplus using the proprietery (but excellent) Nero AAC encoder."""
 
@@ -601,6 +653,8 @@ def encode_thread(current_file,filecounter,opts):
                     flacClass.flacconvert(opts['flacopts'],current_file,outfile)
                 elif(opts['mode'] == "vorbis"):
                     vorbisClass.oggconvert(opts['oggencopts'],current_file,outfile)
+                elif(opts['mode'] == "opus"):
+                    opusClass.opusconvert(opts['opusencopts'],current_file,outfile)
                 elif(opts['mode'] == "aacplusnero"):
                     aacpClass.AACPconvert(opts['aacplusopts'],current_file,outfile)
                 elif(opts['mode'] == "test"):
@@ -626,6 +680,8 @@ def encode_thread(current_file,filecounter,opts):
                 flacClass.flacconvert(opts['flacopts'],current_file,outfile)
             elif(opts['mode'] == "vorbis"):
                 vorbisClass.oggconvert(opts['oggencopts'],current_file,outfile)
+            elif(opts['mode'] == "opus"):
+                opusClass.opusconvert(opts['opusencopts'],current_file,outfile)
             elif(opts['mode'] == "aacplusNero"):
                 aacpClass.AACPconvert(opts['aacplusopts'],current_file,outfile)
             elif(opts['mode'] == "test"):
@@ -656,6 +712,7 @@ def generateLameMeta(mp3file):
 flacpath="" #path to flac binary, blank by default
 metaflacpath="" #path to metaflac, blank be default
 oggencpath="" #path to oggenc binary, blank by default
+opusencpath="" #path to opusenc binary, blank by default
 lamepath="" #path to lame binary, blank by default
 aacpath="" #path to aacplus binary, blank by default
 
@@ -667,6 +724,7 @@ opts = {
 "buffer":2048, #How much to read in at a time
 "lameopts":"--preset standard -q 0", #your mp3 encoding settings
 "oggencopts":"quality=2", # your vorbis encoder settings
+"opusencopts":"bitrate 128", # your opus encoder settings
 "flacopts":"-q 8", #your flac encoder settings
 "aacplusopts":"-q 0.3 " 
 }
@@ -683,6 +741,10 @@ parser.add_option("-v","--vorbis-options",dest="oggencopts",
       default="quality=2",help="Colon delimited options to pass to oggenc,for example:" +
       " 'quality=5:resample 32000:downmix:bitrate_average=96'." +
       " Any oggenc long option (one with two '--' in front) can be specified in the above format.")
+parser.add_option("-p","--opus-options",dest="opusencopts",
+      default="bitrate 128",help="Colon delimited options to pass to opusenc,for example:" +
+      " 'bitrate 256:expect-loss:downmix-stereo'." +
+      " Any opusenc long option (one with two '--' in front) can be specified in the above format.")
 parser.add_option("-l","--lame-options",dest="lameopts",
       default="-preset standard:q 0",help="Options to pass to lame, for example:           '-preset extreme:q 0:h:-abr'. "+
       "Any lame option can be specified here, if you want a short option (e.g. -h), then just do 'h'. "+
@@ -713,8 +775,9 @@ parser.add_option("-x","--exclude",dest="exclude",default=None, help="exclude ce
 #update the opts dictionary with new values
 opts.update(eval(options.__str__()))
 
-#convert the formats in the args to valid formats for lame and oggenc
+#convert the formats in the args to valid formats for lame, oggenc and opusenc
 opts['oggencopts'] = ' --'+' --'.join(opts['oggencopts'].split(':'))
+opts['opusencopts'] = ' --'+' --'.join(opts['opusencopts'].split(':'))
 #lame is stupid, it is not consistent, somteims using long opts, sometimes not
 #so we need to specify on command line with dashes whether it is a long op or short
 opts['lameopts'] = ' -'+' -'.join(opts['lameopts'].split(':'))
@@ -744,6 +807,7 @@ mp3Class = mp3()
 shellClass = shell()
 flacClass = flac()
 vorbisClass = vorbis()
+opusClass = opus()
 aacpClass = aacplusNero()
 filelist=shellClass.getfiles(opts['dirpath'])
 
