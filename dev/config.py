@@ -10,7 +10,7 @@ metaflacpath="" #path to metaflac, blank be default
 oggencpath="" #path to oggenc binary, blank by default
 lamepath="" #path to lame binary, blank by default
 aacpath="" #path to aacplus binary, blank by default
-
+opusencpath="" 
 
 # These are global defaults, if you don't define a shell
 # argument, the below will be used instead.
@@ -23,6 +23,6 @@ opts = {
 "oggencopts":"quality=2", # your vorbis encoder settings
 "flacopts":"-q 8", #your flac encoder settings
 "aacplusopts":"-q 0.3 ",  #aac as well
-"opusopts":"", #For opus (placeholder for now)
+"opusopts":"bitrate 96", #For opus (placeholder for now)
 }
 

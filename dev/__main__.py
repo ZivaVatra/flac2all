@@ -7,6 +7,7 @@ from vorbis import vorbis
 from flac import flac
 from mp3 import lameMp3 as mp3
 from shell import shell
+from opus import opus
 
 import multiprocessing as mp
 from optparse import OptionParser
@@ -190,11 +191,11 @@ def encode_thread(taskq, opts, logq):
             encoder = aacplusNero(opts['neroaacplusopts'])
             encf = encoder.AACPconvert
         elif mode == "opus":
-            logq.put([infile,outfile,mode,"ERROR: Flac->Opus not implemented yet", 1,0])
-            continue
+            encoder = opus(opts['opusencopts'])
+            encf = encoder.opusConvert
         elif mode == "flac":
-            logq.put([infile,outfile,mode,"ERROR: Flac->Flac not implemented yet", 1,0])
-            continue
+            encoder = flac(opts['flacopts'])
+            encf = encoder.flacConvert
         elif mode == "test":
             logq.put([infile,outfile,mode,"ERROR: Flac testing not implemented yet", 1,0])
             continue

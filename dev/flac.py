@@ -4,11 +4,11 @@
 import os
 
 from config import *
+from shell import shell
 
 #This class is called by every other conversion function, to return a "decode" object
 class flacdecode:
     def __init__(self,infile):
-        from shell import shell
         self.infile = infile
         self.shell = shell
     def __call__(self):
@@ -17,12 +17,40 @@ class flacdecode:
 #Class that deals with FLAC
 
 class flac:
-    def flacconvert(self,flacopts, infile, outfile):
+    def __init__(self,flacopts=""):
+        self.opts = flacopts
+
+    def flacConvert(self, infile, outfile,logq):
         #TODO: see about tag copying across as well
-        print "converting flac"
-        os.system("%sflac -d %s -o - | %sflac %s -o %s.flac -" %
-            (flacpath, infile, flacpath, flacopts, outfile)
+        print "converting flac to flac"
+        decoder = flacdecode(infile)()
+        encoder = os.popen("%sflac %s -o %s.flac -" % (
+            flacpath,
+            self.opts,
+            shell().parseEscapechars(outfile),
+            ) ,'wb',8192)
+            
+        for line in decoder.readlines(): #while data exists in the decoders buffer
+            encoder.write(line) #write it to the encoders buffer
+            
+        decoder.flush() 
+        decoder.close()
+        encoder.flush() 
+        encoder.close()
+
+
+        #To straight up meta copy
+        rc = os.system("%smetaflac --export-tags-to=- %s | %smetaflac --import-tags-from=- %s" %
+            metaflacpath,
+            self.shell().parseEscapechars(infile),
+            metaflacpath,
+            shell().parseEscapechars(outfile)
         )
+        if (rc == 0):
+            logq.put([infile,outfile,"flac","SUCCESS",rc, time() - startTime])
+        else:
+            print "WARNING: Could not transfer tags to new flac file!"
+            logq.put([infile,outfile,"flac","WARNING: Unable to transfer tag to new flac file",0, time() - startTime])
 
 
     def getflacmeta(self,flacfile):

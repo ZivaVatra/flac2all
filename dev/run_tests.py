@@ -19,7 +19,7 @@ if len(flacfiles) == 0:
 
 if not os.path.exists(outfolder): os.mkdir(outfolder)
 
-testypes = ["mp3,vorbis","mp3","vorbis","flac","aacplusnero"];
+testypes = ["mp3,vorbis,opus","mp3","vorbis","flac","aacplusnero","opus"];
 
 for test in testypes:
 	sleep(10)
@@ -27,7 +27,7 @@ for test in testypes:
 	 "--lame-options='-preset standard' ",
 	 "--aacplus-options 'br 64'",
 	 "--vorbis-options='quality=5:resample 32000:downmix'",
-	 "--opus-options='music:vbr'"
+	 "--opus-options='bitrate 96'"
 	 ]
 
 	for opt in ('-c','-f','-t 4','-n'):
