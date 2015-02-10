@@ -24,7 +24,6 @@ class flac:
     def flacConvert(self, infile, outfile,logq):
         #TODO: see about tag copying across as well
         startTime=time()
-        print "converting flac to flac"
         decoder = flacdecode(infile)()
         encoder = os.popen("%sflac %s -s -f -o %s.flac -" % (
             flacpath,

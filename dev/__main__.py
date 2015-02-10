@@ -209,8 +209,8 @@ def encode_thread(taskq, opts, logq):
 
 
         outfile = outfile.rstrip('.flac')
+        print "Converting: \t %-40s  target: %8s " % (task[0].split('/')[-1],task[3])
         encf(infile,outfile,logq)
-        print task
 
 opts['threads'] = int(opts['threads'])
 
@@ -221,7 +221,7 @@ while True:
     cc = opts['threads']
 
     while int(cc) > (len(ap)):
-        print "Spawning encoding process #%d" % len(ap)
+        print ">> Spawning encoding process #%d" % len(ap)
         proc = mp.Process(target=encode_thread, args=(pQ, opts, lQ ) )
         proc.start()
         #proc.join() #This makes it single threaded (for debugging). We wait for proc.
@@ -271,9 +271,12 @@ print ap
 st = time.time()
 while True:
     if len(filter(lambda x: x.is_alive() == True, ap)) == 0: break
+    print "-"*80
     for proc in filter(lambda x: x.is_alive() == True, ap):
-        print "Process %s (PID: %s) is still running! Waiting..." % ( proc.name, proc.pid )
-    time.sleep(1)
+        print "Process \"%s\" (PID: %s) is still running! Waiting..." % ( proc.name, proc.pid )
+    print "-"*80
+    time.sleep(4)
+    print ""
     if (time.time() - st) > 600:
         print "Process timeout reached, terminating stragglers and continuing anyway"
         map(lambda x: x.terminate(), filter(lambda x: x.is_alive() == True, ap) )
