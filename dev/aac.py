@@ -10,6 +10,9 @@ from config import *
 class aacplusNero:
     def __init__(self, aacopts):
         self.opts = aacopts
+        if os.path.exists("%sneroAacEnc" % neroaacpath) == False:
+            print "ERROR: NeroAacEnc not found! Cannot convert."
+            sys.exit(-1)
 
     def generateNeroTags(self,indata):
         ''' The new versions of nero AAC encoder for Linux provides neroAacTag '''
@@ -66,11 +69,11 @@ class aacplusNero:
 
         return tags
 
-    def AACPconvert(self,infile,outfile):
+    def AACPconvert(self,infile,outfile,logq):
 
         inmetadata = flac().getflacmeta("\"" + infile + "\"")
 
-        tagcmd = "%sneroAacTag " % aacpath
+        tagcmd = "%sneroAacTag " % neroaacpath
         try:
             metastring = self.generateNeroTags(inmetadata)
         except(UnboundLocalError):
@@ -82,7 +85,7 @@ class aacplusNero:
         decoder = os.popen(flacpath + "flac -d -s -c " + shell().parseEscapechars(infile),'rb',1024)
         #wb stands for write-binary
         encoder = os.popen("%sneroAacEnc %s -if - -of %s.mp4 > /tmp/aacplusLog" % (
-            aacpath,
+            neroaacpath,
             self.opts,
             shell().parseEscapechars(outfile),
             ) ,'wb',8192)
@@ -98,6 +101,8 @@ class aacplusNero:
 
         #Now as the final event, load up the tags
         rc = os.system("%s \"%s.mp4\" %s" % (tagcmd, outfile, metastring))
-        print "%s %s.mp4 %s" % (tagcmd, outfile, metastring)
+#        print "%s %s.mp4 %s" % (tagcmd, outfile, metastring)
         if rc != 0:
-            print "ERROR!  Could not tag AAC file '%s'" % outfile
+            logq.put([infile,outfile,"aacNero","WARNING: Could not tag AAC file",rc, time() - startTime])
+        else:
+            logq.put([infile,outfile,"aacNero","SUCCESS",0, time() - startTime])

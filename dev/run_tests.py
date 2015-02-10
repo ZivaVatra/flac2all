@@ -1,6 +1,6 @@
 #!/usr/bin/python2
 import os,shutil
-from sys import exit
+from sys import exit,platform
 import subprocess as sp
 from time import sleep
 
@@ -19,7 +19,10 @@ if len(flacfiles) == 0:
 
 if not os.path.exists(outfolder): os.mkdir(outfolder)
 
-testypes = ["mp3,vorbis,opus","mp3","vorbis","flac","aacplusnero","opus"];
+testypes = ["mp3,vorbis,opus","flac","aacplus","mp3","vorbis","flac","opus"];
+
+if  ( platform == "linux2") or (  platform == "linux") :
+	testypes.append("aacplusnero") #Nero AAC is only available on Linux, of the Unix family
 
 for test in testypes:
 	sleep(10)
@@ -29,6 +32,7 @@ for test in testypes:
 	 "--vorbis-options='quality=5:resample 32000:downmix'",
 	 "--opus-options='bitrate 96'"
 	 ]
+
 
 	for opt in ('-c','-f','-t 4','-n'):
 		cmd = "python2 ./__main__.py %s %s %s -o %s %s" % (test,' '.join(args),opt,outfolder,infolder)
