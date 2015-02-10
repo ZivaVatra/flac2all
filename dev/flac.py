@@ -5,6 +5,7 @@ import os
 
 from config import *
 from shell import shell
+from time import time
 
 #This class is called by every other conversion function, to return a "decode" object
 class flacdecode:
@@ -22,9 +23,10 @@ class flac:
 
     def flacConvert(self, infile, outfile,logq):
         #TODO: see about tag copying across as well
+        startTime=time()
         print "converting flac to flac"
         decoder = flacdecode(infile)()
-        encoder = os.popen("%sflac %s -o %s.flac -" % (
+        encoder = os.popen("%sflac %s -s -f -o %s.flac -" % (
             flacpath,
             self.opts,
             shell().parseEscapechars(outfile),
@@ -40,11 +42,12 @@ class flac:
 
 
         #To straight up meta copy
-        rc = os.system("%smetaflac --export-tags-to=- %s | %smetaflac --import-tags-from=- %s" %
+        rc = os.system("%smetaflac --export-tags-to=- %s | %smetaflac --import-tags-from=- %s.flac" % (
             metaflacpath,
-            self.shell().parseEscapechars(infile),
+            shell().parseEscapechars(infile),
             metaflacpath,
             shell().parseEscapechars(outfile)
+            )
         )
         if (rc == 0):
             logq.put([infile,outfile,"flac","SUCCESS",rc, time() - startTime])
