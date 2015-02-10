@@ -38,7 +38,13 @@ Flac2all python script, version 4. Copyright 2006-2015 ziva-vatra
 Licensed under the GPLv3 or later (http://www.ziva-vatra.com).
 Please see http://www.gnu.org/licenses/gpl.txt for the full licence.
 Main project website: http://code.google.com/p/flac2all/
-"""
+
+\tUsage: %s enctype1[,enctype2..] [options]  inputdir 
+
+\tValid encode types are as follows: %s
+\tYou can specify multiple encode targets with a comma seperated list.
+
+""" % (sys.argv[0], "mp3 vorbis aacplusnero opus flac test")
 
 # I've decided that the encoder options should just be long options.
 # quite frankly, we are running out of letters that make sense.
@@ -99,8 +105,6 @@ else:
 #lame is stupid, it is not consistent, sometimes using long opts, sometimes not
 #so we need to specify on command line with dashes whether it is a long op or short
 opts['lameopts'] = ' -'+' -'.join(opts['lameopts'].split(':'))
-
-print prog_usage()
 
 #pdb.set_trace()
 try:
@@ -321,7 +325,7 @@ for mode in opts['mode'].split(','):
         #Even set. So median is average of two middle numbers
         num1 =  execT[ ( (len(execT) -1 ) / 2) - 1 ]
         num2 =  execT[ ( (len(execT) -1 ) / 2)  ]
-        emedian = ( sum(num1,num2) / 2.0 )
+        emedian = ( sum([num1,num2]) / 2.0 )
 
     emode = 0
 
