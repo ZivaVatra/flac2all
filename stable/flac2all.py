@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python2
 #Version 3
 # vim: ts=4 autoindent expandtab
 """
@@ -87,8 +87,8 @@ class vorbis:
             )
         )
 
-# Class that deals with opus. initial opus support (version > 0.1.7) in version 3 
-# of flac2all was kindly provided by Christian Elmerot <christian [atsign] elmerot.se > - 3/2/2015
+# Class that deals with opus. initial opus support (version > 0.1.7) in version 3 of flac2all 
+# was kindly provided by Christian Elmerot <christian [atsign] elmerot.se > - 3/2/2015
 class opus:
     def __init__(self):
         #Work out what version of opus we have
