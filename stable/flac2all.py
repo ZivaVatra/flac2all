@@ -599,10 +599,11 @@ def encode_thread(current_file,filecounter,opts):
     #remove the dirpath placed in parameters, so that we work from that
     #directory
     current_file_local = current_file.replace(opts['dirpath'],'')
-    if (opts['nodirs'] == False):    
-        outdirFinal = opts['outdir'] + os.path.split(current_file_local)[0]
+
+    if (opts['nodirs'] == True):
+        outdirFinal = opts['outdir']
     else:
-        outdirFinal = os.path.join(opts['dirpath'],opts['outdir'])
+        outdirFinal = opts['outdir'] + os.path.split(current_file_local)[0]
     
     #if the path does not exist, then make it
     if (os.path.exists(outdirFinal) == False):
