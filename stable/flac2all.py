@@ -129,7 +129,7 @@ class opus:
         else:
             #opusenc >0.1.7  automatically parses the flac file + metadata, similar to oggenc
             #The binary itself deals with the tag conversion etc... so no need for anything special
-            os.system("%sopusenc %s --quiet %s %s.opus" %
+            os.system("%sopusenc --comment encoder=\"flac2all v3 (https://code.google.com/p/flac2all/\" %s %s %s.opus 2>/tmp/opusLog" %
                 (
                 opusencpath,
                 opusencopts,
