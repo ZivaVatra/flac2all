@@ -143,11 +143,11 @@ class opus:
 
 class flac:
     def flacconvert(self,flacopts, infile, outfile):
-        os.system("%sflac -s -d -c \"%s\" | %sflac -s %s -o \"%s.flac\" -" %
+        os.system("%sflac -s -d -c \"%s\" | %sflac -f -s %s -o \"%s.flac\" -" %
             (flacpath, infile, flacpath, flacopts, outfile)
         )
-        os.system("%smetaflac --no-uft8-convert --export-tags-to=- \"%s\" | %smetaflac --import-tags-from=- --remove-all-tags \"%s\"" %
-            (flacpath,infile,flacpath,outfile)
+        os.system("%smetaflac --no-utf8-convert --export-tags-to=- \"%s\" | %smetaflac --import-tags-from=- \"%s.flac\"" %
+            (flacpath, infile,flacpath, outfile)
         )
         
 
