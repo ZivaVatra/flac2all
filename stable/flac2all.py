@@ -146,7 +146,7 @@ class flac:
         os.system("%sflac -s -d -c \"%s\" | %sflac -s %s -o \"%s.flac\" -" %
             (flacpath, infile, flacpath, flacopts, outfile)
         )
-        os.system("%smetaflac --no-uft8-convert --export-tags-to=- %s | %smetaflac --import-tags-from=- --remove-all-tags %s" %
+        os.system("%smetaflac --no-uft8-convert --export-tags-to=- \"%s\" | %smetaflac --import-tags-from=- --remove-all-tags \"%s\"" %
             (flacpath,infile,flacpath,outfile)
         )
         
