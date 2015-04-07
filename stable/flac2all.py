@@ -603,8 +603,11 @@ def encode_thread(current_file,filecounter,opts):
     if (opts['nodirs'] == True):
         outdirFinal = opts['outdir']
     else:
-        outdirFinal = opts['outdir'] + os.path.split(current_file_local)[0]
-    
+        if (opts['include_root'] == True):
+            outdirFinal = opts['outdir'] + os.path.split(opts['dirpath'])[1] + os.path.split(current_file_local)[0]
+        else:
+            outdirFinal = opts['outdir'] + os.path.split(current_file_local)[0]
+
     #if the path does not exist, then make it
     if (os.path.exists(outdirFinal) == False):
         #the try/catch here is to deal with race condition, sometimes one
@@ -625,7 +628,7 @@ def encode_thread(current_file,filecounter,opts):
     if (string.lower(current_file [-4:]) != "flac"):
         if (opts['copy'] == True):
             print "Copying file #%d (%s) to destination" % (filecounter,current_file.split('/')[-1])
-            os.system("cp \"%s\" \"%s\"" % (current_file,outdirFinal) )
+            os.system("cp -u \"%s\" \"%s\"" % (current_file,outdirFinal) )
             filecounter += 1
 
     if(opts['overwrite'] == False): #if we said not to overwrite files
@@ -763,6 +766,7 @@ parser.add_option("-t","--threads",dest="threads",default=multiprocessing.cpu_co
 parser.add_option("-n","--nodirs",dest="nodirs",action="store_true",
       default=False,help="Don't create Directories, put everything together")
 parser.add_option("-x","--exclude",dest="exclude",default=None, help="exclude certain files from processing by PATTERN (regular expressions supported)")
+parser.add_option("-r","--include-root",dest="root_include", action="store_true", default=False, help="Include the top-level directory in output path ( default=False )")
 
 ##The below isn't used anymore, so removed as an option (to re-add in future?)
 #parser.add_option("-B","--buffer",dest="buffer",metavar="size", 
@@ -779,7 +783,7 @@ opts.update(eval(options.__str__()))
 #convert the formats in the args to valid formats for lame, oggenc and opusenc
 opts['oggencopts'] = ' --'+' --'.join(opts['oggencopts'].split(':'))
 opts['opusencopts'] = ' --'+' --'.join(opts['opusencopts'].split(':'))
-#lame is stupid, it is not consistent, somteims using long opts, sometimes not
+#lame is stupid, it is not consistent, sometimes using long opts, sometimes not
 #so we need to specify on command line with dashes whether it is a long op or short
 opts['lameopts'] = ' -'+' -'.join(opts['lameopts'].split(':'))
 
