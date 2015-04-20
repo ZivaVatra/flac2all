@@ -37,7 +37,7 @@ import os
 import string,re
 import pdb
 import threading,time,multiprocessing
-
+import subprocess as sp
 
 #CODE
 
@@ -93,7 +93,11 @@ class opus:
     def __init__(self):
         #Work out what version of opus we have
         self.version=None #Unknown by default
-        fd = os.popen("%sopusenc -V" % opusencpath)
+        if ( sp.call("%sopusenc -V " % opusencpath, stdout=sp.PIPE, stderr=sp.PIPE, shell=True) != 0 ):
+            fd = os.popen("%sopusenc -v" % opusencpath)
+        else:
+            fd = os.popen("%sopusenc -V" % opusencpath)
+
         data = fd.read(256)
         fd.close()
         data = re.search("\d\.\d\.\d",data).group(0)
@@ -730,7 +734,8 @@ opts = {
 "oggencopts":"quality=2", # your vorbis encoder settings
 "opusencopts":"bitrate 128", # your opus encoder settings
 "flacopts":"-q 8", #your flac encoder settings
-"aacplusopts":"-q 0.3 " 
+"aacplusopts":"-q 0.3 ",
+"include_root":False,
 }
 
 #This area deals with checking the command line options,
