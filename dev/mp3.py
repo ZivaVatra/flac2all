@@ -247,7 +247,7 @@ class lameMp3:
 
     def mp3convert(self,infile,outfile,logq):
         startTime = time()
-        inmetadata = flac().getflacmeta("\"" + infile + "\"")
+        inmetadata = flac().getflacmeta(infile)
 
         try:
             metastring = self.generateLameMeta(inmetadata)
