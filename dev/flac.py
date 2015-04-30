@@ -6,6 +6,7 @@ import os
 from config import *
 from shell import shell
 from time import time
+import subprocess as sp
 
 #This class is called by every other conversion function, to return a "decode" object
 class flacdecode:
@@ -13,7 +14,7 @@ class flacdecode:
         self.infile = infile
         self.shell = shell
     def __call__(self):
-        return os.popen(flacpath + "flac -d -s -c " + self.shell().parseEscapechars(self.infile),'rb',1024)
+        return os.popen(flacpath + "flac -d -s -c \"%s\"" % self.infile,'rb',8192)
 
 #Class that deals with FLAC
 
@@ -25,10 +26,10 @@ class flac:
         #TODO: see about tag copying across as well
         startTime=time()
         decoder = flacdecode(infile)()
-        encoder = os.popen("%sflac %s -s -f -o %s.flac -" % (
+        encoder = os.popen("%sflac %s -s -f -o \"%s.flac\" -" % (
             flacpath,
             self.opts,
-            shell().parseEscapechars(outfile),
+            outfile,
             ) ,'wb',8192)
             
         for line in decoder.readlines(): #while data exists in the decoders buffer
@@ -41,11 +42,11 @@ class flac:
 
 
         #To straight up meta copy
-        rc = os.system("%smetaflac --export-tags-to=- %s | %smetaflac --import-tags-from=- %s.flac" % (
+        rc = os.system("%smetaflac --export-tags-to=- \"%s\" | %smetaflac --import-tags-from=- \"%s.flac\"" % (
             metaflacpath,
-            shell().parseEscapechars(infile),
+            infile,
             metaflacpath,
-            shell().parseEscapechars(outfile)
+            outfile
             )
         )
         if (rc == 0):
@@ -56,7 +57,7 @@ class flac:
 
 
     def getflacmeta(self,flacfile):
-        flacdata = os.popen("%smetaflac --list --block-type VORBIS_COMMENT  %s" %
+        flacdata = os.popen("%smetaflac --list --block-type VORBIS_COMMENT  \"%s\"" %
             (
             metaflacpath,
             flacfile
@@ -95,8 +96,10 @@ class flac:
             commentlist[comment[0]] = comment[1]
         return commentlist
 
-    def flactest(self,file,outfile):
-        test = os.popen(flacpath + "flac -s -t \"" + file + "\"",'r')
+    def flactest(self, infile, outfile,logq):
+        test = os.popen("%sflac -s -t \"%s\"" % (flacpath,infile),'r')
+        results = test.read()
+
         #filepath = generateoutdir(file,outfile) + "results.log"
 
     #if (os.path.exists(filepath)):
