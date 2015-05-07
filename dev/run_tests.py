@@ -19,8 +19,8 @@ if not os.path.exists(infolder):
 
 if not os.path.exists(outfolder): os.mkdir(outfolder)
 
-#testypes = ["mp3,vorbis,opus","flac","aacplus","mp3","vorbis","flac","opus"];
-testypes = ["mp3,vorbis,opus","flac","mp3","vorbis","flac","opus"];
+testypes = ["mp3,vorbis,opus","flac","aacplus","mp3","vorbis","flac","opus"];
+#testypes = ["mp3,vorbis,opus","flac","mp3","vorbis","flac","opus"];
 
 if  ( platform == "linux2") or (  platform == "linux") :
 	testypes.append("aacplusnero") #Nero AAC is only available on Linux, of the Unix family

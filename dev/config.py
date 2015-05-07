@@ -9,7 +9,7 @@ flacpath="" #path to flac binary, blank by default
 metaflacpath="" #path to metaflac, blank be default
 oggencpath="" #path to oggenc binary, blank by default
 lamepath="" #path to lame binary, blank by default
-aacpath="" #path to aacplus binary, blank by default
+aacpath="/usr/bin/" #path to aacplus binary, blank by default
 neroaacpath="" #path to the Nero aacplus binary, blank by default
 opusencpath="" 
 
@@ -23,7 +23,7 @@ opts = {
 "lameopts":"--preset standard -q 0", #your mp3 encoding settings
 "oggencopts":"quality=2", # your vorbis encoder settings
 "flacopts":"-q 8", #your flac encoder settings
-"aacplusopts":" ",  
+"aacplusopts":"-a 1 -t 29",  
 "neroaacplusopts":"-q 0.3 ",  #aac as well
 "opusopts":"bitrate 96", #For opus (placeholder for now)
 }

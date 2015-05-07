@@ -1,10 +1,39 @@
 # vim: ts=4 ai expandtab 
 
 #Class that deals with AAC+ 
-import os
+import os,sys
 from shell import shell
-from flac import flac
+from flac import flac,flacdecode
 from config import *
+
+#This is for the open source implementation. In this case we went for the
+# Open Source Fraunhofer AAC Encoder (fdk-aac)
+class aacplus:
+    def __init__(self,aacopts):
+        self.opts = aacopts
+        if os.path.exists("%saac-enc" % aacpath) == False:
+            print "Error: %saac-enc not found (is fdk-aac installed?) Cannot convert" % aacpath
+            sys.exit(-1)
+
+    def AACPconvert(self,infile,outfile,logq):
+        inmetadata = flac().getflacmeta("\"" + infile + "\"")
+        decoder = flacdecode(infile)()
+        encoder = os.popen("%saac-enc %s - \"%s.aac\" > /tmp/aacplusLog" % (
+            aacpath,
+            self.opts,
+            outfile,
+            ) ,'wb',8192)
+
+        for line in decoder.readlines(): #while data exists in the decoders buffer
+            encoder.write(line) #write it to the encoders buffer
+
+        decoder.flush() #if there is any data left in the buffer, clear it
+        decoder.close() #somewhat self explanetory
+
+        encoder.flush() #as above
+        encoder.close()
+
+
 
 #For the binary-only Nero AAC encoder
 class aacplusNero:
@@ -79,10 +108,7 @@ class aacplusNero:
         except(UnboundLocalError):
             metastring = ""
 
-
-
-        #rb stands for read-binary, which is what we are doing, with a 1024 byte buffer
-        decoder = os.popen(flacpath + "flac -d -s -c " + shell().parseEscapechars(infile),'rb',1024)
+        decoder = flacdecode(infile)()
         #wb stands for write-binary
         encoder = os.popen("%sneroAacEnc %s -if - -of %s.mp4 > /tmp/aacplusLog" % (
             neroaacpath,

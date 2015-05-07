@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 ai expandtab
 
-from aac import aacplusNero
+from aac import aacplusNero,aacplus
 from vorbis import vorbis
 from flac import flac
 from mp3 import lameMp3 as mp3
@@ -191,6 +191,9 @@ def encode_thread(taskq, opts, logq):
         elif mode == "ogg" or mode == "vorbis":
             encoder = vorbis(opts['oggencopts'])
             encf = encoder.oggconvert
+        elif mode == "aacplus":
+            encoder = aacplus(opts['aacplusopts'])
+            encf = encoder.AACPconvert
         elif mode == "aacplusnero":
             encoder = aacplusNero(opts['neroaacplusopts'])
             encf = encoder.AACPconvert
