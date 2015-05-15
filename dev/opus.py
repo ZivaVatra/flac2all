@@ -4,14 +4,20 @@ from shell import shell
 from time import time
 from flac import flacdecode
 from config import opusencpath
+import subprocess as sp
 #Class that deals with the opus codec
 class opus:
     def __init__(self,opusencopts):
         #Work out what version of opus we have
         self.version=None #Unknown by default
-        fd = os.popen("%sopusenc -V" % opusencpath)
-        data = fd.read(256)
-        fd.close()
+
+        #Opus is really all over the place, each version has different
+        #switches. I guess that is what happens with new stuff. 
+        try:
+            data = sp.check_output(["%sopusenc" % opusencpath, "-V"])
+        except sp.CalledProcessError as e:
+            data = sp.check_output(["%sopusenc" % opusencpath, "-v"])
+        
         data = re.search("\d\.\d\.\d",data).group(0)
         (release,major,minor) =  map(lambda x: int(x), data.split('.'))
         self.version=(release,major,minor)
@@ -31,11 +37,16 @@ class opus:
         if (version[0] == 0) and (version[1] <= 1) and (version[2] <= 6):
             print "WARNING: Opus version prior to 0.1.7 detected, NO TAGGING SUPPORT"
             decoder = flacdecode(infile)()
-            encoder = os.popen("%sopusenc %s - %s.opus  2> /tmp/opusLog" % (
-                opusencpath,
-                self.opts,
-                shell().parseEscapechars(outfile),
-                ) ,'wb',8192)
+            encoder = sp.Popen("%sopusenc %s - %s.opus  2> /tmp/opusLog" % (
+                    opusencpath,
+                    self.opts,
+                    shell().parseEscapechars(outfile),
+                    ) ,
+                shell=True, 
+                bufsize=8192, 
+                stdin=sp.PIPE
+            ).stdin
+                
             
             for line in decoder.readlines(): #while data exists in the decoders buffer
                 encoder.write(line) #write it to the encoders buffer
@@ -47,6 +58,7 @@ class opus:
             encoder.close()
             logq.put([infile,outfile,"opus","SUCCESS_NOTAGGING",0, time() - startTime])
         else:
+            #Later versions support direct conversion from flac->opus, so no need for the above.
             rc = os.system("%sopusenc %s --quiet %s %s.opus" %
                 (
                 opusencpath,

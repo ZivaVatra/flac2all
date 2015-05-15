@@ -55,7 +55,7 @@ parser.add_option("-c","--copy",action="store_true",dest="copy",
       default=False,help="Copy non flac files across (default=False)")
 
 parser.add_option("","--opus-options",dest="opusencopts",
-      default="quality=2",help="Colon delimited options to pass to opusenc. Any oggenc long option (one with two '--' in front) can be specified in the above format.")
+      default="music",help="Colon delimited options to pass to opusenc. Any oggenc long option (one with two '--' in front) can be specified in the above format.")
 
 parser.add_option("","--vorbis-options",dest="oggencopts",
       default="quality=2",help="Colon delimited options to pass to oggenc,for example:" +
