@@ -256,6 +256,9 @@ class lameMp3:
 
         #rb stands for read-binary, which is what we are doing, with a 1024 byte buffer
         decoder = flacdecode(infile)()
+        if decoder == None:
+            logq.put([infile,outfile,"mp3","ERROR: Could not open flac file for decoding.",-1, time() - startTime])
+            return None
         #wb stands for write-binary
         encoder = os.popen("%slame --silent %s - -o %s.mp3 %s" % (
             lamepath,

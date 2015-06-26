@@ -14,7 +14,7 @@ class flacdecode:
         self.infile = infile
         self.shell = shell
     def __call__(self):
-        return os.popen(flacpath + "flac -d -s -c \"%s\"" % self.infile,'rb',8192)
+        fd = sp.Popen([flacpath + "flac", '-d', '-s', "-c", "%s" % self.infile],stdout=sp.PIPE,bufsize=8192)
 
 #Class that deals with FLAC
 

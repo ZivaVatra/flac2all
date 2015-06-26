@@ -172,7 +172,11 @@ modeError = Exception("Error understanding mode. Is mode valid?")
 
 def encode_thread(taskq, opts, logq):
     while taskq.empty() == False:
-        task = taskq.get(timeout=60) #Get the task, with one minute timeout
+        try:
+            task = taskq.get(timeout=60) #Get the task, with one minute timeout
+        except Queue.Empty:
+            #No more tasks after 60 seconds, we can quit
+            sys.exit()
         mode = task[3].lower()
         infile = task[0]
         outfile = task[0].replace(task[1], os.path.join(task[2], task[3]) )
@@ -214,6 +218,7 @@ def encode_thread(taskq, opts, logq):
         outfile = outfile.rstrip('.flac')
         print "Converting: \t %-40s  target: %8s " % (task[0].split('/')[-1],task[3])
         encf(infile,outfile,logq)
+    sys.exit()
 
 opts['threads'] = int(opts['threads'])
 
