@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 #Version 3
-# vim: ts=4 autoindent expandtab
+# vim: ts=4 autoindent expandtab number
 """
 ===============================================================================
 
@@ -632,7 +632,11 @@ def encode_thread(current_file,filecounter,opts):
     if (string.lower(current_file [-4:]) != "flac"):
         if (opts['copy'] == True):
             print "Copying file #%d (%s) to destination" % (filecounter,current_file.split('/')[-1])
-            os.system("cp -u \"%s\" \"%s\"" % (current_file,outdirFinal) )
+            if ( os.path.exists(outfile) == True) and (opts['overwrite'] == False):
+                if os.stat(current_file).st_mtime - os.stat(outfile).st_mtime > 1:
+                    os.system("cp \"%s\" \"%s\"" % (current_file,outdirFinal) )
+                else:
+                    print "File %s is same size as destination. Not copying" % current_file
             filecounter += 1
 
     if(opts['overwrite'] == False): #if we said not to overwrite files

@@ -10,11 +10,11 @@ if not os.path.exists(infolder):
 	print "Error, %s does not exist. Please create it and stick some FLAC files in there for testing" % infolder
 	exit(1)
 
-files = os.listdir(infolder)
-flacfiles = filter(lambda x: x.endswith(".flac"), files)
-if len(flacfiles) == 0:
-	print "No flac files found in %s. Please put some in there for testing (no subfolders please)" % infolder
-	exit(2)
+#files = os.listdir(infolder)
+#flacfiles = filter(lambda x: x.endswith(".flac"), files)
+#if len(flacfiles) == 0:
+#	print "No flac files found in %s. Please put some in there for testing (no subfolders please)" % infolder
+#	exit(2)
 
 if not os.path.exists(outfolder): os.mkdir(outfolder)
 
