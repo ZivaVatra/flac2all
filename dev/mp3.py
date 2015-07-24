@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 expandtab si
 
-import os
+import os,sys
 
 from config import *
 from flac import flac, flacdecode
@@ -255,10 +255,10 @@ class lameMp3:
             metastring = "" #If we do not get meta information. leave blank
 
         #rb stands for read-binary, which is what we are doing, with a 1024 byte buffer
-        decoder = flacdecode(infile)()
+        (decoder,stderr) = flacdecode(infile)()
         if decoder == None:
-            logq.put([infile,outfile,"mp3","ERROR: Could not open flac file for decoding.",-1, time() - startTime])
-            return None
+            logq.put([infile,outfile,"mp3","ERROR: Could not open flac file for decoding.",-1, time() - startTime],timeout=10)
+            sys.exit(-1)
         #wb stands for write-binary
         encoder = os.popen("%slame --silent %s - -o %s.mp3 %s" % (
             lamepath,
@@ -269,6 +269,13 @@ class lameMp3:
 
 
         for line in decoder.readlines(): #while data exists in the decoders buffer
+            errline = stderr.read(200)
+            errline = errline.upper()
+            if errline.strip() != '':
+                print "ERRORLINE: %s" % errline
+            if errline.find("ERROR") != -1:
+                logq.put([infile,"mp3","ERROR: decoder error: %s" % errline,-1,time()-starttime], timeout=10)
+                sys.exit(-1)
             encoder.write(line) #write it to the encoders buffer
 
         decoder.flush() #if there is any data left in the buffer, clear it

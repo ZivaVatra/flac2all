@@ -271,6 +271,10 @@ while True:
         print "Processing Complete!"
         break
 
+    #Sometimes processes die (due to errors, or exit called), which
+    #will slowly starve the script as they are not restarted. The below
+    #filters out dead processes, allowing us to respawn as necessary
+    ap =  filter(lambda x: x.is_alive() == True, ap)
 # Now wait for all running processes to complete
 print "Waiting for all running process to complete."
 print ap
