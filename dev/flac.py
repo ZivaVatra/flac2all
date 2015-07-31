@@ -10,12 +10,14 @@ import subprocess as sp
 
 #This class is called by every other conversion function, to return a "decode" object
 class flacdecode:
-    def __init__(self,infile):
+    def __init__(self,infile,pipefile):
         self.infile = infile
         self.shell = shell
+        self.pipe = pipefile
     def __call__(self):
-        fd = sp.Popen([flacpath + "flac", '-d', '-s', "-c", "%s" % self.infile],stdout=sp.PIPE,stderr=sp.PIPE,bufsize=8192)
-        return (fd.stdout,fd.stderr)
+#        fd = sp.Popen([flacpath + "flac", '-d', '-s', '-o',self.pipe, "%s" % self.infile],stdout=sp.PIPE,stderr=sp.PIPE,bufsize=8192)
+        fd = sp.Popen([flacpath + "flac", '-d', '-s','-f', '-o',self.pipe, "%s" % self.infile],stderr=sp.PIPE)
+        return (None,fd.stderr)
 
 #Class that deals with FLAC
 

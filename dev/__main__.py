@@ -10,6 +10,7 @@ from shell import shell
 from opus import opus
 
 import multiprocessing as mp
+import threading as mt
 from optparse import OptionParser
 from config import *
 
@@ -170,56 +171,70 @@ modeError = Exception("Error understanding mode. Is mode valid?")
 # to the encode threads (one per processor) and have them pop off/on as
 # necessary. Allows for far more fine grained control. 
 
-def encode_thread(taskq, opts, logq):
-    while taskq.empty() == False:
-        try:
-            task = taskq.get(timeout=60) #Get the task, with one minute timeout
-        except Queue.Empty:
-            #No more tasks after 60 seconds, we can quit
-            sys.exit()
-        mode = task[3].lower()
-        infile = task[0]
-        outfile = task[0].replace(task[1], os.path.join(task[2], task[3]) )
-        outpath = os.path.dirname(outfile)
-        try:
-            if not os.path.exists(outpath): os.makedirs(outpath)
-        except OSError as e:
-            #Error 17 means folder exists already. We can reach this despite the check above
-            #due to a race condition when a bunch of processes spawned all try to mkdir
-            #So if Error 17, continue, otherwise re-raise the exception
-            if e.errno != 17: raise(e) 
+class encode_thread(mt.Thread):
+    def __init__(self, threadID, name, taskq, opts, logq):
+        mt.Thread.__init__(self)
+        self.threadID = threadID
+        self.name = name
+        self.taskq = taskq
+        self.opts = opts
+        self.logq = logq
 
-        if mode == "mp3":
-            encoder = mp3(opts['lameopts'])
-            encf = encoder.mp3convert
-        elif mode == "ogg" or mode == "vorbis":
-            encoder = vorbis(opts['oggencopts'])
-            encf = encoder.oggconvert
-        elif mode == "aacplus":
-            encoder = aacplus(opts['aacplusopts'])
-            encf = encoder.AACPconvert
-        elif mode == "aacplusnero":
-            encoder = aacplusNero(opts['neroaacplusopts'])
-            encf = encoder.AACPconvert
-        elif mode == "opus":
-            encoder = opus(opts['opusencopts'])
-            encf = encoder.opusConvert
-        elif mode == "flac":
-            encoder = flac(opts['flacopts'])
-            encf = encoder.flacConvert
-        elif mode == "test":
-            logq.put([infile,outfile,mode,"ERROR: Flac testing not implemented yet", 1,0])
-            continue
-        else:
-            logq.put([infile,outfile,mode,"ERROR: Error understanding mode '%s' is mode valid?" % mode,1,0])
-            raise modeError
+    def run(self):
+        taskq = self.taskq
+        opts = self.opts
+        logq = self.logq
+        while taskq.empty() == False:
+            try:
+                task = taskq.get(timeout=60) #Get the task, with one minute timeout
+            except Queue.Empty:
+                #No more tasks after 60 seconds, we can quit
+                return True
 
-
-        outfile = outfile.rstrip('.flac')
-        print "Converting: \t %-40s  target: %8s " % (task[0].split('/')[-1],task[3])
-        encf(infile,outfile,logq)
-    sys.exit()
-
+            mode = task[3].lower()
+            infile = task[0]
+            outfile = task[0].replace(task[1], os.path.join(task[2], task[3]) )
+            outpath = os.path.dirname(outfile)
+            try:
+                if not os.path.exists(outpath): os.makedirs(outpath)
+            except OSError as e:
+                #Error 17 means folder exists already. We can reach this despite the check above
+                #due to a race condition when a bunch of processes spawned all try to mkdir
+                #So if Error 17, continue, otherwise re-raise the exception
+                if e.errno != 17: raise(e) 
+    
+            if mode == "mp3":
+                encoder = mp3(opts['lameopts'])
+                encf = encoder.mp3convert
+            elif mode == "ogg" or mode == "vorbis":
+                encoder = vorbis(opts['oggencopts'])
+                encf = encoder.oggconvert
+            elif mode == "aacplus":
+                encoder = aacplus(opts['aacplusopts'])
+                encf = encoder.AACPconvert
+            elif mode == "aacplusnero":
+                encoder = aacplusNero(opts['neroaacplusopts'])
+                encf = encoder.AACPconvert
+            elif mode == "opus":
+                encoder = opus(opts['opusencopts'])
+                encf = encoder.opusConvert
+            elif mode == "flac":
+                encoder = flac(opts['flacopts'])
+                encf = encoder.flacConvert
+            elif mode == "test":
+                logq.put([infile,outfile,mode,"ERROR: Flac testing not implemented yet", 1,0])
+                continue
+            else:
+                logq.put([infile,outfile,mode,"ERROR: Error understanding mode '%s' is mode valid?" % mode,1,0])
+                raise modeError
+    
+    
+            outfile = outfile.rstrip('.flac')
+            print "Converting: \t %-40s  target: %8s " % (task[0].split('/')[-1],task[3])
+            encf(infile,outfile,logq)
+    #    sys.exit()
+        #self.exit()
+    
 opts['threads'] = int(opts['threads'])
 
 # keep flags for state (pQ,cQ)
@@ -230,7 +245,8 @@ while True:
 
     while int(cc) > (len(ap)):
         print ">> Spawning encoding process #%d" % len(ap)
-        proc = mp.Process(target=encode_thread, args=(pQ, opts, lQ ) )
+#        proc = mp.Process(target=encode_thread, args=(pQ, opts, lQ ) )
+        proc = encode_thread(int(cc), "Thread %d" % int(cc), pQ, opts, lQ )
         proc.start()
         #proc.join() #This makes it single threaded (for debugging). We wait for proc.
         ap.append(proc)
@@ -274,7 +290,7 @@ while True:
     #Sometimes processes die (due to errors, or exit called), which
     #will slowly starve the script as they are not restarted. The below
     #filters out dead processes, allowing us to respawn as necessary
-    ap =  filter(lambda x: x.is_alive() == True, ap)
+    ap =  filter(lambda x: x.isAlive() == True, ap)
 # Now wait for all running processes to complete
 print "Waiting for all running process to complete."
 print ap

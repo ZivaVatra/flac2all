@@ -7,6 +7,8 @@ from config import *
 from flac import flac, flacdecode
 from shell import shell
 from time import time
+import uuid
+import subprocess as sp
 
 class lameMp3:
     def __init__(self,lame_options):
@@ -246,8 +248,10 @@ class lameMp3:
         return tagstring
 
     def mp3convert(self,infile,outfile,logq):
+        pipe = "/tmp/flac2all_"+str(uuid.uuid4()).strip()
         startTime = time()
         inmetadata = flac().getflacmeta(infile)
+        os.mkfifo(pipe)
 
         try:
             metastring = self.generateLameMeta(inmetadata)
@@ -255,34 +259,43 @@ class lameMp3:
             metastring = "" #If we do not get meta information. leave blank
 
         #rb stands for read-binary, which is what we are doing, with a 1024 byte buffer
-        (decoder,stderr) = flacdecode(infile)()
-        if decoder == None:
-            logq.put([infile,outfile,"mp3","ERROR: Could not open flac file for decoding.",-1, time() - startTime],timeout=10)
-            sys.exit(-1)
+        (decoder,stderr) = flacdecode(infile,pipe)()
+#        if decoder == None:
+#            logq.put([infile,outfile,"mp3","ERROR: Could not open flac file for decoding.",-1, time() - startTime],timeout=10)
+#            sys.exit(-1)
         #wb stands for write-binary
-        encoder = os.popen("%slame --silent %s - -o %s.mp3 %s" % (
+        encoder = sp.check_call("%slame --silent %s %s -o %s.mp3 %s" % (
             lamepath,
             self.opts,
-            shell().parseEscapechars(outfile),
+            pipe,
+            shell().parseEscapechars(outfile),            
             metastring
-            ) ,'wb',8192) 
+            ) ,shell=True) 
 
+        os.unlink(pipe) 
+        errline = stderr.read()
+        errline = errline.upper()
+        if errline.strip() != '':
+            print "ERRORLINE: %s" % errline
+        if errline.find("ERROR") != -1:
+            logq.put([infile,"mp3","ERROR: decoder error: %s" % errline,-1,time()-startTime], timeout=10)
+            return False
 
-        for line in decoder.readlines(): #while data exists in the decoders buffer
-            errline = stderr.read(200)
-            errline = errline.upper()
-            if errline.strip() != '':
-                print "ERRORLINE: %s" % errline
-            if errline.find("ERROR") != -1:
-                logq.put([infile,"mp3","ERROR: decoder error: %s" % errline,-1,time()-starttime], timeout=10)
-                sys.exit(-1)
-            encoder.write(line) #write it to the encoders buffer
+#        for line in decoder.read(): #while data exists in the decoders buffer
+#            errline = stderr.read(200)
+#            errline = errline.upper()
+#            if errline.strip() != '':
+#                print "ERRORLINE: %s" % errline
+#            if errline.find("ERROR") != -1:
+#                logq.put([infile,"mp3","ERROR: decoder error: %s" % errline,-1,time()-starttime], timeout=10)
+#                return False
+#            encoder.write(line) #write it to the encoders buffer
 
-        decoder.flush() #if there is any data left in the buffer, clear it
-        decoder.close() #somewhat self explanetory
+#       decoder.flush() #if there is any data left in the buffer, clear it
+#        decoder.close() #somewhat self explanetory
 
-        encoder.flush() #as above
-        encoder.close()
+#        encoder.flush() #as above
+#        encoder.close()
         logq.put([infile,outfile,"mp3","SUCCESS",0, time() - startTime])
 
 
