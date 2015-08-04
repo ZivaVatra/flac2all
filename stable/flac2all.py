@@ -94,12 +94,12 @@ class opus:
         #Work out what version of opus we have
         self.version=None #Unknown by default
         try:
-            sp.call("type %sopusenc" % opusencpath)
+            sp.call("type %sopusenc" % opusencpath.strip(';'), shell=True)
         except OSError as e:
             self.version = "INVALID"
             return None
 
-        if ( sp.check_call("%sopusenc -V " % opusencpath, stdout=sp.PIPE, stderr=sp.PIPE, shell=True) != 0 ):
+        if ( sp.call("%sopusenc -V " % opusencpath, stdout=sp.PIPE, stderr=sp.PIPE, shell=True) != 0 ):
             fd = os.popen("%sopusenc -v" % opusencpath)
         else:
             fd = os.popen("%sopusenc -V" % opusencpath)
@@ -111,7 +111,7 @@ class opus:
         self.version=(release,major,minor)
 
     def opusconvert(self,opusencopts,infile,outfile):
-        if version == "INVALID":
+        if self.version == "INVALID":
             print "ERROR: Could not locate opusenc binary. Cannot convert!"
             return None
 
