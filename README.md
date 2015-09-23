@@ -10,6 +10,9 @@ Flac2All is a multi-threaded script that will convert your collection of FLAC fi
 * Opus-tools: for opus support
 * Vorbis-tools: for ogg support
 
+## Packages for Distros
+* ![logo](http://www.monitorix.org/imgs/archlinux.png "arch logo")Arch Linux: in the [AUR](https://aur.archlinux.org/packages/flac2all).
+
 ## Usage
 flac2all [convert type] [input dir]
 
