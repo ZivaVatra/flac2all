@@ -14,3 +14,8 @@ Flac2All is a multi-threaded script that will convert your collection of FLAC fi
 flac2all [convert type] [input dir]
 
 [convert type] may be [mp3] or [vorbis] or [flac]
+
+## Video of Flac2all in action
+Here is a video of flac2all running on a dual quad system (2 CPUs with 8 physical cores and 8 HT cores = 16 threads totally).  It happily saturates all 16 cores:
+
+[!(http://s27.postimg.org/7r1wrz3sz/synapse_16_threads.png)](https://www.youtube.com/watch?v=pXSpPjWtSJc)
