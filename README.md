@@ -18,4 +18,4 @@ flac2all [convert type] [input dir]
 ## Video of Flac2all in action
 Here is a video of flac2all running on a dual quad system (2 CPUs with 8 physical cores and 8 HT cores = 16 threads totally).  It happily saturates all 16 cores:
 
-[!(http://s27.postimg.org/7r1wrz3sz/synapse_16_threads.png)](https://www.youtube.com/watch?v=pXSpPjWtSJc)
+[![screenshot](http://s27.postimg.org/7r1wrz3sz/synapse_16_threads.png)](https://www.youtube.com/watch?v=pXSpPjWtSJc)
