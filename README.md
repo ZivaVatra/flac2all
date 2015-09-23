@@ -12,4 +12,5 @@ Flac2All is a multi-threaded script that will convert your collection of FLAC fi
 
 ## Usage
 flac2all [convert type] [input dir]
+
 [convert type] may be [mp3] or [vorbis] or [flac]
