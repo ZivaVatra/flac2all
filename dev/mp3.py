@@ -258,12 +258,7 @@ class lameMp3:
         except(UnboundLocalError):
             metastring = "" #If we do not get meta information. leave blank
 
-        #rb stands for read-binary, which is what we are doing, with a 1024 byte buffer
         (decoder,stderr) = flacdecode(infile,pipe)()
-#        if decoder == None:
-#            logq.put([infile,outfile,"mp3","ERROR: Could not open flac file for decoding.",-1, time() - startTime],timeout=10)
-#            sys.exit(-1)
-        #wb stands for write-binary
         encoder = sp.check_call("%slame --silent %s %s -o %s.mp3 %s" % (
             lamepath,
             self.opts,
@@ -281,21 +276,6 @@ class lameMp3:
             logq.put([infile,"mp3","ERROR: decoder error: %s" % errline,-1,time()-startTime], timeout=10)
             return False
 
-#        for line in decoder.read(): #while data exists in the decoders buffer
-#            errline = stderr.read(200)
-#            errline = errline.upper()
-#            if errline.strip() != '':
-#                print "ERRORLINE: %s" % errline
-#            if errline.find("ERROR") != -1:
-#                logq.put([infile,"mp3","ERROR: decoder error: %s" % errline,-1,time()-starttime], timeout=10)
-#                return False
-#            encoder.write(line) #write it to the encoders buffer
-
-#       decoder.flush() #if there is any data left in the buffer, clear it
-#        decoder.close() #somewhat self explanetory
-
-#        encoder.flush() #as above
-#        encoder.close()
         logq.put([infile,outfile,"mp3","SUCCESS",0, time() - startTime])
 
 
