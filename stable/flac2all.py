@@ -9,7 +9,7 @@ Python script for conversion of flac files to flac/mp3/ogg/opus.
 Copyright 2006-2015 Ziva-Vatra, Belgrade
 (www.ziva-vatra.com, mail: zv@ziva-vatra.com)
 
-Project website: http://code.google.com/p/flac2all/
+Project website: https://github.com/ZivaVatra/flac2all
 
 Licensed under the GNU GPL. Do not remove any information from this header
 (or the header itself). If you have modified this code, feel free to add your
@@ -590,7 +590,7 @@ def header():
     return """
 Flac2all python script, v3 . Copyright 2006-2015 Ziva-Vatra.com.
 Licensed under the GPLv3 .
-Project website: http://code.google.com/p/flac2all/
+Project website: https://github.com/ZivaVatra/flac2all
 
     """
 def infohelp():
@@ -745,7 +745,7 @@ opts = {
 "copy":False, #Copy non flac files (default is to ignore)
 "buffer":2048, #How much to read in at a time
 "lameopts":"--preset standard -q 0", #your mp3 encoding settings
-"oggencopts":"quality=2", # your vorbis encoder settings
+"oggencopts":"quality=5", # your vorbis encoder settings
 "opusencopts":"bitrate 128", # your opus encoder settings
 "flacopts":"-q 8", #your flac encoder settings
 "aacplusopts":"-q 0.3 ",
@@ -761,7 +761,7 @@ parser.add_option("-c","--copy",action="store_true",dest="copy",
       default=False,help="Copy non flac files across (default=False)")
 
 parser.add_option("-v","--vorbis-options",dest="oggencopts",
-      default="quality=2",help="Colon delimited options to pass to oggenc,for example:" +
+      default="quality=5",help="Colon delimited options to pass to oggenc,for example:" +
       " 'quality=5:resample 32000:downmix:bitrate_average=96'." +
       " Any oggenc long option (one with two '--' in front) can be specified in the above format.")
 parser.add_option("-p","--opus-options",dest="opusencopts",
