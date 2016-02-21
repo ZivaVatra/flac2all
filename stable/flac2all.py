@@ -94,10 +94,11 @@ class opus:
         #Work out what version of opus we have
         self.version=None #Unknown by default
         try:
-            sp.call("type %sopusenc" % opusencpath.strip(';'), shell=True)
+            rc=sp.call("type %sopusenc" % opusencpath.strip(';'), shell=True)
         except OSError as e:
             self.version = "INVALID"
             return None
+        if rc != 0: return None 
 
         if ( sp.call("%sopusenc -V " % opusencpath, stdout=sp.PIPE, stderr=sp.PIPE, shell=True) != 0 ):
             fd = os.popen("%sopusenc -v" % opusencpath)
