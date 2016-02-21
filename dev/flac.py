@@ -30,35 +30,25 @@ class flac:
     def flacConvert(self, infile, outfile,logq):
         #TODO: see about tag copying across as well
         startTime=time()
-        decoder = flacdecode(self.qEscape(infile))()
-        encoder = os.popen("%sflac %s -s -f -o \"%s.flac\" -" % (
+        #Seems newer versions of flac actually support flac -> flac 
+        #recompression natively. Which is nice. This is now very 
+        #simple to implement, hence removed the old code
+        startTime = time()
+        if opts['overwrite'] == True:
+            self.opts += " -f "
+
+        rc = os.system("%sflac %s -s -o '%s.flac' '%s'" %
+            (
             flacpath,
             self.opts,
-            self.qEscape(outfile),
-            ) ,'wb',8192)
-            
-        for line in decoder.readlines(): #while data exists in the decoders buffer
-            encoder.write(line) #write it to the encoders buffer
-            
-        decoder.flush() 
-        decoder.close()
-        encoder.flush() 
-        encoder.close()
-
-
-        #To straight up meta copy
-        rc = os.system("%smetaflac --export-tags-to=- \"%s\" | %smetaflac --import-tags-from=- \"%s.flac\"" % (
-            metaflacpath,
-            self.qEscape(infile),
-            metaflacpath,
-            self.qEscape(outfile)
+            outfile,
+            infile
             )
         )
         if (rc == 0):
             logq.put([infile,outfile,"flac","SUCCESS",rc, time() - startTime])
         else:
-            print "WARNING: Could not transfer tags to new flac file!"
-            logq.put([infile,outfile,"flac","WARNING: Unable to transfer tag to new flac file",0, time() - startTime])
+            logq.put([infile,outfile,"flac","ERROR:flac ",rc, time() - startTime])
 
 
     def getflacmeta(self,flacfile):
