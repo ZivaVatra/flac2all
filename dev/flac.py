@@ -36,6 +36,10 @@ class flac:
         startTime = time()
         if opts['overwrite'] == True:
             self.opts += " -f "
+        else:
+            if os.path.exists(outfile) == True:
+                logq.put([infile,outfile,"flac","SUCCESS:skipped due to existing file",0, time() - startTime])
+                return 0
 
         rc = os.system("%sflac %s -s -o '%s.flac' '%s'" %
             (
