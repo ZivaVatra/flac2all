@@ -16,8 +16,8 @@ class aacplus:
             sys.exit(-1)
 
     def AACPconvert(self,infile,outfile,logq):
-        inmetadata = flac().getflacmeta("\"" + infile + "\"")
-        decoder = flacdecode(infile)()
+        inmetadata = flac().getflacmeta(infile)
+        decoder = flacdecode(infile,outfile)()
         encoder = os.popen("%saac-enc %s - \"%s.aac\" > /tmp/aacplusLog" % (
             aacpath,
             self.opts,
