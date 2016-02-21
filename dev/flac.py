@@ -41,12 +41,12 @@ class flac:
                 logq.put([infile,outfile,"flac","SUCCESS:skipped due to existing file",0, time() - startTime])
                 return 0
 
-        rc = os.system("%sflac %s -s -o '%s.flac' '%s'" %
+        rc = os.system("%sflac %s -s -o %s.flac %s" %
             (
             flacpath,
             self.opts,
-            outfile,
-            infile
+            shell().parseEscapeChars(outfile),
+            shell().parseEscapeChars(infile)
             )
         )
         if (rc == 0):

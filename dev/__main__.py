@@ -117,6 +117,7 @@ except(IndexError): #if no arguments specified
 
 try:
     opts['dirpath'] = os.path.abspath(args[1])
+    print "DEBUG: %s" % opts['dirpath']
 
 except(IndexError):
     print "No directory specified! Run with '-h' for help"
