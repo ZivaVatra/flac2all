@@ -301,7 +301,7 @@ while True:
     if len(filter(lambda x: x.is_alive() == True, ap)) == 0: break
     print "-"*80
     for proc in filter(lambda x: x.is_alive() == True, ap):
-        print "Process \"%s\" (PID: %s) is still running! Waiting..." % ( proc.name, proc.pid )
+        print "Process \"%s\" is still running! Waiting..." % ( proc.name )
     print "-"*80
     time.sleep(4)
     print ""
