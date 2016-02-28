@@ -647,7 +647,11 @@ def encode_thread(current_file,filecounter,opts):
                 if os.stat(current_file).st_mtime - os.stat(outfile).st_mtime > 1:
                     os.system("cp \"%s\" \"%s\"" % (current_file,outdirFinal) )
                 else:
-                    print "File %s is same size as destination. Not copying" % current_file
+                    print "File %s has same modtime as destination. Not copying" % current_file
+            else:
+                #If the file does not exist, we copy
+                os.system("cp \"%s\" \"%s\"" % (current_file,outdirFinal) )
+
             filecounter += 1
 
     if(opts['overwrite'] == False): #if we said not to overwrite files
