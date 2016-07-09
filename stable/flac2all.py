@@ -674,21 +674,26 @@ def encode_thread(current_file,filecounter,opts):
                 else:
                     print "testing file #" + str(filecounter)
 
-                if(opts['mode'] == "mp3"):
-                    mp3Class.mp3convert(opts['lameopts'],current_file,outfile)
-                elif(opts['mode'] == "flac"):
-                    flacClass.flacconvert(opts['flacopts'],current_file,outfile)
-                elif(opts['mode'] == "vorbis"):
-                    vorbisClass.oggconvert(opts['oggencopts'],current_file,outfile)
-                elif(opts['mode'] == "opus"):
-                    opusClass.opusconvert(opts['opusencopts'],current_file,outfile)
-                elif(opts['mode'] == "aacplusnero"):
-                    aacpClass.AACPconvert(opts['aacplusopts'],current_file,outfile)
-                elif(opts['mode'] == "test"):
-                    flacClass.flactest(current_file, outfile)
-                else:
-                    print "Error, Mode %s not recognised. Thread dying" % opts['mode']
-                    sys.exit(-2)
+                try:
+                    if(opts['mode'] == "mp3"):
+                        mp3Class.mp3convert(opts['lameopts'],current_file,outfile)
+                    elif(opts['mode'] == "flac"):
+                        flacClass.flacconvert(opts['flacopts'],current_file,outfile)
+                    elif(opts['mode'] == "vorbis"):
+                        vorbisClass.oggconvert(opts['oggencopts'],current_file,outfile)
+                    elif(opts['mode'] == "opus"):
+                        opusClass.opusconvert(opts['opusencopts'],current_file,outfile)
+                    elif(opts['mode'] == "aacplusnero"):
+                        aacpClass.AACPconvert(opts['aacplusopts'],current_file,outfile)
+                    elif(opts['mode'] == "test"):
+                        flacClass.flactest(current_file, outfile)
+                    else:
+                        print "Error, Mode %s not recognised. Thread dying" % opts['mode']
+                        sys.exit(-2)
+                except Exception as e:
+                    print "Caught Exception in conversion of file '%s'." % current_file
+                    print e
+                    sys.exit(-3)
         else:
             print "file #%d exists, skipping" % filecounter 
     else:
@@ -701,21 +706,27 @@ def encode_thread(current_file,filecounter,opts):
             else:
                 print "Testing file %d" % filecounter
 
-            if(opts['mode'] == "mp3"):
-                mp3Class.mp3convert(opts['lameopts'],current_file,outfile)
-            elif(opts['mode'] == "flac"):
-                flacClass.flacconvert(opts['flacopts'],current_file,outfile)
-            elif(opts['mode'] == "vorbis"):
-                vorbisClass.oggconvert(opts['oggencopts'],current_file,outfile)
-            elif(opts['mode'] == "opus"):
-                opusClass.opusconvert(opts['opusencopts'],current_file,outfile)
-            elif(opts['mode'] == "aacplusNero"):
-                aacpClass.AACPconvert(opts['aacplusopts'],current_file,outfile)
-            elif(opts['mode'] == "test"):
-                flacClass.flactest(current_file, outfile)
-            else:
-                print "Error, Mode %s not recognised. Thread dying" % opts['mode']
-                sys.exit(-2)
+            try:
+                if(opts['mode'] == "mp3"):
+                    mp3Class.mp3convert(opts['lameopts'],current_file,outfile)
+                elif(opts['mode'] == "flac"):
+                    flacClass.flacconvert(opts['flacopts'],current_file,outfile)
+                elif(opts['mode'] == "vorbis"):
+                    vorbisClass.oggconvert(opts['oggencopts'],current_file,outfile)
+                elif(opts['mode'] == "opus"):
+                    opusClass.opusconvert(opts['opusencopts'],current_file,outfile)
+                elif(opts['mode'] == "aacplusNero"):
+                    aacpClass.AACPconvert(opts['aacplusopts'],current_file,outfile)
+                elif(opts['mode'] == "test"):
+                    flacClass.flactest(current_file, outfile)
+                else:
+                    print "Error, Mode %s not recognised. Thread dying" % opts['mode']
+                    sys.exit(-2)
+
+            except Exception as e:
+                print "Caught Exception in conversion of file '%s'." % current_file
+                print e
+                sys.exit(-3)
 
     return filecounter + 1 #increment the file we are doing
 
