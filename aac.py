@@ -1,18 +1,22 @@
-# vim: ts=4 ai expandtab 
+# vim: ts=4 ai expandtab
 
-#Class that deals with AAC+ 
-import os,sys
+# Class that deals with AAC+
+import os
+import sys
 from shell import shell
-from flac import flac,flacdecode
+from flac import flac, flacdecode
 from config import *
 
-#This is for the open source implementation. In this case we went for the
+# This is for the open source implementation. In this case we went for the
 # Open Source Fraunhofer AAC Encoder (fdk-aac)
-class aacplus:
-    def __init__(self,aacopts):
+
+
+class aacplus(object):
+    def __init__(self, aacopts):
         self.opts = aacopts
-        if os.path.exists("%saac-enc" % aacpath) == False:
-            print "Error: %saac-enc not found (is fdk-aac installed?) Cannot convert" % aacpath
+        if os.path.exists("%saac-enc" % aacpath) is False:
+            print "Error: %saac-enc not found (is fdk-aac installed?)\
+            Cannot convert" % aacpath
             sys.exit(-1)
 
     def AACPconvert(self,infile,outfile,logq):
