@@ -13,8 +13,10 @@ class paths(object):
 		self.oggencpath = ""  # path to oggenc binary, blank by default
 		self.lamepath = ""  # path to lame binary, blank by default
 		self.aacpath = "/usr/bin/"  # path to aacplus binary, blank by default
-		self.acpath = ""  # path to the Nero aacplus binary, blank by default
+		self.neropath = ""  # path to the Nero aacplus binary, blank by default
 		self.path = ""
+
+ipaths = paths()
 
 # These are global defaults, if you don't define a shell
 # argument, the below will be used instead.
