@@ -56,16 +56,16 @@ class opus:
                 stdin=sp.PIPE
             ).stdin
 
-        # while data exists in the decoders buffer
-        for line in decoder.readlines():
-            encoder.write(line)  # write it to the encoders buffer
+            # while data exists in the decoders buffer
+            for line in decoder.readlines():
+                encoder.write(line)  # write it to the encoders buffer
 
-            # if there is any data left in the buffer, clear it
-            decoder.flush()
-            decoder.close()  # somewhat self explanetory
+                # if there is any data left in the buffer, clear it
+                decoder.flush()
+                decoder.close()  # somewhat self explanetory
 
-            encoder.flush()  # as above
-            encoder.close()
+                encoder.flush()  # as above
+                encoder.close()
             logq.put([
                 infile,
                 outfile,

@@ -10,11 +10,11 @@ import uuid
 import subprocess as sp
 
 
-class lameMp3:
+class lameMp3(object):
     def __init__(self, lame_options):
         self.opts = lame_options
 
-    def generateLameMeta(self, metastring):
+    def generate_lame_meta(self, metastring):
         tagstring = []
 
         # Dealing with genres defined within lame
@@ -173,11 +173,7 @@ class lameMp3:
         current_genre = ""  # variable stores current genre tag
 
         def update_tagstring(items):
-            try:
-                tagstring.extend([items[0], "'%s'" % items[1]])
-            except KeyError:
-                # we'll we skip the comment field if is doesn't exist
-                pass
+            tagstring.extend([items[0], "%s" % items[1]])
 
         for genre in acceptable_genres:
             try:
@@ -199,12 +195,15 @@ class lameMp3:
             metastring['GENRE'] = metastring['GENRE'].capitalize()
             genre_is_acceptable = 0  # reset the value for the next time
 
-        update_tagstring(["--tt", metastring["TITLE"]])
-        update_tagstring(["--ta", metastring['ARTIST']])
-        update_tagstring(["--tl", metastring['ALBUM']])
-        update_tagstring(["--ty", metastring['DATE']])
-        update_tagstring(["--tg", metastring['GENRE']])
-        update_tagstring(["--tn", metastring['TRACKNUMBER']])
+        try:
+            update_tagstring(["--tt", metastring["TITLE"]])
+            update_tagstring(["--ta", metastring['ARTIST']])
+            update_tagstring(["--tl", metastring['ALBUM']])
+            update_tagstring(["--ty", metastring['DATE']])
+            update_tagstring(["--tg", metastring['GENRE']])
+            update_tagstring(["--tn", metastring['TRACKNUMBER']])
+        except KeyError:
+            pass
 
         # COMMENTS AND CDDB ARE PLACED TOGETHER, as there exists no seperate
         # "CDDB Field" option for mp3. this is only if we have a comment to
@@ -241,7 +240,7 @@ class lameMp3:
         os.mkfifo(pipe)
 
         try:
-            metastring = self.generateLameMeta(inmetadata)
+            metastring = self.generate_lame_meta(inmetadata)
         except(UnboundLocalError):
             metastring = []  # If we do not get meta information. leave blank
 
@@ -249,12 +248,10 @@ class lameMp3:
         cmd = [
             "%slame" % ipath.lamepath,
             "--silent",
-            self.opts,
-            pipe,
-            "-o",
-            "%s.mp3" % outfile,
         ]
         cmd.extend(metastring)
+        cmd.extend(self.opts.split(' '))
+        cmd.extend([pipe, "%s.mp3" % outfile])
 
         rc = sp.check_call(cmd)
         os.unlink(pipe)
