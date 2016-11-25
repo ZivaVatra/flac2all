@@ -1,7 +1,5 @@
 # vim: ts=4 ai expandtab
-import os
 import re
-from shell import shell
 from time import time
 from flac import flacdecode
 from config import ipath
@@ -42,16 +40,17 @@ class opus:
 
         # If we are a release prior to 0.1.7, use non-tagging type conversion,
         # with warning
+        result = None
         if (version[0] == 0) and (version[1] <= 1) and (version[2] <= 6):
             print "WARNING: Opus version prior to 0.1.7 detected,\
                 NO TAGGING SUPPORT"
             decoder = flacdecode(infile)()
-            encoder = sp.Popen("%sopusenc %s - %s.opus  2> /tmp/opusLog" % (
-                ipath.opusencpath,
-                self.opts,
-                shell().parseEscapechars(outfile),
-            ),
-                shell=True,
+            encoder = sp.Popen([
+                "%sopusenc" % ipath.opusencpath,
+                "%s" % self.opts,
+                "-",
+                "%s.opus" % outfile,
+            ],
                 bufsize=8192,
                 stdin=sp.PIPE
             ).stdin
@@ -66,39 +65,34 @@ class opus:
 
                 encoder.flush()  # as above
                 encoder.close()
-            logq.put([
-                infile,
-                outfile,
-                "opus",
-                "SUCCESS_NOTAGGING",
-                0,
-                time() - startTime
-            ])
+            result = "SUCCESS_NOTAGGING"
         else:
             # Later versions support direct conversion from flac->opus, so no
             # need for the above.
-            rc = os.system("%sopusenc %s --quiet %s %s.opus" % (
-                ipath.opusencpath,
-                self.opts,
-                shell().parseEscapechars(infile),
-                shell().parseEscapechars(outfile)
-            ))
+            cmd = [
+                "%sopusenc" % ipath.opusencpath,
+                "--quiet",
+            ]
+            if self.opts.strip() != "":
+                cmd.extend(filter(
+                    lambda x: x.strip() != "", self.opts.split(' '))
+                )
 
-            if (rc != 0):
-                logq.put([
-                    infile,
-                    outfile,
-                    "opus",
-                    "ERROR: error executing opusenc. Could not convert",
-                    rc,
-                    time() - startTime
-                ])
-            else:
-                logq.put([
-                    infile,
-                    outfile,
-                    "opus",
-                    "SUCCESS",
-                    rc,
-                    time() - startTime
-                ])
+            cmd.extend([infile, "%s.opus" % (outfile)])
+
+            try:
+                rc = sp.check_call(cmd)
+                result = "SUCCESS"
+            except sp.CalledProcessError as e:
+                    rc = e.returncode
+                    result = "ERROR: opusenc error '%s'. Could not convert" % (
+                        e.message
+                    )
+        logq.put([
+            infile,
+            outfile,
+            "opus",
+            result,
+            rc,
+            time() - startTime
+        ])
