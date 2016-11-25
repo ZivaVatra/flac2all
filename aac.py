@@ -4,7 +4,7 @@ import os
 import sys
 from shell import shell
 from flac import flac, flacdecode
-from config import ipaths
+from config import ipath
 from time import time
 
 # This is for the open source implementation. In this case we went for the

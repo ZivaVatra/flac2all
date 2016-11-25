@@ -14,9 +14,10 @@ class paths(object):
 		self.lamepath = ""  # path to lame binary, blank by default
 		self.aacpath = "/usr/bin/"  # path to aacplus binary, blank by default
 		self.neropath = ""  # path to the Nero aacplus binary, blank by default
+		self.opusencpath = ""
 		self.path = ""
 
-ipaths = paths()
+ipath = paths()
 
 # These are global defaults, if you don't define a shell
 # argument, the below will be used instead.
