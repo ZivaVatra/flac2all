@@ -69,7 +69,7 @@ parser.add_option(
 
 parser.add_option(
     "", "--opus-options", dest="opusencopts",
-    default="music", help="Colon delimited options to pass to opusenc.\
+    default="", help="Colon delimited options to pass to opusenc.\
     Any oggenc long option (one with two '--' in front) can be specified\
     in the above format."
 )

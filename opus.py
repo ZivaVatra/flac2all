@@ -1,5 +1,8 @@
 # vim: ts=4 ai expandtab
+
+import os
 import re
+
 from time import time
 from flac import flacdecode
 from config import ipath
@@ -11,14 +14,18 @@ import subprocess as sp
 class opus:
     def __init__(self, opusencopts):
         # Work out what version of opus we have
-        self.version = None  # Unknown by default
+        self.version = None  # Undefined by default
 
         # Opus is really all over the place, each version has different
         # switches. I guess that is what happens with new stuff
         try:
-            data = sp.check_output(["%sopusenc" % ipath.opusencpath, "-V"])
+            data = sp.check_output([
+                os.path.join(ipath.opusencpath, "opusenc"), "-V"
+            ])
         except sp.CalledProcessError:
-            data = sp.check_output(["%sopusenc" % ipath.opusencpath, "-v"])
+            data = sp.check_output([
+                os.path.join(ipath.opusencpath, "opusenc"), "-v"
+            ])
 
         data = re.search("\d\.\d\.\d", data).group(0)
         (release, major, minor) = map(lambda x: int(x), data.split('.'))
