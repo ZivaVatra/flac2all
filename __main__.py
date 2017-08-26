@@ -421,13 +421,21 @@ for mode in opts['mode'].split(','):
 
     emode = 0
 
+    etime = "Total execution time: "
+    if esum < 600:
+        etime += "%.4f seconds" % esum
+    elif esum > 600 < 3600:
+        etime += "%.4f minutes" % (esum / 60)
+    else:
+        etime += "%.4f hours" % (esum / 60 / 60)
+
     print """
 For mode: %s
-Total execution time: %.4f seconds
+%s
 Per file conversion:
 \tMean execution time: %.4f seconds
 \tMedian execution time: %.4f seconds
-""" % (mode, esum, emean, emedian)
+""" % (mode, etime, emean, emedian)
 
 errout_file = opts['outdir'] + "/conversion_results.log"
 print "Writing log file (%s)" % errout_file
