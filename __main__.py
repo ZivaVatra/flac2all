@@ -286,7 +286,7 @@ class encode_thread(mt.Thread):
                 ])
                 raise modeError
 
-            outfile = outfile.rstrip('.flac')
+            outfile = outfile.replace('.flac', '')
             print "Converting: \t %-40s  target: %8s " % (
                 task[0].
                 split('/')[-1],
