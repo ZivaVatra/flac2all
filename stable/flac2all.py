@@ -107,7 +107,7 @@ class opus:
 
         data = fd.read(256)
         fd.close()
-        data = re.search("\d\.\d\.\d",data).group(0)
+        data = re.search("\d\.\d\.\d{1,2}",data).group(0)
         (release,major,minor) =  map(lambda x: int(x), data.split('.'))
         self.version=(release,major,minor)
 
