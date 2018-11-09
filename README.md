@@ -23,7 +23,7 @@ At the moment, the development version does not have any packages.
 ## Usage
 Unlike the 3.x version, this one allows multiple codecs to be specified on the command line, and in the target folder it will create a subfolder for each codec. So for example:
 
-python ./\_\_main\_\_.py vorbis,mp3 --vorbis-options='quality=2' -o ./fromFlac/ /path/to/flacc/Lossless/
+python ./\_\_main\_\_.py vorbis,mp3 --vorbis-options='quality=2' -o ./fromFlac/ /path/to/flac/Lossless/
 
 will create the following structure:
 
