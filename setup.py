@@ -52,7 +52,7 @@ opus, aac, lame, music, audio',
 
     entry_points={
         'console_scripts': [
-            'flac2all = flac2all.__init__:main',
+            'flac2all = flac2all_pkg.__init__:main',
         ],
     }
 )
