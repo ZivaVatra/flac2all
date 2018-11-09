@@ -1,6 +1,6 @@
 #!/usr/bin/python2
-import os,shutil
-from sys import exit,platform
+import os, shutil
+from sys import exit, platform
 import subprocess as sp
 from time import sleep
 

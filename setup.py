@@ -23,7 +23,7 @@ Tested on Linux and FreeBSD, let me know how it works on other Unix OS'es.
 
 setup(
     name="flac2all",
-    version="4.0b8",
+    version="4.0b9",
     packages=["flac2all_pkg"],
 
     # metadata for upload to PyPI
