@@ -23,8 +23,8 @@ Tested on Linux and FreeBSD, let me know how it works on other Unix OS'es.
 
 setup(
     name="flac2all",
-    version="4.0",
-    packages=find_packages(),
+    version="4.0b8",
+    packages=["flac2all_pkg"],
 
     # metadata for upload to PyPI
     author="ZivaVatra",
@@ -50,4 +50,9 @@ Multi process,multi codec audio converter with tagging support
     keywords='multithread, multiprocess, batch, flac, converter, mp3, vorbis,\
 opus, aac, lame, music, audio',
 
+    entry_points={
+        'console_scripts': [
+            'flac2all = flac2all.__init__:main',
+        ],
+    }
 )
