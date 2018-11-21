@@ -46,7 +46,7 @@ class aacplusNero:
     def __init__(self):
         pass #keep the constructor empty for now
 
-    def AACPconvert(self,aacopts,infile,outfile): 
+    def AACPconvert(self,aacopts,infile,outfile):
         #Uncomment the line below if you want the file currently being
         #converted to be displayed
         #print parseEscapechars(infile)
@@ -58,7 +58,7 @@ class aacplusNero:
             aacpath,
             aacopts,
             shell().parseEscapechars(outfile),
-            ) ,'wb',8192) 
+            ) ,'wb',8192)
 
 
         for line in decoder.readlines(): #while data exists in the decoders buffer
@@ -87,7 +87,7 @@ class vorbis:
             )
         )
 
-# Class that deals with opus. initial opus support (version > 0.1.7) in version 3 of flac2all 
+# Class that deals with opus. initial opus support (version > 0.1.7) in version 3 of flac2all
 # was kindly provided by Christian Elmerot <christian [atsign] elmerot.se > - 3/2/2015
 class opus:
     def __init__(self):
@@ -98,7 +98,7 @@ class opus:
         except OSError as e:
             self.version = "INVALID"
             return None
-        if rc != 0: return None 
+        if rc != 0: return None
 
         if ( sp.call("%sopusenc -V " % opusencpath, stdout=sp.PIPE, stderr=sp.PIPE, shell=True) != 0 ):
             fd = os.popen("%sopusenc -v" % opusencpath)
@@ -107,9 +107,8 @@ class opus:
 
         data = fd.read(256)
         fd.close()
-        data = re.search("\d\.\d\.\d{1,2}",data).group(0)
-        (release,major,minor) =  map(lambda x: int(x), data.split('.'))
-        self.version=(release,major,minor)
+        data = re.search("\d\.\d(\.\d+)?", data).group(0)
+        self.version = map(lambda x: int(x), data.split('.'))
 
     def opusconvert(self,opusencopts,infile,outfile):
         if self.version == "INVALID":
@@ -121,7 +120,7 @@ class opus:
             print "ERROR! Could not discover opus version, assuming version >= 0.1.7. THIS MAY NOT WORK!"
             version = (9,9,9)
         else: version=self.version
- 
+
         #If we are a release prior to 0.1.7, use non-tagging type conversion, with warning
         if (version[0] == 0) and (version[1] <= 1) and (version[2] <= 6):
             print "WARNING: Opus version prior to 0.1.7 detected, NO TAGGING SUPPORT"
@@ -164,13 +163,13 @@ class flac:
         os.system("%smetaflac --no-utf8-convert --export-tags-to=- \"%s\" | %smetaflac --import-tags-from=- \"%s.flac\"" %
             (flacpath, infile,flacpath, outfile)
         )
-        
+
 
 
     def getflacmeta(self,flacfile):
         #The FLAC file format states that song info will be stored in block 2, and the reference
-    #encoder does so, but other encoders do not! This caused issue 14 and issue 16. 
-    #As such, we now search by block time VORBIS_COMMENT. There should only be one such. 
+    #encoder does so, but other encoders do not! This caused issue 14 and issue 16.
+    #As such, we now search by block time VORBIS_COMMENT. There should only be one such.
         flacdata = os.popen("%smetaflac --list --block-type VORBIS_COMMENT  %s" %
             (
             metaflacpath,
@@ -210,7 +209,7 @@ class flac:
                 #spelling out "comment[")
                 if(data[:8] == "comment["):
                     datalist.append(string.split(data,":",1))
-     
+
 
         for data in datalist:
             #split according to [NAME]=[VALUE] structure
@@ -274,7 +273,7 @@ class shell:
             return outdir
 
     def parseEscapechars(self,file,quoteonly=False):
-    #TODO: look at docs.python.org/2/library/codecs.html for info on how to do this better 
+    #TODO: look at docs.python.org/2/library/codecs.html for info on how to do this better
         if(quoteonly == False):
             #characters which must be escaped in the shell, note
             #"[" and "]" seems to be automatically escaped
@@ -545,7 +544,7 @@ class mp3:
 
     def mp3convert(self,lameopts,infile,outfile):
 
-        #give us an output file, full path, which is the same as the infile 
+        #give us an output file, full path, which is the same as the infile
         #(minus the working directory path) and with the extension stripped
         #outfile = os.path.join(outdir+"/",os.path.split(infile)[-1]).strip(".flac")
 
@@ -569,8 +568,8 @@ class mp3:
             lameopts,
             shell().parseEscapechars(outfile),
             metastring
-            ) ,'wb',8192) 
-#        encoder = os.popen(lamepath + "lame --silent " + lameopts + " - -o " +  shell().parseEscapechars(outfile) + ".mp3 " + metastring,'wb',8192) 
+            ) ,'wb',8192)
+#        encoder = os.popen(lamepath + "lame --silent " + lameopts + " - -o " +  shell().parseEscapechars(outfile) + ".mp3 " + metastring,'wb',8192)
 
 
         for line in decoder.readlines(): #while data exists in the decoders buffer
@@ -695,7 +694,7 @@ def encode_thread(current_file,filecounter,opts):
                     print e
                     sys.exit(-3)
         else:
-            print "file #%d exists, skipping" % filecounter 
+            print "file #%d exists, skipping" % filecounter
     else:
         #[case insensitive] check if the last 4 characters say flac (as in flac
         #extension, if it doesn't, then we assume it is not a flac file and
@@ -790,21 +789,21 @@ parser.add_option("-l","--lame-options",dest="lameopts",
       "If you want a long option (e.g. '--abr'), then you need a dash: '-abr'")
 parser.add_option("-a","--aacplus-options",dest="aacplusopts",
       default="-q 0.3", help="AACplus options, currently only bitrate supported. e.g: \" -br 64 \""),
-parser.add_option("-o","--outdir",dest="outdir",metavar="DIR", 
+parser.add_option("-o","--outdir",dest="outdir",metavar="DIR",
       help="Set custom output directory (default='./')",
       default="./"),
 parser.add_option("-f","--force",dest="overwrite",action="store_true",
       help="Force overwrite of existing files (by default we skip)",
       default=False),
 parser.add_option("-t","--threads",dest="threads",default=multiprocessing.cpu_count(),
-      help="How many threads to run in parallel (default: autodetect [found %d cpu(s)] )" % multiprocessing.cpu_count()) 
+      help="How many threads to run in parallel (default: autodetect [found %d cpu(s)] )" % multiprocessing.cpu_count())
 parser.add_option("-n","--nodirs",dest="nodirs",action="store_true",
       default=False,help="Don't create Directories, put everything together")
 parser.add_option("-x","--exclude",dest="exclude",default=None, help="exclude certain files from processing by PATTERN (regular expressions supported)")
 parser.add_option("-r","--include-root",dest="root_include", action="store_true", default=False, help="Include the top-level directory in output path ( default=False )")
 
 ##The below isn't used anymore, so removed as an option (to re-add in future?)
-#parser.add_option("-B","--buffer",dest="buffer",metavar="size", 
+#parser.add_option("-B","--buffer",dest="buffer",metavar="size",
 #      help="How much we should buffer before encoding to mp3 (in KB). The larger "+
 #           "you set this too, the more of the song will be buffered before "+
 #           "encoding. Set it high enough and it will buffer everything to RAM"+
@@ -871,10 +870,10 @@ for files in filelist:
 print "There are %d files, of which %d are convertable FLAC files" % \
 (filenum,flacnum)
 print "We are running %s simultaneous transcodes" % opts['threads']
- 
+
 if flacnum == 0:
     print "Error, we got no flac files. Are you sure you put in the correct directory?"
-    sys.exit(-1) 
+    sys.exit(-1)
 x = 0 #temporary variable, only to keep track of number of files we have done
 
 #Why did we not use "for file in filelist" for the code below? Because this is
