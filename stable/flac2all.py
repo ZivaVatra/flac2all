@@ -107,7 +107,7 @@ class opus:
 
         data = fd.read(256)
         fd.close()
-        data = re.search("\d\.\d(\.\d+)?", data).group(0)
+        data = re.search("\d+\.\d+(\.\d+)?", data).group(0)
         self.version = map(lambda x: int(x), data.split('.'))
 
     def opusconvert(self,opusencopts,infile,outfile):
