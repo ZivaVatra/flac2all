@@ -1,0 +1,14 @@
+#!/usr/bin/perl
+#git rev-list --count HEAD
+#git rev-list --count --first-parent HEAD
+my @indata = `git log | grep commit`;
+my $rev = 0;
+
+foreach(@indata) {
+	if (m/commit \w{32}/g) {
+		$rev++;
+	}
+}
+
+print "$rev\n";
+
