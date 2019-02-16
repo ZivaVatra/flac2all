@@ -33,7 +33,7 @@ setup(
 Multi process,multi codec audio converter with tagging support
 ''',
     license="GPLv3",
-    url="http://ziva-vatra.com/index.php?aid=23",
+    url="https://github.com/ZivaVatra/flac2all",
     # From https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
         'Development Status :: 4 - Beta',
