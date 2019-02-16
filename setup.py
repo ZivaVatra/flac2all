@@ -20,10 +20,13 @@ Started in 2003 as a flac to ogg vorbis converter, flac2All has grown into a mul
 Tested on Linux and FreeBSD, let me know how it works on other Unix OS'es.
 '''
 
+with open("version", 'r') as fd:
+    vers = fd.read()
+    vers = vers.strip()
 
 setup(
     name="flac2all",
-    version="4.0b9",
+    version=vers,
     packages=["flac2all_pkg"],
 
     # metadata for upload to PyPI
