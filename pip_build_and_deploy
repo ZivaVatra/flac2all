@@ -28,5 +28,7 @@ sleep(1); # give user a moment to panic CTRL-C if needs be
 die("Could not write version\n") unless (0 == system("echo $new_version > version"));
 # Create the git tag
 die("Could not create git tag\n") unless (0 == system("git tag -a $new_version -m \"Auto-Release Version $new_version\""));
+# And we remove the build and dist folder, to make sure fresh files are used
+system("rm -rf ./build ./dist");
 # Now run the code to push to pip
 die("Could not build and deploy to pypi\n") unless (0 == system("python ./setup.py sdist bdist_wheel && twine upload --repository-url https://test.pypi.org/legacy/ dist/*"));
