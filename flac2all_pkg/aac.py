@@ -14,15 +14,15 @@ from time import time
 class aacplus(object):
 	def __init__(self, aacopts):
 		self.opts = aacopts
-		if os.path.exists("%saac-enc" % ipaths.aacpath) is False:
+		if os.path.exists("%saac-enc" % ipath.aacpath) is False:
 			print "Error: %saac-enc not found (is fdk-aac installed?)\
-			Cannot convert" % ipaths.aacpath
+			Cannot convert" % ipath.aacpath
 			sys.exit(-1)
 
 	def AACPconvert(self, infile, outfile, logq):
 		decoder = flacdecode(infile, outfile)()
 		encoder = os.popen("%saac-enc %s - \"%s.aac\" > /tmp/aacplusLog" % (
-			ipaths.aacpath,
+			ipath.aacpath,
 			self.opts,
 			outfile,
 		), 'wb', 8192
@@ -42,7 +42,7 @@ class aacplus(object):
 class aacplusNero(object):
 	def __init__(self, aacopts):
 		self.opts = aacopts
-		if not os.path.exists("%sneroAacEnc" % ipaths.neropath):
+		if not os.path.exists("%sneroAacEnc" % ipath.neropath):
 			print "ERROR: NeroAacEnc not found! Cannot convert."
 			sys.exit(-1)
 
@@ -109,7 +109,7 @@ class aacplusNero(object):
 		startTime = time()
 		inmetadata = flac().getflacmeta("\"" + infile + "\"")
 
-		tagcmd = "%sneroAacTag " % ipaths.neropath
+		tagcmd = "%sneroAacTag " % ipath.neropath
 		try:
 			metastring = self.generateNeroTags(inmetadata)
 		except(UnboundLocalError):
@@ -117,7 +117,7 @@ class aacplusNero(object):
 
 		decoder = flacdecode(infile)()
 		encoder = os.popen("%sneroAacEnc %s -if - -of %s.mp4 >/tmp/neroLog" % (
-			ipaths.neropath,
+			ipath.neropath,
 			self.opts,
 			shell().parseEscapechars(outfile),
 		), 'wb', 8192)
