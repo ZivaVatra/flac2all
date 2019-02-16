@@ -37,7 +37,6 @@ import os
 import time
 import Queue
 
-# Functions
 
 # error handling
 modeError = Exception("Error understanding mode. Is mode valid?")
@@ -45,10 +44,11 @@ modeError = Exception("Error understanding mode. Is mode valid?")
 
 def prog_usage():
     return """
-Flac2all python script, version 4. Copyright 2006-2015 ziva-vatra
-Licensed under the GPLv3 or later (http://www.ziva-vatra.com).
-Please see http://www.gnu.org/licenses/gpl.txt for the full licence.
-Main project website: http://code.google.com/p/flac2all/
+Flac2all python script, version 4. Copyright 2003-2015 ziva-vatra
+Licensed under the GPLv3 or later. Please see included LICENCE file,
+or visit http://www.gnu.org/licenses/gpl.txt for the full licence.
+
+Dev website: https://github.com/ZivaVatra/flac2all
 
 \tUsage: %s enctype1[,enctype2..] [options]  inputdir
 
@@ -297,6 +297,7 @@ a dash: '-abr'"
     files = sh.getfiles(opts['dirpath'])
     count = 0
     for infile in files:
+
         for mode in opts['mode'].split(','):
             if infile.endswith(".flac"):
                 pQ.put([infile, opts['dirpath'], opts['outdir'], mode])
@@ -320,6 +321,7 @@ a dash: '-abr'"
     sflags = [0, 0]
     ap = []  # active processes
     while True:
+
         cc = opts['threads']
 
         while int(cc) > (len(ap)):
@@ -376,6 +378,7 @@ a dash: '-abr'"
     # with it
     st = time.time()
     while True:
+
         if len(filter(lambda x: x.is_alive(), ap)) == 0: break
         print "-" * 80
         for proc in filter(lambda x: x.is_alive(), ap):
