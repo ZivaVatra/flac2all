@@ -325,7 +325,7 @@ a dash: '-abr'"
         cc = opts['threads']
 
         while int(cc) > (len(ap)):
-            print ">> Spawning encoding process #%d" % len(ap)
+            print(">> Spawning encoding process #%d" % int(cc))
             proc = encode_thread(int(cc), "Thread %d" % int(cc), pQ, opts, lQ)
             proc.start()
             ap.append(proc)
@@ -432,8 +432,9 @@ Conversion error rate: %.2f %%
             esum = sum(execT)
             emean = sum(execT) / len(execT)
         else:
-            esum = 0
-            emean = 0
+            # Empty set, just continue
+            print("%s: No data (no files converted)" % mode)
+            continue
 
         execT.sort()
         if len(execT) % 2 != 0:
