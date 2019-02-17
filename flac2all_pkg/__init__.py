@@ -29,6 +29,7 @@ from opus import opus
 
 import multiprocessing as mp
 import threading as mt
+from shutil import copy as copytarget
 from optparse import OptionParser
 from config import opts
 
@@ -351,7 +352,10 @@ a dash: '-abr'"
         #
         try:
             command = cQ.get(timeout=10)
-            print command
+            srcfile, srcroot, dest, encformat = command
+            outdir = sh.generateoutdir(srcfile, os.path.join(dest, encformat), srcroot)
+            copytarget(srcfile, outdir)
+            print("%s => %s" % (srcfile, outdir))
         except mp.TimeoutError as e:
             print "Copy Queue finished."
             sflags[1] = 1
@@ -477,7 +481,7 @@ Per file conversion:
 
     if failures != 0:
         print "We had some failures in encoding :-("
-        print "Writing out error log to file %s" % errout_file
+        print "Check the conversion_results.log file for info." % errout_file
         print "Done! Returning non-zero exit status! "
         sys.exit(-1)
     else:
