@@ -428,9 +428,12 @@ Conversion error rate: %.2f %%
         x = filter(lambda x: x[2] == mode, log)
         # 2. Get the execution time for all relevant logs
         execT = map(lambda y: y[5], x)
-
-        esum = sum(execT)
-        emean = sum(execT) / len(execT)
+        if len(execT) != 0:
+            esum = sum(execT)
+            emean = sum(execT) / len(execT)
+        else:
+            esum = 0
+            emean = 0
 
         execT.sort()
         if len(execT) % 2 != 0:
