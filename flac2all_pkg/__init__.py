@@ -325,7 +325,7 @@ a dash: '-abr'"
         cc = opts['threads']
 
         while int(cc) > (len(ap)):
-            print(">> Spawning encoding process #%d" % int(cc))
+            print(">> Spawning encoding process")
             proc = encode_thread(int(cc), "Thread %d" % int(cc), pQ, opts, lQ)
             proc.start()
             ap.append(proc)
