@@ -409,7 +409,7 @@ a dash: '-abr'"
 Total files on input: %d
 Total files actually processed: %d
 --
-Execution success rate: %.2f %%
+Execution rate: %.2f %%
 
 
 Files we managed to convert successfully: %d
@@ -433,7 +433,7 @@ Conversion error rate: %.2f %%
             emean = sum(execT) / len(execT)
         else:
             # Empty set, just continue
-            print("%s: No data (no files converted)" % mode)
+            print("For mode %s:\nNo data (no files converted)\n" % mode)
             continue
 
         execT.sort()
@@ -454,7 +454,7 @@ Conversion error rate: %.2f %%
         else:
             etime += "%.4f hours" % (esum / 60 / 60)
 
-    print """
+        print """
 For mode: %s
 %s
 Per file conversion:
