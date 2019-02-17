@@ -124,4 +124,3 @@ The easiest way to get started writing a codec module is to look at an existing 
 
 * using "ctrl-c" to terminate does not exit cleanly. Plus you have to hit ctrl-c multiple times to terminate flac2all.
 * following on from above, when terminated the script leaves a bunch if tmpfiles. We need to clean up properly
-* at the moment, overwrite isn't implemented (i.e. we never skip an overwrite, ignoring flags set).
