@@ -136,6 +136,11 @@ class encode_thread(mt.Thread):
                 raise modeError
 
             outfile = outfile.replace('.flac', '')
+            if opts['overwrite'] is False:
+                if os.path.exists(outfile + "." + mode):
+                    print "Output file already exists, skipping"
+                    continue
+
             print "Converting: \t %-40s  target: %8s " % (
                 task[0].
                 split('/')[-1],
@@ -481,7 +486,7 @@ Per file conversion:
 
     if failures != 0:
         print "We had some failures in encoding :-("
-        print "Check the conversion_results.log file for info." % errout_file
+        print "Check %s file for info." % errout_file
         print "Done! Returning non-zero exit status! "
         sys.exit(-1)
     else:
