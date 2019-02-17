@@ -89,9 +89,8 @@ class encode_thread(mt.Thread):
                     os.makedirs(outpath)
             except OSError as e:
                 # Error 17 means folder exists already. We can reach this
-                # despite the check above.
-                # due to a race condition when a bunch of processes spawned
-                # all try to mkdir.
+                # despite the check above, due to a race condition when a
+                # bunch of spawned processes all try to mkdir at once.
                 # So if Error 17, continue, otherwise re-raise the exception
                 if e.errno != 17:
                     raise(e)
@@ -325,7 +324,7 @@ a dash: '-abr'"
         cc = opts['threads']
 
         while int(cc) > (len(ap)):
-            print(">> Spawning encoding process")
+            print(">> Spawning execution process")
             proc = encode_thread(int(cc), "Thread %d" % int(cc), pQ, opts, lQ)
             proc.start()
             ap.append(proc)
@@ -347,19 +346,20 @@ a dash: '-abr'"
         else:
             sflags[0] = 0
 
-        sflags[1] = 1
+        # sflags[1] = 1
         # Commented out until we get the shell_process_thread function written
         #
-        # try:
-        #    cQ.put(cQ.get(timeout=10))
-        # except mp.TimeoutError as e:
-        #    print "Copy Queue finished."
-        #    sflags[1] = 1
-        # except Queue.Empty as e:
-        #    print "Copy Queue finished."
-        #    sflags[1] = 1
-        # else:
-        #    sflags[1] = 0
+        try:
+            command = cQ.get(timeout=10)
+            print command
+        except mp.TimeoutError as e:
+            print "Copy Queue finished."
+            sflags[1] = 1
+        except Queue.Empty as e:
+            print "Copy Queue finished."
+            sflags[1] = 1
+        else:
+            sflags[1] = 0
 
         if sflags == [1, 1]:
             print "Processing Complete!"
