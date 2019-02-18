@@ -42,3 +42,5 @@ die("Could not create git tag\n") unless (0 == system("git tag -a $new_version -
 system("rm -rf ./build ./dist");
 # Now run the code to push to pip
 die("Could not build and deploy to pypi\n") unless (0 == system("python ./setup.py sdist bdist_wheel && twine upload $repo_extra dist/*"));
+# Finally, we push the tag to git
+system("git push origin $new_version");
