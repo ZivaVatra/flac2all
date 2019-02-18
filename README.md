@@ -61,10 +61,11 @@ If you wish to contribute to flac2all, I ask that you keep to the following guid
 
 * Please raise an issue if you intend to place a hard dependency on a third party package (that isn't a codec). If you want to make use of a third party library it would be best to discuss before time is put into development.
 
-## Known bugs/issues
+## Known bugs/issues and TODOs
 
 * using "ctrl-c" to terminate does not exit cleanly. Plus you have to hit ctrl-c multiple times to terminate flac2all.
 * following on from above, when terminated the script leaves a bunch of tmpfiles. We need to clean up properly
+* "test" mode is not implemented yet.
 
 ## Raising a bug report
 
@@ -77,6 +78,8 @@ Here is a video of flac2all (v3) saturating a 16 core machine with conversions:
 [![screenshot](http://s27.postimg.org/7r1wrz3sz/synapse_16_threads.png)](https://www.youtube.com/watch?v=pXSpPjWtSJc)
 
 ## Usage
+
+Full information, including options and all current available conversion modes, can be found by running "flac2all -h".
 
 Attempts were made to keep version4 backwards compatible with the options from version3. In theory you should be able to run the exact same commands and flac2all v4 should still work as expected.
 
@@ -156,6 +159,5 @@ Earth Wind & Fire - Boogie Wonderland (12'' Version).flac,./fromFlac/opus/Earth 
  ```
 
 The first line shows what each field refers to, and the other lines are a sample of failed FLAC files, with their full paths.
-
 
 
