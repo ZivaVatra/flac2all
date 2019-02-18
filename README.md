@@ -9,11 +9,11 @@ This is the new stable version, replacing V3. Its been in "Beta" for a few years
 The older v3 releases are also still available in the downloads area, as well as the "version3" branch of git, if v4 isn't working for you.
 
 Biggest changes for this version is:
-	- A rewrite of the multi process core
-	- The ability to encode multiple codecs in parallel (e.g. mp3 and vorbis at once)
-	- Logging support, plus statistical capture and summary at the end
-	- Break up of code from one monolithic file into smaller core files, and files for codecs, for easier maintenance and development/extension
-	- Proper packaging, with future releases going via PyPi
+	* A rewrite of the multi process core
+	* The ability to encode multiple codecs in parallel (e.g. mp3 and vorbis at once)
+	* Logging support, plus statistical capture and summary at the end
+	* Break up of code from one monolithic file into smaller core files, and files for codecs, for easier maintenance and development/extension
+	* Proper packaging, with future releases going via PyPi
 
 ## Dependencies
 * Python >2.7
