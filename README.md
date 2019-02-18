@@ -1,5 +1,5 @@
 ## What is it
-Started in 2003 as a flac to ogg vorbis script, flac2All has grown into a parallel processing script that will convert your collection of FLAC files into various other formats (currently mp3,ogg vorbis,opus,flac and acc), complete with any tags that the source file had. Designed to be extended with new formats easily as time goes on, it is a utility for people with with large FLAC collections who also want a way to convert multiple files in parallel.
+Started in 2003 as a flac to ogg vorbis script, flac2all has grown into a parallel processing program that will convert your collection of FLAC files into various other formats (currently mp3,ogg vorbis,opus,flac and aac), complete with any tags that the source file had. Designed to be extended with new formats easily as time goes on, it is a utility for people with with large FLAC collections who also want a way to convert multiple files in parallel.
 ## Details
 
 After many years of (admittadly slow) development, version 4 is finally ready for general release.
@@ -33,12 +33,48 @@ There is a pip package available. You can install flac2all by running  "pip inst
 
 To upgrade to a new release you run the same commands as installation, but with "--upgrade" option set.
 
-### Development:
+## Development:
 If you want the bleeding edge version, best to check out the latest master branch from git.
-Generally development work will be done in branches then merged, so master should be functional, if unstable and buggy.
+Generally development work will be done in branches then merged, so master should be functional. 
 
-If you want to extend/modify flac2all, checkout a copy of the repo, make your own branch, develop/test/debug until ready, then issue a pull request. Do not start hacking away on the master branch directly.
+The main goal of version 4 was to split the codecs into their own modules, which should allow developers to easily add new codecs. The internal function tables stay the same, meaning that as long as you follow the structure of the main functions, you can add any codec you want.
 
+The easiest way to get started writing a codec module is to look at an existing one. I would recommend "flac.py", as it shows both encoding and decoding, and flac to flac conversion was very simple to implement. A more complex example is the mp3 module, which shows how complex things can get. 
+
+### Fixed branches
+There are some branches that are considered "fixed". This means that they tend to be self contained, and they may not track any other branch. A list of these branches as as follows:
+
+* master: Main branch, where final merges and tests are done prior to tagging and deployment. Tends to track "version4"
+* version4: The current development branch, where changes are made, pulls merged and tested, prior to merge with master for release.
+* version3: The old stable branch. No active development, but kept in case someone needs/wants access to the old version3
+
+### Dev etiquette
+If you wish to contribute to flac2all, I ask that you keep to the following guidelines:
+
+* If you want to extend/modify flac2all, checkout the latest copy of the repo, switch to the development branch (currently "version4"), and then make your own branch, develop/test/debug until ready, then issue a pull request. Do not start hacking away on the master branch directly.
+
+* The goal of the master branch is to be the final stage before a tagged release. As such, any code merged into master should not break things badly. All testing and debugging should be done on your branch prior to merge.
+
+* If you want to add a new codec to flac2all, please keep it all in one single file. This is how the rest of flac2all is written. Some codecs (like AAC) actually have two implementations in one module (Both NeroAAC and fdk-aac). It keeps things easier to manage if each conversion codec is its own module.
+
+* Keep to the same internal API as the other modules. If you strongly feel that the API is missing some functionality critical to making your module work, raise an issue on this project page and we can discuss the situation.
+
+* Please raise an issue if you intend to place a hard dependency on a third party package (that isn't a codec). If you want to make use of a third party library it would be best to discuss before time is put into development.
+
+## Known bugs/issues
+
+* using "ctrl-c" to terminate does not exit cleanly. Plus you have to hit ctrl-c multiple times to terminate flac2all.
+* following on from above, when terminated the script leaves a bunch of tmpfiles. We need to clean up properly
+
+## Raising a bug report
+
+Before you raise a bug report, please test with the latest version from git. Sometimes distro packages lag the latest stable by a couple of versions, so you may hit bugs that have already been fixed.
+
+## Examples in use
+
+Here is a video of flac2all (v3) saturating a 16 core machine with conversions:
+
+[![screenshot](http://s27.postimg.org/7r1wrz3sz/synapse_16_threads.png)](https://www.youtube.com/watch?v=pXSpPjWtSJc)
 
 ## Usage
 
@@ -102,7 +138,7 @@ Writing log file (./fromFlac/conversion_results.log)
 Done!
 We had some failures in encoding :-(
 Writing out error log to file ./conversion_results.log
-Done! Returning non-zero exit status! 
+Done! Returning non-zero exit status!
 
 ```
 
@@ -121,13 +157,5 @@ Earth Wind & Fire - Boogie Wonderland (12'' Version).flac,./fromFlac/opus/Earth 
 
 The first line shows what each field refers to, and the other lines are a sample of failed FLAC files, with their full paths.
 
-## Developing
 
-Main goal of version 4 was to split the codecs into their own modules, which should allow developers to easily add new codecs. The internal function tables stay the same, meaning that as long as you follow the structure of the main functions, you can add any codec you want.
 
-The easiest way to get started writing a codec module is to look at an existing one. I would recommend "flac.py", as it shows both encoding and decoding, and flac is very simple to implement.
-
-## Known bugs/issues
-
-* using "ctrl-c" to terminate does not exit cleanly. Plus you have to hit ctrl-c multiple times to terminate flac2all.
-* following on from above, when terminated the script leaves a bunch of tmpfiles. We need to clean up properly
