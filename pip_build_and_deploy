@@ -1,6 +1,16 @@
 #!/usr/bin/perl
-
 use warnings;
+
+# We use this as a simple bool, to dictate whether we use the
+# pypi test url, or we are publishing live
+my $test = 1;
+my $repo_extra = "";
+
+# Add the test repo url if we are in test most
+if ($test == 1) {
+	$repo_extra = "--repository-url https://test.pypi.org/legacy/";
+}
+
 my $base="v4"; # This is the base version, either v3 or v4 atm.
 my @tags = `git tag -l`;
 my $version = "$base.0";
@@ -31,4 +41,4 @@ die("Could not create git tag\n") unless (0 == system("git tag -a $new_version -
 # And we remove the build and dist folder, to make sure fresh files are used
 system("rm -rf ./build ./dist");
 # Now run the code to push to pip
-die("Could not build and deploy to pypi\n") unless (0 == system("python ./setup.py sdist bdist_wheel && twine upload --repository-url https://test.pypi.org/legacy/ dist/*"));
+die("Could not build and deploy to pypi\n") unless (0 == system("python ./setup.py sdist bdist_wheel && twine upload $repo_extra dist/*"));
