@@ -45,7 +45,7 @@ modeError = Exception("Error understanding mode. Is mode valid?")
 
 def prog_usage():
     return """
-Flac2all python script, version 4. Copyright 2003-2015 ziva-vatra
+Flac2all python script, version 4. Copyright 2003 ziva-vatra
 Licensed under the GPLv3 or later. Please see included LICENCE file,
 or visit http://www.gnu.org/licenses/gpl.txt for the full licence.
 
