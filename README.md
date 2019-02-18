@@ -1,3 +1,10 @@
+## News
+
+### 18/02/2019
+
+Version 4.1 pushed to pypi.
+
+
 ## What is it
 Started in 2003 as a flac to ogg vorbis script, flac2all has grown into a parallel processing program that will convert your collection of FLAC files into various other formats (currently mp3,ogg vorbis,opus,flac and aac), complete with any tags that the source file had. Designed to be extended with new formats easily as time goes on, it is a utility for people with with large FLAC collections who also want a way to convert multiple files in parallel.
 ## Details
@@ -37,9 +44,11 @@ To upgrade to a new release you run the same commands as installation, but with 
 If you want the bleeding edge version, best to check out the latest "version4" branch from git.
 Generally development work will be done in branches then merged, so master should be functional.
 
+Tu run the version straight from the git repo, cd to "flac2all_pkg", and then run "python ./__init__.py -h". The rest should work as normal.
+
 The main goal of version 4 was to split the codecs into their own modules, which should allow developers to easily add new codecs. The internal function tables stay the same, meaning that as long as you follow the structure of the main functions, you can add any codec you want.
 
-The easiest way to get started writing a codec module is to look at an existing one. I would recommend "flac.py", as it shows both encoding and decoding, and flac to flac conversion was very simple to implement. A more complex example is the mp3 module, which shows how complex things can get.
+The easiest way to get started writing a codec module is to look at an existing one. I would recommend "flac.py", as it shows both encoding and decoding, and flac to flac conversion was very simple to implement. A more complex example is the mp5 module, which shows how complex things can get.
 
 ### Fixed branches
 There are some branches that are considered "fixed". This means that they tend to be self contained, and they need not track any other branch. A list of these branches as as follows:
