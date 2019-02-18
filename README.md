@@ -1,12 +1,12 @@
 ## What is it
-Started in 2003 as a flac to vorbis script, flac2All has grown into a parallel processing script that will convert your collection of FLAC files into various other formats (currently mp3,ogg vorbis,opus,flac and acc), complete with any tags that the source file had. Designed to be extended with new formats easily as time goes on, it is a utility for people with with large FLAC collections who also want a way to convert multiple files in parallel."
+Started in 2003 as a flac to ogg vorbis script, flac2All has grown into a parallel processing script that will convert your collection of FLAC files into various other formats (currently mp3,ogg vorbis,opus,flac and acc), complete with any tags that the source file had. Designed to be extended with new formats easily as time goes on, it is a utility for people with with large FLAC collections who also want a way to convert multiple files in parallel.
 ## Details
 
 After many years of (admittadly slow) development, version 4 is finally ready for general release.
 
 This is the new stable version, replacing V3. Its been in "Beta" for a few years now, and now I feel ready to release it to the public. Please test and raise any issues you find.
 
-version3 is still available, in the "version3" branch of this git repo. The older v3 releases are also still available in the downloads repo if v4 isn't working for you. 
+The older v3 releases are also still available in the downloads area, as well as the "version3" branch of git, if v4 isn't working for you.
 
 Biggest changes for this version is:
 	- A rewrite of the multi process core
@@ -23,23 +23,30 @@ Biggest changes for this version is:
 * Lame: for mp3 support
 * Opus-tools: for opus support
 * Vorbis-tools: for ogg support
-* neroAAC and/or fdk-aac  for AAC support
+* neroAAC and/or fdk-aac for AAC support
 
 
 ## Packages for Distros
 
 ### Stable:
-There is a pip package available. You can install flac2all by running  "pip install flac2all".
+There is a pip package available. You can install flac2all by running  "pip install flac2all" as root, or "pip install flac2all --user" for a non root local install.
+
+To upgrade to a new release you run the same commands as installation, but with "--upgrade" option set.
 
 ### Development:
 If you want the bleeding edge version, best to check out the latest master branch from git.
-Generally development work will be done in branches, and master should be functional, if unstable and buggy
+Generally development work will be done in branches then merged, so master should be functional, if unstable and buggy.
+
+If you want to extend/modify flac2all, checkout a copy of the repo, make your own branch, develop/test/debug until ready, then issue a pull request. Do not start hacking away on the master branch directly.
 
 
 ## Usage
-Unlike the 3.x version, this one allows multiple codecs to be specified on the command line, and in the target folder it will create a subfolder for each codec. So for example:
 
-``` python ./\_\_main\_\_.py vorbis,mp3 --vorbis-options='quality=2' -o ./fromFlac/ /path/to/flac/Lossless/ ```
+Attempts were made to keep version4 backwards compatible with the options from version3. In theory you should be able to run the exact same commands and flac2all v4 should still work as expected.
+
+There are some differences though. Unlike the 3.x version, version 4 allows multiple codecs to be specified on the command line, and in the target folder it will create a subfolder for each codec. So for example:
+
+``` flac2all vorbis,mp3 --vorbis-options='quality=2' -o ./fromFlac/ /path/to/flac/Lossless/ ```
 
 will create the following structure:
 
@@ -123,4 +130,4 @@ The easiest way to get started writing a codec module is to look at an existing 
 ## Known bugs/issues
 
 * using "ctrl-c" to terminate does not exit cleanly. Plus you have to hit ctrl-c multiple times to terminate flac2all.
-* following on from above, when terminated the script leaves a bunch if tmpfiles. We need to clean up properly
+* following on from above, when terminated the script leaves a bunch of tmpfiles. We need to clean up properly
