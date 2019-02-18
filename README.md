@@ -8,7 +8,7 @@ This is the new stable version, replacing V3. Its been in "Beta" for a few years
 
 The older v3 releases are also still available in the downloads area, as well as the "version3" branch of git, if v4 isn't working for you.
 
-Biggest changes for this version is:
+Biggest changes for this version are:
 * A rewrite of the multi process core
 * The ability to encode multiple codecs in parallel (e.g. mp3 and vorbis at once)
 * Logging support, plus statistical capture and summary at the end
@@ -34,17 +34,17 @@ There is a pip package available. You can install flac2all by running  "pip inst
 To upgrade to a new release you run the same commands as installation, but with "--upgrade" option set.
 
 ## Development:
-If you want the bleeding edge version, best to check out the latest master branch from git.
-Generally development work will be done in branches then merged, so master should be functional. 
+If you want the bleeding edge version, best to check out the latest "version4" branch from git.
+Generally development work will be done in branches then merged, so master should be functional.
 
 The main goal of version 4 was to split the codecs into their own modules, which should allow developers to easily add new codecs. The internal function tables stay the same, meaning that as long as you follow the structure of the main functions, you can add any codec you want.
 
 The easiest way to get started writing a codec module is to look at an existing one. I would recommend "flac.py", as it shows both encoding and decoding, and flac to flac conversion was very simple to implement. A more complex example is the mp3 module, which shows how complex things can get.
 
 ### Fixed branches
-There are some branches that are considered "fixed". This means that they tend to be self contained, and they may not track any other branch. A list of these branches as as follows:
+There are some branches that are considered "fixed". This means that they tend to be self contained, and they need not track any other branch. A list of these branches as as follows:
 
-* master: Main branch, where final merges and tests are done prior to tagging and deployment. Tends to track "version4"
+* master: Main branch, where final merges and tests are done prior to tagging and deployment. From here we generate the releases.
 * version4: The current development branch, where changes are made, pulls merged and tested, prior to merge with master for release.
 * version3: The old stable branch. No active development, but kept in case someone needs/wants access to the old version3
 
