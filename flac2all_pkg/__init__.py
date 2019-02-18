@@ -362,10 +362,8 @@ a dash: '-abr'"
             copytarget(srcfile, outdir)
             print("%s => %s" % (srcfile, outdir))
         except mp.TimeoutError as e:
-            print "Copy Queue finished."
             sflags[1] = 1
         except Queue.Empty as e:
-            print "Copy Queue finished."
             sflags[1] = 1
         else:
             sflags[1] = 0
