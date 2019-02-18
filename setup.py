@@ -28,12 +28,11 @@ setup(
     name="flac2all",
     version=vers,
     packages=["flac2all_pkg"],
-
     # metadata for upload to PyPI
     author="ZivaVatra",
     author_email="zv@ziva-vatra.com",
     description='''
-Multi process,multi codec audio converter with tagging support
+Multi process, multi codec audio converter with tagging support
 ''',
     license="GPLv3",
     url="https://github.com/ZivaVatra/flac2all",
