@@ -44,7 +44,7 @@ To upgrade to a new release you run the same commands as installation, but with 
 If you want the bleeding edge version, best to check out the latest "version4" branch from git.
 Generally development work will be done in branches then merged, so master should be functional.
 
-Tu run the version straight from the git repo, cd to "flac2all_pkg", and then run "python ./__init__.py -h". The rest should work as normal.
+Tu run the version straight from the git repo, cd to "flac2all_pkg", and then run "python ./\_\_init\_\_.py -h". The rest should work as normal.
 
 The main goal of version 4 was to split the codecs into their own modules, which should allow developers to easily add new codecs. The internal function tables stay the same, meaning that as long as you follow the structure of the main functions, you can add any codec you want.
 
