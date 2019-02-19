@@ -20,7 +20,7 @@ Started in 2003 as a flac to ogg vorbis converter, flac2All has grown into a mul
 Tested on Linux and FreeBSD, let me know how it works on other Unix OS'es.
 '''
 
-with open("version", 'r') as fd:
+with open("./flac2all_pkg/version", 'r') as fd:
     vers = fd.read()
     vers = vers.strip()
 
