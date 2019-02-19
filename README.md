@@ -82,9 +82,8 @@ Before you raise a bug report, please test with the latest version from git. Som
 
 ## Examples in use
 
-Here is a video of flac2all (v3) saturating a 16 core machine with conversions:
-
-https://www.youtube.com/watch?v=pXSpPjWtSJc
+* Here is a video of flac2all (v3) saturating a 16 core machine with conversions:
+** synapse-16_threads - https://www.youtube.com/watch?v=pXSpPjWtSJc
 
 ## Usage
 
