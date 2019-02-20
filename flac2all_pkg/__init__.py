@@ -115,15 +115,9 @@ class encode_thread(mt.Thread):
                 encoder = flac(opts['flacopts'])
                 encf = encoder.flacConvert
             elif mode == "test":
-                logq.put([
-                    infile,
-                    outfile,
-                    mode,
-                    "ERROR: Flac testing not implemented yet",
-                    1,
-                    0
-                ])
-                continue
+                encoder = flac() # We don't need any opts for testing
+                encoder.flactest(infile, "N/A", logq)
+                return True
             else:
                 logq.put([
                     infile,
