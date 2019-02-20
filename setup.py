@@ -14,12 +14,6 @@ from os import path
 
 here = path.abspath(path.dirname(__file__))
 
-long_description = '''
-Started in 2003 as a flac to ogg vorbis converter, flac2All has grown into a multithreaded script that will convert your collection of FLAC files into various other formats (currently mp3,ogg vorbis,opus, flac and acc), complete with any tags that the source file had. Designed to be extended with new formats easily as time goes on, it is a utility for people with with large FLAC collections who want a way to convert multiple files in parallel.
-
-Tested on Linux and FreeBSD, let me know how it works on other Unix OS'es.
-'''
-
 with open("./flac2all_pkg/version", 'r') as fd:
     vers = fd.read()
     vers = vers.strip()
@@ -30,15 +24,19 @@ setup(
     packages=["flac2all_pkg"],
     # metadata for upload to PyPI
     author="ZivaVatra",
-    author_email="zv@ziva-vatra.com",
-    description='''
-Multi process, multi codec audio converter with tagging support
+    author_email="info@ziva-vatra.com",
+    description="Multi process, multi codec audio converter with tagging support",
+	long_description='''
+Started in 2003 as a flac to ogg vorbis converter, flac2All has grown into a multithreaded script that will convert your collection of FLAC files into various other formats (currently mp3,ogg vorbis,opus, flac and acc), complete with any tags that the source file had. Designed to be extended with new formats easily as time goes on, it is a utility for people with with large FLAC collections who want a way to convert multiple files in parallel.
+
+Tested on Linux and FreeBSD, let me know how it works on other Unix OS'es.
 ''',
+	long_description_content_type="text/plain",
     license="GPLv3",
     url="https://github.com/ZivaVatra/flac2all",
     # From https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
         'Intended Audience :: End Users/Desktop',
         'License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)',
