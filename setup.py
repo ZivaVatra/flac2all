@@ -45,8 +45,8 @@ Multi process, multi codec audio converter with tagging support
         'Natural Language :: English',
         'Operating System :: POSIX :: BSD',
         'Operating System :: POSIX :: Linux',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.6',
         'Topic :: Multimedia :: Sound/Audio :: Conversion',
     ],
     keywords='multithread, multiprocess, batch, flac, converter, mp3, vorbis,\
