@@ -2,9 +2,9 @@
 # Class that deals with AAC+
 import os
 import sys
-from shell import shell
-from flac import flac, flacdecode
-from config import ipath
+from .shell import shell
+from .flac import flac, flacdecode
+from .config import ipath
 from time import time
 
 # This is for the open source implementation. In this case we went for the
@@ -15,8 +15,8 @@ class aacplus(object):
 	def __init__(self, aacopts):
 		self.opts = aacopts
 		if os.path.exists("%saac-enc" % ipath.aacpath) is False:
-			print "Error: %saac-enc not found (is fdk-aac installed?)\
-			Cannot convert" % ipath.aacpath
+			print("Error: %saac-enc not found (is fdk-aac installed?)\
+			Cannot convert" % ipath.aacpath)
 			sys.exit(-1)
 
 	def AACPconvert(self, infile, outfile, logq):
@@ -43,7 +43,7 @@ class aacplusNero(object):
 	def __init__(self, aacopts):
 		self.opts = aacopts
 		if not os.path.exists("%sneroAacEnc" % ipath.neropath):
-			print "ERROR: NeroAacEnc not found! Cannot convert."
+			print("ERROR: NeroAacEnc not found! Cannot convert.")
 			sys.exit(-1)
 
 	def generateNeroTags(self, indata):

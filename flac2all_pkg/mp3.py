@@ -3,8 +3,8 @@
 
 import os
 
-from config import ipath
-from flac import flac, flacdecode
+from .config import ipath
+from .flac import flac, flacdecode
 from time import time
 import uuid
 import subprocess as sp
@@ -186,8 +186,8 @@ class lameMp3(object):
                 genre_is_acceptable = 1  # we can use the genre
 
         if genre_is_acceptable == 0:  # if genre cannot be used
-            print "The Genre \"%s\" cannot be used with lame,\
-                setting to \"Other\" " % current_genre
+            print("The Genre \"%s\" cannot be used with lame,\
+                setting to \"Other\" " % current_genre)
             metastring['GENRE'] = "Other"
 
         else:
@@ -258,7 +258,7 @@ class lameMp3(object):
         errline = stderr.read()
         errline = errline.upper()
         if errline.strip() != '':
-            print "ERRORLINE: %s" % errline
+            print("ERRORLINE: %s" % errline)
         if errline.find("ERROR") != -1 or rc != 0:
             logq.put([
                 infile,

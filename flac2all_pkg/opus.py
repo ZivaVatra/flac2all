@@ -4,8 +4,8 @@ import os
 import re
 
 from time import time
-from flac import flacdecode
-from config import ipath
+from .flac import flacdecode
+from .config import ipath
 import subprocess as sp
 
 # Class that deals with the opus codec
@@ -28,7 +28,7 @@ class opus:
             ])
 
         data = re.search("\d\.\d\.\d", data).group(0)
-        (release, major, minor) = map(lambda x: int(x), data.split('.'))
+        (release, major, minor) = [int(x) for x in data.split('.')]
         self.version = (release, major, minor)
         self.opts = opusencopts
 
@@ -39,8 +39,8 @@ class opus:
         startTime = time()
 
         if self.version is None:
-            print "ERROR! Could not discover opus version, assuming version >=\
-                0.1.7. THIS MAY NOT WORK!"
+            print("ERROR! Could not discover opus version, assuming version >=\
+                0.1.7. THIS MAY NOT WORK!")
             version = (9, 9, 9)
         else:
             version = self.version
@@ -49,8 +49,8 @@ class opus:
         # with warning
         result = None
         if (version[0] == 0) and (version[1] <= 1) and (version[2] <= 6):
-            print "WARNING: Opus version prior to 0.1.7 detected,\
-                NO TAGGING SUPPORT"
+            print("WARNING: Opus version prior to 0.1.7 detected,\
+                NO TAGGING SUPPORT")
             decoder = flacdecode(infile)()
             encoder = sp.Popen([
                 "%sopusenc" % ipath.opusencpath,
@@ -81,8 +81,7 @@ class opus:
                 "--quiet",
             ]
             if self.opts.strip() != "":
-                cmd.extend(filter(
-                    lambda x: x.strip() != "", self.opts.split(' '))
+                cmd.extend([x for x in self.opts.split(' ') if x.strip() != ""]
                 )
 
             cmd.extend([infile, "%s.opus" % (outfile)])

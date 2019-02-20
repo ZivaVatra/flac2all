@@ -1,5 +1,5 @@
 # vim: ts=4 autoindent expandtab
-from config import ipath
+from .config import ipath
 from time import time
 import subprocess as sp
 
@@ -7,9 +7,7 @@ import subprocess as sp
 # Class that deals with vorbis
 class vorbis:
     def __init__(self, vorbis_options):
-            self.opts = filter(
-                lambda x: x.strip() != "", vorbis_options.split(' ')
-            )
+            self.opts = [x for x in vorbis_options.split(' ') if x.strip() != ""]
 
     def oggconvert(self, infile, outfile, logq):
         # oggenc automatically parses the flac file + metadata, quite wonderful
