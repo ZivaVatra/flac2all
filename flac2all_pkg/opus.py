@@ -4,8 +4,8 @@ import os
 import re
 
 from time import time
-from .flac import flacdecode
-from .config import ipath
+from flac import flacdecode
+from config import ipath
 import subprocess as sp
 
 # Class that deals with the opus codec

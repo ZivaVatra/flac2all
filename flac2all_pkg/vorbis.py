@@ -1,5 +1,5 @@
 # vim: ts=4 autoindent expandtab
-from .config import ipath
+from config import ipath
 from time import time
 import subprocess as sp
 

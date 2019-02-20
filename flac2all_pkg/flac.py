@@ -2,8 +2,8 @@
 # vim: ts=4 noexpandtab si
 
 import os
-from .config import ipath, opts
-from .shell import shell
+from config import ipath, opts
+from shell import shell
 from time import time
 import subprocess as sp
 

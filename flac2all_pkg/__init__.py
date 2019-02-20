@@ -20,18 +20,18 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-from .aac import aacplusNero, aacplus
-from .vorbis import vorbis
-from .flac import flac
-from .mp3 import lameMp3 as mp3
-from .shell import shell
-from .opus import opus
+from aac import aacplusNero, aacplus
+from vorbis import vorbis
+from flac import flac
+from mp3 import lameMp3 as mp3
+from shell import shell
+from opus import opus
 
 import multiprocessing as mp
 import threading as mt
 from shutil import copy as copytarget
 from optparse import OptionParser
-from .config import opts
+from config import opts
 
 import sys
 import os

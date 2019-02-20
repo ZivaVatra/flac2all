@@ -3,8 +3,8 @@
 
 import os
 
-from .config import ipath
-from .flac import flac, flacdecode
+from config import ipath
+from flac import flac, flacdecode
 from time import time
 import uuid
 import subprocess as sp
