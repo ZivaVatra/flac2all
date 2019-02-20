@@ -31,9 +31,7 @@ setup(
     # metadata for upload to PyPI
     author="ZivaVatra",
     author_email="zv@ziva-vatra.com",
-    description='''
-Multi process, multi codec audio converter with tagging support
-''',
+    description="Multi process, multi codec audio converter with tagging support",
     license="GPLv3",
     url="https://github.com/ZivaVatra/flac2all",
     # From https://pypi.python.org/pypi?%3Aaction=list_classifiers
