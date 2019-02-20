@@ -38,6 +38,13 @@ import os
 import time
 import Queue
 
+here = os.path.abspath(os.path.dirname(__file__))
+
+if os.path.exists(os.path.join(here, "version")):
+	with open(os.path.join(here,"version"), 'r') as fd:
+		version = fd.read().strip()
+else:
+	version = "v4"
 
 # error handling
 modeError = Exception("Error understanding mode. Is mode valid?")
@@ -45,7 +52,7 @@ modeError = Exception("Error understanding mode. Is mode valid?")
 
 def prog_usage():
     return """
-Flac2all python script, version 4. Copyright 2003 ziva-vatra
+Flac2all python script, %s. Copyright 2003 ziva-vatra
 Licensed under the GPLv3 or later. Please see included LICENCE file,
 or visit http://www.gnu.org/licenses/gpl.txt for the full licence.
 
@@ -56,7 +63,7 @@ Dev website: https://github.com/ZivaVatra/flac2all
 \tValid encode types are as follows: %s
 \tYou can specify multiple encode targets with a comma seperated list.
 
-""" % (sys.argv[0], "mp3 vorbis aacplusnero opus flac test")
+""" % (version, sys.argv[0], "mp3 vorbis aacplusnero opus flac test")
 
 
 # Classes
