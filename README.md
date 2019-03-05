@@ -1,5 +1,11 @@
 ## News
 
+### 05/03/2019
+
+* Version 4.2 pushed to pypi
+* Changes:
+  - Fix for issue #38: Skipping does not work if mode name does not equal file extension
+
 ### 18/02/2019
 
 * Version 4.1 pushed to pypi.
