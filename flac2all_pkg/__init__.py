@@ -190,7 +190,7 @@ def main():
 
     parser.add_option(
         "", "--opus-options", dest="opusencopts",
-        default="", help="Colon delimited options to pass to opusenc.\
+        default="vbr", help="Colon delimited options to pass to opusenc.\
         Any oggenc long option (one with two '--' in front) can be specified\
         in the above format."
     )

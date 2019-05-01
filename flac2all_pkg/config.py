@@ -17,6 +17,7 @@ class paths(object):
 		self.opusencpath = ""
 		self.path = ""
 
+
 ipath = paths()
 
 # These are global defaults, if you don't define a shell
@@ -31,5 +32,5 @@ opts = {
 	"flacopts": "-q 8",  # your flac encoder settings
 	"aacplusopts": "-a 1 -t 29",
 	"neroaacplusopts": "-q 0.3 ",  # aac as well
-	"opusopts": "bitrate 96",  # For opus (placeholder for now)
+	"opusencopts": "vbr",
 }

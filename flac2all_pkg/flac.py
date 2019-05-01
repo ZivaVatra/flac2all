@@ -13,7 +13,6 @@ import subprocess as sp
 class flacdecode(object):
 	def __init__(self, infile, pipefile):
 		self.infile = infile
-		self.shell = shell
 		self.pipe = pipefile
 
 	def __call__(self):
@@ -21,7 +20,7 @@ class flacdecode(object):
 			ipath.flacpath + "flac", '-d', '-s', '-f', '-o', self.pipe, "%s" % self.infile
 		], stderr=sp.PIPE
 		)
-		return (None, fd.stderr)
+		return (None, fd.stderr)  # None because we have moved to using named pipes
 
 
 class flac(object):
