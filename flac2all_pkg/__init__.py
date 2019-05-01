@@ -1,4 +1,4 @@
-#!/bin/python2.6
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 # vim: ts=4 ai expandtab
 
@@ -41,10 +41,10 @@ import queue
 here = os.path.abspath(os.path.dirname(__file__))
 
 if os.path.exists(os.path.join(here, "version")):
-	with open(os.path.join(here,"version"), 'r') as fd:
-		version = fd.read().strip()
+    with open(os.path.join(here, "version"), 'r') as fd:
+        version = fd.read().strip()
 else:
-	version = "v4"
+    version = "v4"
 
 # error handling
 modeError = Exception("Error understanding mode. Is mode valid?")
@@ -159,15 +159,15 @@ class encode_thread(mt.Thread):
 def main():
     sh = shell()
 
-    # process Queue,the queue that will hold all the flac files we want to convert.
+    # process queue,the queue that will hold all the flac files we want to convert.
     #  format: [ $infile, $target_format ]
     pQ = mp.Queue()
 
-    # copy Queue (for copying non flac files if requested)
+    # copy queue (for copying non flac files if requested)
     #  format: [ $infile, $outfile ]
     cQ = mp.Queue()
 
-    # logging Queue, the encoders log progress to this
+    # logging queue, the encoders log progress to this
     # format: [
     #   $infile,
     #   $outfile,
@@ -393,7 +393,8 @@ a dash: '-abr'"
     st = time.time()
     while True:
 
-        if len([x for x in ap if x.is_alive()]) == 0: break
+        if len([x for x in ap if x.is_alive()]) == 0:
+            break
         print("-" * 80)
         for proc in [x for x in ap if x.is_alive()]:
             print("Process \"%s\" is still running! Waiting..." % proc.name)
@@ -496,6 +497,7 @@ Per file conversion:
         sys.exit(-1)
     else:
         sys.exit(0)
+
 
 if __name__ == "__main__":
     main()
