@@ -255,7 +255,7 @@ class lameMp3(object):
 
         rc = sp.check_call(cmd)
         os.unlink(pipe)
-        errline = stderr.read()
+        errline = stderr.read().decode('utf-8')
         errline = errline.upper()
         if errline.strip() != '':
             print("ERRORLINE: %s" % errline)

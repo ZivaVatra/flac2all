@@ -416,6 +416,11 @@ a dash: '-abr'"
     total = len(log)
     successes = len([x for x in log if x[4] == 0])
     failures = total - successes
+    if total != 0:
+        percentage_fail = (failures / float(total)) * 100
+    else:
+        percentage_fail = 0
+
     print("\n\n")
     print("=" * 80)
     print("| Summary ")
@@ -435,7 +440,7 @@ Conversion error rate: %.2f %%
         (float(total) / count) * 100),
         successes,
         failures,
-        ((failures / float(total)) * 100)
+        (percentage_fail)
        ))
 
     for mode in opts['mode'].split(','):
@@ -454,11 +459,11 @@ Conversion error rate: %.2f %%
         execT.sort()
         if len(execT) % 2 != 0:
             # Odd number, so median is middle
-            emedian = execT[(len(execT) - 1) / 2]
+            emedian = execT[int((len(execT) - 1) / 2)]
         else:
             # Even set. So median is average of two middle numbers
-            num1 = execT[((len(execT) - 1) / 2) - 1]
-            num2 = execT[((len(execT) - 1) / 2)]
+            num1 = execT[int((len(execT) - 1) / 2) - 1]
+            num2 = execT[int(((len(execT) - 1) / 2))]
             emedian = (sum([num1, num2]) / 2.0)
 
         etime = "Total execution time: "

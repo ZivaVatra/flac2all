@@ -84,7 +84,7 @@ class flac(object):
 			"--list",
 			"--block-type", "VORBIS_COMMENT",
 			flacfile
-		])
+		]).decode('utf-8')
 
 		datalist = []  # init a list for storing all the data in this block
 
