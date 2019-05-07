@@ -4,10 +4,8 @@ import os
 import re
 
 from time import time
-from flac import flacdecode
 from config import ipath
 import subprocess as sp
-import uuid
 
 # Class that deals with the opus codec
 
@@ -46,49 +44,15 @@ class opus:
         else:
             version = self.version
 
-        # If we are a release prior to 0.1.7, use non-tagging type conversion,
-        # with warning
+        # We no longer support 0.1.7. Seems the logic has been broken for ages
+        # and nobody noticed. That tells me all those who convert to opus, are using
+        # newer versions.
         result = None
         if (version[0] == 0) and (version[1] <= 1) and (version[2] <= 6):
-            print("WARNING: Opus version prior to 0.1.7 detected,\
-                NO TAGGING SUPPORT")
-            pipe = "/tmp/flac2all_%s" % str(uuid.uuid4()).strip()
-            (_, decode_stderr) = flacdecode(infile, pipe)()
-            try:
-                proc = sp.Popen([
-                    "%sopusenc" % ipath.opusencpath,
-                    "%s" % self.opts,
-                    pipe,
-                    "%s.opus" % outfile,
-                ], stdout=sp.PIPE, stderr=sp.PIPE)
-            except sp.CalledProcessError as e:
-                rc = -1  # This triggers the error function below
-
-            enc_stdout, enc_stderr = proc.communicate()
-            rc = proc.wait()  # wait for encoding to finish
-            os.unlink(pipe)
-            decode_errline = decode_stderr.read().decode('utf-8')
-            decode_errline = decode_errline.upper()
-            encode_errline = enc_stderr.decode('utf-8')
-            if decode_errline.strip() != '':
-                print("ERRORLINE: %s" % decode_errline)
-            if decode_errline.find("ERROR") != -1 or rc != 0:
-                logq.put([
-                    infile,
-                    "mp3",
-                    "ERROR: decoder error: '%s', encoder error: '%s'" % (
-                        decode_errline,
-                        encode_errline
-                    ),
-                    -1,
-                    str(time() - startTime),
-                ], timeout=10)
-                return False
-
-            result = "SUCCESS_NOTAGGING"
+            raise(NotImplementedError("Opus versions <= 0.1.7 no longer supported"))
         else:
             # Later versions support direct conversion from flac->opus, so no
-            # need for the above.
+            # need for anything fancy
             cmd = [
                 "%sopusenc" % ipath.opusencpath,
                 "--quiet",
