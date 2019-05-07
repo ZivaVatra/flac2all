@@ -122,18 +122,27 @@ class flac(object):
 
 	def flactest(self, infile, outfile, logq):
 		startTime = time()
-		test = os.popen("%sflac -s -t \"%s\"" % (
-			ipath.flacpath,
-			self.qEscape(infile)
-		), 'r')
-		results = test.read()
+		try:
+			sp.check_call([
+				"%sflac" % ipath.flacpath,
+				"-s",
+				"-a",
+				"-o",
+				"%s.ana" % outfile,
+				infile
+			], stderr=sp.STDOUT)
+		except sp.CalledProcessError as e:
+			results = str(e.output)
+			rc = str(e.returncode)
+		else:
+			results = "SUCCESS"
+			rc = 0
 
 		logq.put([
 			infile,
 			outfile,
 			"flactest",
 			results,
-			0,
+			rc,
 			time() - startTime
 		])
-		test.close()

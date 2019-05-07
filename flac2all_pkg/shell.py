@@ -11,7 +11,7 @@ class shell:
         # /mnt/convertedfromflac/mnt/flac/[file].mp3, in this case
         # "/mnt/" exist in both)
         if (string.find(os.path.split(indir)[0], dirpath) != -1):
-            return string.replace(os.path.split(indir)[0], dirpath, outdir)
+            return os.path.split(indir)[0].replace(dirpath, outdir)
         else:
             # if we do not find an instance of dir path in output
             # path (this shows that they are the same), just
@@ -27,7 +27,7 @@ class shell:
 
             for char in escChars:
                 # add an escape character to the character
-                input_file = string.replace(input_file, char, '\\' + char)
+                input_file = input_file.replace(char, '\\' + char)
         else:
             input_file = input_file.replace("\"", "\\\"")
 
