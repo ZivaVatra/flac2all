@@ -32,8 +32,6 @@ class flac(object):
 			lambda x: self.shell.parse_escape_chars(x, True)
 
 	def flacConvert(self, infile, outfile, logq):
-		# TODO: see about tag copying across as well
-		startTime = time()
 		# Seems newer versions of flac actually support flac -> flac
 		# recompression natively. Which is nice. This is now very
 		# simple to implement, hence removed the old code
@@ -51,13 +49,17 @@ class flac(object):
 					time() - startTime
 				])
 				return 0
-
-		rc = os.system("%sflac %s -s -o %s.flac %s" % (
-			ipath.flacpath,
-			self.opts,
-			self.shell.parse_escape_chars(outfile),
+		cmd = [
+			"%sflac" % ipath.flacpath,
+			"-s",
+			"-o",
+			'%s.flac' % self.shell.parse_escape_chars(outfile),
 			self.shell.parse_escape_chars(infile)
-		))
+		]
+		if len(self.opts) > 0:
+			cmd.extend(self.opts)
+
+		rc = sp.check_call(cmd)
 
 		if (rc == 0):
 			logq.put([
