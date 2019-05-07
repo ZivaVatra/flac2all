@@ -119,7 +119,7 @@ class aacplusNero(object):
 		encoder = os.popen("%sneroAacEnc %s -if - -of %s.mp4 >/tmp/neroLog" % (
 			ipath.neropath,
 			self.opts,
-			shell().parseEscapechars(outfile),
+			shell().parse_escape_chars(outfile),
 		), 'wb', 8192)
 
 		# while data exists in the decoders buffer

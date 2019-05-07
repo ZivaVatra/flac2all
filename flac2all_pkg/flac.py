@@ -29,7 +29,7 @@ class flac(object):
 		self.opts = flacopts
 		self.shell = shell()
 		self.qEscape = \
-			lambda x: self.shell.parseEscapechars(x, True)
+			lambda x: self.shell.parse_escape_chars(x, True)
 
 	def flacConvert(self, infile, outfile, logq):
 		# TODO: see about tag copying across as well
@@ -55,8 +55,8 @@ class flac(object):
 		rc = os.system("%sflac %s -s -o %s.flac %s" % (
 			ipath.flacpath,
 			self.opts,
-			shell().parseEscapeChars(outfile),
-			shell().parseEscapeChars(infile)
+			self.shell.parse_escape_chars(outfile),
+			self.shell.parse_escape_chars(infile)
 		))
 
 		if (rc == 0):

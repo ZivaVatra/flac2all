@@ -18,7 +18,7 @@ class shell:
             # return the output
             return outdir
 
-    def parseEscapechars(self, file, quoteonly=False):
+    def parse_escape_chars(self, input_file, quoteonly=False):
         if quoteonly:
             # characters which must be escaped in the shell, note
             # "[" and "]" seems to be automatically escaped
@@ -27,11 +27,11 @@ class shell:
 
             for char in escChars:
                 # add an escape character to the character
-                file = string.replace(file, char, '\\' + char)
+                input_file = string.replace(input_file, char, '\\' + char)
         else:
-            file = string.replace(file, "\"", "\\\"")
+            input_file = input_file.replace("\"", "\\\"")
 
-        return file
+        return input_file
 
     def getfiles(self, path):
         outfiles = []
