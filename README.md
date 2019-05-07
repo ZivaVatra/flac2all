@@ -1,4 +1,9 @@
 ## News
+### 07/05/2019
+
+* Flac Testing now refactored to generate analysis files in "test" output directory (with .ana suffix).
+* Migration of code to python3
+* Removal of old (pre 0.1.7) opus codec support. The logic is broken, and most people use newer codecs, so not worth converting the logic to python3
 
 ### 18/02/2019
 
@@ -49,7 +54,7 @@ Tu run the version straight from the git repo, cd to "flac2all_pkg", and then ru
 
 The main goal of version 4 was to split the codecs into their own modules, which should allow developers to easily add new codecs. The internal function tables stay the same, meaning that as long as you follow the structure of the main functions, you can add any codec you want.
 
-The easiest way to get started writing a codec module is to look at an existing one. I would recommend "flac.py", as it shows both encoding and decoding, and flac to flac conversion was very simple to implement. A more complex example is the mp5 module, which shows how complex things can get.
+The easiest way to get started writing a codec module is to look at an existing one. I would recommend "flac.py", as it shows both encoding and decoding, and flac to flac conversion was very simple to implement. A more complex example is the mp3 module, which shows how complex things can get.
 
 ### Fixed branches
 There are some branches that are considered "fixed". This means that they tend to be self contained, and they need not track any other branch. A list of these branches as as follows:
@@ -75,7 +80,6 @@ If you wish to contribute to flac2all, I ask that you keep to the following guid
 
 * using "ctrl-c" to terminate does not exit cleanly. Plus you have to hit ctrl-c multiple times to terminate flac2all.
 * following on from above, when terminated the script leaves a bunch of tmpfiles. We need to clean up properly
-* "test" mode is not implemented yet.
 
 ## Raising a bug report
 
@@ -93,17 +97,18 @@ Attempts were made to keep version4 backwards compatible with the options from v
 
 There are some differences though. Unlike the 3.x version, version 4 allows multiple codecs to be specified on the command line, and in the target folder it will create a subfolder for each codec. So for example:
 
-``` flac2all vorbis,mp3 --vorbis-options='quality=2' -o ./fromFlac/ /path/to/flac/Lossless/ ```
+``` flac2all vorbis,mp3,test --vorbis-options='quality=2' -o ./fromFlac/ /path/to/flac/Lossless/ ```
 
 will create the following structure:
 
 ```
 ./fromFlac/vorbis
 ./fromFlac/mp3
+./fromFlac/test
 ```
-and will encode to both formats simultaniously.
+This example will encode both to ogg vorbis and mp3 formats, while generating per file test logs, simultaniously.
 
-In addition, a conversion log is created, and a summary is printed out when completed. An example (with partial failures) looks like this:
+In addition, a summary conversion log is created. This is printed to stdout after a run. An example (with partial failures) looks like this:
 
 ```
 ================================================================================

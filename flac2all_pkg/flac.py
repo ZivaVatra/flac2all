@@ -20,8 +20,7 @@ class flacdecode(object):
 			ipath.flacpath + "flac", '-d', '-s', '-f', '-o', self.pipe, "%s" % self.infile
 		], stderr=sp.PIPE
 		)
-		stdout, stderr = fd.communicate()
-		return (None, stderr)  # None because we have moved to using named pipes
+		return (None, fd.stderr)  # None because we have moved to using named pipes
 
 
 class flac(object):
