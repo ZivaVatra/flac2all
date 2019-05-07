@@ -89,6 +89,9 @@ class encode_thread(mt.Thread):
                 return True
 
             mode = task[3].lower()
+            if mode == "vorbis":
+                mode = "ogg"
+
             infile = task[0]
             outfile = task[0].replace(task[1], os.path.join(task[2], task[3]))
             outpath = os.path.dirname(outfile)
@@ -106,7 +109,7 @@ class encode_thread(mt.Thread):
             if mode == "mp3":
                 encoder = mp3(opts['lameopts'])
                 encf = encoder.mp3convert
-            elif mode == "ogg" or mode == "vorbis":
+            elif mode == "ogg":
                 encoder = vorbis(opts['oggencopts'])
                 encf = encoder.oggconvert
             elif mode == "aacplus":
