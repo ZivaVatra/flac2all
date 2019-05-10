@@ -7,6 +7,9 @@ from flac import flac, flacdecode
 from config import ipath
 from time import time
 
+import subprocess as sp
+import uuid
+
 # This is for the open source implementation. In this case we went for the
 # Open Source Fraunhofer AAC Encoder (fdk-aac)
 
@@ -20,22 +23,38 @@ class aacplus(object):
 			sys.exit(-1)
 
 	def AACPconvert(self, infile, outfile, logq):
-		decoder = flacdecode(infile, outfile)()
-		encoder = os.popen("%saac-enc %s - \"%s.aac\" > /tmp/aacplusLog" % (
-			ipath.aacpath,
-			self.opts,
-			outfile,
-		), 'wb', 8192
-		)
+		pipe = "/tmp/flac2all_%s" % str(uuid.uuid4()).strip()
+		startTime = time()
+		_, decoder = flacdecode(infile, pipe)()
+		error = ""
+		try:
+			enc_rc = sp.check_call([
+				"%saac-enc" % ipath.aacpath,
+				self.opts,
+				pipe,
+				"%s.aac" % outfile
+			], stderr=sp.PIPE)
+		except sp.CalledProcessError as e:
+			enc_rc = -1
+			error = str(e)
 
-		# while data exists in the decoders buffer
-		for line in decoder.readlines():
-			encoder.write(line)  # write it to the encoders buffer
-
-		decoder.flush()
-		decoder.close()
-		encoder.flush()
-		encoder.close()
+		if enc_rc == 0:
+			logq.put([
+				infile,
+				outfile,
+				"aacplus",
+				"SUCCESS",
+				0,
+				time() - startTime
+			])
+		else:
+			logq.put([
+				infile,
+				"aacplus",
+				"ERROR: err: %s" % error,
+				enc_rc,
+				time() - startTime
+			], timeout=10)
 
 
 # For the binary-only Nero AAC encoder
@@ -65,7 +84,7 @@ class aacplusNero(object):
 		#  url = URL
 		#  copyright = PUBLISHER
 		#  comment = COMMENT (if blank, put in something like
-		#     'converted by flac2all ($url)' )
+		#  'converted by flac2all ($url)' )
 		#  lyrics
 		#  credits = ENCODEDBY
 		#  rating

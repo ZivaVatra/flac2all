@@ -63,7 +63,7 @@ Dev website: https://github.com/ZivaVatra/flac2all
 \tValid encode types are as follows: %s
 \tYou can specify multiple encode targets with a comma seperated list.
 
-""" % (version, sys.argv[0], "mp3 vorbis aacplusnero opus flac test")
+""" % (version, sys.argv[0], "mp3 vorbis aacplus aacplusnero opus flac test")
 
 
 # Classes
