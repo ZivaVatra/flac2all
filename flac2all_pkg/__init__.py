@@ -416,11 +416,11 @@ a dash: '-abr'"
 
     total = len(log)
     successes = len(filter(lambda x: x[4] == 0, log))
+    failures = total - successes
     if total != 0:
         percentage_fail = (failures / float(total)) * 100
     else:
         percentage_fail = 0
-    failures = total - successes
     print "\n\n"
     print "=" * 80
     print "| Summary "
