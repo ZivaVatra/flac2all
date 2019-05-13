@@ -27,16 +27,22 @@ class aacplus(object):
 		startTime = time()
 		_, decoder = flacdecode(infile, pipe)()
 		error = ""
+		cmd = [
+			"%saac-enc" % ipath.aacpath,
+		]
+		cmd.extend(self.opts.split(' '))
+		cmd.extend([
+			pipe,
+			"%s.aac" % outfile
+		])
+		procinst = sp.run(cmd, check=False, stdout=sp.PIPE, stderr=sp.PIPE)
+		enc_rc = procinst.returncode
+
 		try:
-			enc_rc = sp.check_call([
-				"%saac-enc" % ipath.aacpath,
-				self.opts,
-				pipe,
-				"%s.aac" % outfile
-			], stderr=sp.PIPE)
+			procinst.check_returncode()
 		except sp.CalledProcessError as e:
 			enc_rc = -1
-			error = str(e)
+			error = "cmd: %s, rc: %d," % (' '.join(cmd), enc_rc)
 
 		if enc_rc == 0:
 			logq.put([
@@ -48,10 +54,12 @@ class aacplus(object):
 				time() - startTime
 			])
 		else:
+			if procinst is not None:
+				error += "stderr:'%s'" % procinst.stderr.decode("utf-8").strip()
 			logq.put([
 				infile,
 				"aacplus",
-				"ERROR: err: %s" % error,
+				"ERROR: %s" % error,
 				enc_rc,
 				time() - startTime
 			], timeout=10)
