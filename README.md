@@ -2,6 +2,7 @@
 
 ### 13/05/2019
 * Deprecation of NeroAAC codec, prior to removal. It is no longer maintained, and the binaries are 32-bit only
+* Creation of a python3 master branch, to hold the future python3 stable release. At some point we will switch completely to python3
 
 ### 07/05/2019
 

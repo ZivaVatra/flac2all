@@ -9,7 +9,7 @@
 #
 #  =============================================================|
 
-from setuptools import setup, find_packages
+from setuptools import setup
 from os import path
 
 here = path.abspath(path.dirname(__file__))
@@ -26,12 +26,12 @@ setup(
     author="ZivaVatra",
     author_email="info@ziva-vatra.com",
     description="Multi process, multi codec audio converter with tagging support",
-	long_description='''
+    long_description='''
 Started in 2003 as a flac to ogg vorbis converter, flac2All has grown into a multithreaded script that will convert your collection of FLAC files into various other formats (currently mp3,ogg vorbis,opus, flac and acc), complete with any tags that the source file had. Designed to be extended with new formats easily as time goes on, it is a utility for people with with large FLAC collections who want a way to convert multiple files in parallel.
 
 Tested on Linux and FreeBSD, let me know how it works on other Unix OS'es.
 ''',
-	long_description_content_type="text/plain",
+    long_description_content_type="text/plain",
     license="GPLv3",
     url="https://github.com/ZivaVatra/flac2all",
     # From https://pypi.python.org/pypi?%3Aaction=list_classifiers
@@ -43,7 +43,6 @@ Tested on Linux and FreeBSD, let me know how it works on other Unix OS'es.
         'Natural Language :: English',
         'Operating System :: POSIX :: BSD',
         'Operating System :: POSIX :: Linux',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.6',
         'Topic :: Multimedia :: Sound/Audio :: Conversion',
     ],
