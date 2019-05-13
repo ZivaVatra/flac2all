@@ -133,6 +133,7 @@ class aacplusNero(object):
 		return tags
 
 	def AACPconvert(self, infile, outfile, logq):
+		print("WARNING:  Nero AAC is deprecated and will be removed in a future release")
 		startTime = time()
 		inmetadata = flac().getflacmeta("\"" + infile + "\"")
 

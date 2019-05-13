@@ -1,4 +1,8 @@
 ## News
+
+### 13/05/2019
+* Deprecation of NeroAAC codec, prior to removal. It is no longer maintained, and the binaries are 32-bit only
+
 ### 07/05/2019
 
 * Flac Testing now refactored to generate analysis files in "test" output directory (with .ana suffix).
