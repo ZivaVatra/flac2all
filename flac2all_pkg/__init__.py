@@ -41,10 +41,10 @@ import Queue
 here = os.path.abspath(os.path.dirname(__file__))
 
 if os.path.exists(os.path.join(here, "version")):
-	with open(os.path.join(here,"version"), 'r') as fd:
-		version = fd.read().strip()
+    with open(os.path.join(here, "version"), 'r') as fd:
+        version = fd.read().strip()
 else:
-	version = "v4"
+    version = "v4"
 
 # error handling
 modeError = Exception("Error understanding mode. Is mode valid?")
@@ -148,14 +148,13 @@ class encode_thread(mt.Thread):
             outfile = outfile.replace('.flac', '')
             if opts['overwrite'] is False:
                 if os.path.exists(outfile + "." + mode):
-                    print "Output file already exists, skipping"
+                    print("Output file already exists, skipping")
                     continue
 
-            print "Converting: \t %-40s  target: %8s " % (
-                task[0].
-                split('/')[-1],
+            print("Converting: \t %-40s  target: %8s" % (
+                task[0].split('/')[-1],
                 task[3]
-            )
+            ))
             encf(infile, outfile, logq)
 
 
@@ -272,21 +271,21 @@ a dash: '-abr'"
         opts['mode'] = args[0]
 
     except(IndexError):  # if no arguments specified
-        print "No mode specified! Run with '-h' for help"
+        print("No mode specified! Run with '-h' for help")
         sys.exit(1)  # quit the program with non-zero status
 
     try:
         opts['dirpath'] = os.path.abspath(args[1])
-        print "DEBUG: %s" % opts['dirpath']
+        print("DEBUG: %s" % opts['dirpath'])
 
     except(IndexError):
-        print "No directory specified! Run with '-h' for help"
+        print("No directory specified! Run with '-h' for help")
         sys.exit(2)  # quit the program with non-zero status
 
     # end command line checking
 
     if not os.path.exists(opts['outdir']):
-        print "Creating output directory"
+        print("Creating output directory")
         os.mkdir(opts['outdir'])
 
     # In this version, we can convert multiple format at once, so for e.g.
@@ -297,11 +296,11 @@ a dash: '-abr'"
                 os.mkdir(os.path.join(opts['outdir'], mode))
             except OSError as e:
                 if e.errno == 17:
-                    print "Folder %s already exists, reusing..." % mode
+                    print("Folder %s already exists, reusing..." % mode)
                 elif e.errno == 2:
-                    print "Parent path %s does not exist! quitting..." % (
+                    print("Parent path %s does not exist! quitting..." % (
                         opts['outdir']
-                    )
+                    ))
                 else:
                     # everything else, raise error
                     raise e
@@ -417,6 +416,10 @@ a dash: '-abr'"
 
     total = len(log)
     successes = len(filter(lambda x: x[4] == 0, log))
+    if total != 0:
+        percentage_fail = (failures / float(total)) * 100
+    else:
+        percentage_fail = 0
     failures = total - successes
     print "\n\n"
     print "=" * 80
@@ -437,7 +440,7 @@ Conversion error rate: %.2f %%
         (float(total) / count) * 100),
         successes,
         failures,
-        ((failures / float(total)) * 100)
+        percentage_fail
        )
 
     for mode in opts['mode'].split(','):
@@ -499,6 +502,7 @@ Per file conversion:
         sys.exit(-1)
     else:
         sys.exit(0)
+
 
 if __name__ == "__main__":
     main()
