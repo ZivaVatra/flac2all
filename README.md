@@ -1,4 +1,6 @@
 ## News
+### 14/05/2019
+* Fixed flac testing. It now outputs a "test" folder with flac "ana" files, along with the usual conversion log.
 
 ### 13/05/2019
 * Fixed version detection for opus
