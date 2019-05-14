@@ -1,5 +1,22 @@
 ## News
 
+### 13/05/2019
+* Fixed version detection for opus
+* Fixed DivbyZero error in summary calculations
+* Commencing migration to python3. As python2 is scheduled to be EOL 1st Jan 2020, development has shifted to python3.
+As such, a new branch, version5, has been created to deal with future development.
+
+As of this release, version4 of flac2all will be in "maintenance mode". No new features will be added, and only bugfixes will be released. New developments, features and major refactors will be on the version5 branch. At the moment flac2all is working on python3, IMO better than on python2, just because in the course of refactoring I have improved things.
+
+Unlike the previous transition (v3 to v4), there is no major rewrite or restructure of the code base. The main reason I am thinking to move to version5 is to make a clear cut between python2 and python3, due to the lack of backwards compatibility. Easier than trying to deal with which version4 a bug is being triggered on, and generally keeping track of two versions of "version4".
+
+
+### 05/03/2019
+
+* Version 4.2 pushed to pypi
+* Changes:
+  - Fix for issue #38: Skipping does not work if mode name does not equal file extension
+
 ### 18/02/2019
 
 * Version 4.1 pushed to pypi.
@@ -7,7 +24,7 @@
 
 
 ## What is it
-Started in 2003 as a flac to ogg vorbis script, flac2all has grown into a parallel processing program that will convert your collection of FLAC files into various other formats (currently mp3,ogg vorbis,opus,flac and aac), complete with any tags that the source file had. Designed to be extended with new formats easily as time goes on, it is a utility for people with with large FLAC collections who also want a way to convert multiple files in parallel.
+Started in 2003 as a single-threaded flac to ogg vorbis script, flac2all has grown into a parallel processing program that will convert your collection of FLAC files into various other formats (currently mp3,ogg vorbis,opus,flac and aac), complete with any tags that the source file had. Designed to be extended with new formats easily as time goes on, it is a utility for people with with large FLAC collections who also want a way to convert multiple files in parallel.
 ## Details
 
 After many years of (admittadly slow) development, version 4 is finally ready for general release.
@@ -49,19 +66,22 @@ Tu run the version straight from the git repo, cd to "flac2all_pkg", and then ru
 
 The main goal of version 4 was to split the codecs into their own modules, which should allow developers to easily add new codecs. The internal function tables stay the same, meaning that as long as you follow the structure of the main functions, you can add any codec you want.
 
-The easiest way to get started writing a codec module is to look at an existing one. I would recommend "flac.py", as it shows both encoding and decoding, and flac to flac conversion was very simple to implement. A more complex example is the mp5 module, which shows how complex things can get.
+The easiest way to get started writing a codec module is to look at an existing one. I would recommend "flac.py", as it shows both encoding and decoding, and flac to flac conversion was very simple to implement. A more complex example is the mp3 module, which shows how complex things can get.
 
 ### Fixed branches
 There are some branches that are considered "fixed". This means that they tend to be self contained, and they need not track any other branch. A list of these branches as as follows:
 
 * master: Main branch, where final merges and tests are done prior to tagging and deployment. From here we generate the releases.
-* version4: The current development branch, where changes are made, pulls merged and tested, prior to merge with master for release.
-* version3: The old stable branch. No active development, but kept in case someone needs/wants access to the old version3
+* version5: The new development branch, where the next generation of flac2all is being made. Check out the README on this branch for the full details, but one core goal with this version is the migration to python3
+* version4: The current stable branch. No new features, only bugfixes here.
+* version3: The old stable branch. No active development, but kept in case someone needs/wants access to the old version
 
 ### Dev etiquette
 If you wish to contribute to flac2all, I ask that you keep to the following guidelines:
 
-* If you want to extend/modify flac2all, checkout the latest copy of the repo, switch to the development branch (currently "version4"), and then make your own branch, develop/test/debug until ready, then issue a pull request. Do not start hacking away on the master branch directly.
+* Only do new development on version5 branch. Python2 is EOL at the end of 2019, and we are migrating to python3 for all future development.
+
+* If you want to extend/modify flac2all, checkout the latest copy of the repo, switch to the development branch (currently "version5"), and then make your own branch, develop/test/debug until ready, then issue a pull request. Do not start hacking away on the master branch directly.
 
 * The goal of the master branch is to be the final stage before a tagged release. As such, any code merged into master should not break things badly. All testing and debugging should be done on your branch prior to merge.
 

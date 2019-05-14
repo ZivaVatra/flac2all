@@ -27,7 +27,7 @@ class opus:
                 os.path.join(ipath.opusencpath, "opusenc"), "-v"
             ])
 
-        data = re.search("\d\.\d\.\d", data).group(0)
+        data = re.search("\d+\.\d+\.\d+", data).group(0)
         (release, major, minor) = map(lambda x: int(x), data.split('.'))
         self.version = (release, major, minor)
         self.opts = opusencopts
