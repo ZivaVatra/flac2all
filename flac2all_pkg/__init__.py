@@ -126,8 +126,7 @@ class encode_thread(mt.Thread):
                 encf = encoder.flacConvert
             elif mode == "test":
                 encoder = flac() # We don't need any opts for testing
-                encoder.flactest(infile, "N/A", logq)
-                return True
+                encf = encoder.flactest
             else:
                 logq.put([
                     infile,

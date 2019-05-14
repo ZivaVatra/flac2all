@@ -13,7 +13,6 @@ import subprocess as sp
 class flacdecode(object):
 	def __init__(self, infile, pipefile):
 		self.infile = infile
-		self.shell = shell
 		self.pipe = pipefile
 
 	def __call__(self):
@@ -21,7 +20,7 @@ class flacdecode(object):
 			ipath.flacpath + "flac", '-d', '-s', '-f', '-o', self.pipe, "%s" % self.infile
 		], stderr=sp.PIPE
 		)
-		return (None, fd.stderr)
+		return (None, fd.stderr)  # None because we have moved to using named pipes
 
 
 class flac(object):
@@ -29,11 +28,9 @@ class flac(object):
 		self.opts = flacopts
 		self.shell = shell()
 		self.qEscape = \
-			lambda x: self.shell.parseEscapechars(x, True)
+			lambda x: self.shell.parse_escape_chars(x, True)
 
 	def flacConvert(self, infile, outfile, logq):
-		# TODO: see about tag copying across as well
-		startTime = time()
 		# Seems newer versions of flac actually support flac -> flac
 		# recompression natively. Which is nice. This is now very
 		# simple to implement, hence removed the old code
@@ -51,13 +48,17 @@ class flac(object):
 					time() - startTime
 				])
 				return 0
+		cmd = [
+			"%sflac" % ipath.flacpath,
+			"-s",
+			"-o",
+			'%s.flac' % self.shell.parse_escape_chars(outfile),
+			self.shell.parse_escape_chars(infile)
+		]
+		if len(self.opts) > 0:
+			cmd.extend(self.opts)
 
-		rc = os.system("%sflac %s -s -o %s.flac %s" % (
-			ipath.flacpath,
-			self.opts,
-			shell().parseEscapeChars(outfile),
-			shell().parseEscapeChars(infile)
-		))
+		rc = sp.check_call(cmd)
 
 		if (rc == 0):
 			logq.put([
@@ -84,7 +85,7 @@ class flac(object):
 			"--list",
 			"--block-type", "VORBIS_COMMENT",
 			flacfile
-		])
+		]).decode('utf-8')
 
 		datalist = []  # init a list for storing all the data in this block
 
@@ -120,18 +121,27 @@ class flac(object):
 
 	def flactest(self, infile, outfile, logq):
 		startTime = time()
-		test = os.popen("%sflac -s -t \"%s\"" % (
-			ipath.flacpath,
-			self.qEscape(infile)
-		), 'r')
-		results = test.read()
+		try:
+			sp.check_call([
+				"%sflac" % ipath.flacpath,
+				"-s",
+				"-a",
+				"-o",
+				"%s.ana" % outfile,
+				infile
+			], stderr=sp.STDOUT)
+		except sp.CalledProcessError as e:
+			results = str(e.output)
+			rc = str(e.returncode)
+		else:
+			results = "SUCCESS"
+			rc = 0
 
 		logq.put([
 			infile,
 			outfile,
 			"flactest",
 			results,
-			0,
+			rc,
 			time() - startTime
 		])
-		test.close()
