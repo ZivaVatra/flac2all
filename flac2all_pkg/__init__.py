@@ -412,8 +412,10 @@ a dash: '-abr'"
     failures = total - successes
     if total != 0:
         percentage_fail = (failures / float(total)) * 100
+        execution_rate = (float(total) / count) * 100)
     else:
         percentage_fail = 0
+        execution_rate = 0
     print "\n\n"
     print "=" * 80
     print "| Summary "
@@ -430,7 +432,7 @@ Files we failed to convert due to errors: %d
 --
 Conversion error rate: %.2f %%
 """ % (count, total, (
-        (float(total) / count) * 100),
+        execution_rate,
         successes,
         failures,
         percentage_fail
