@@ -412,7 +412,7 @@ a dash: '-abr'"
     failures = total - successes
     if total != 0:
         percentage_fail = (failures / float(total)) * 100
-        execution_rate = (float(total) / count) * 100)
+        execution_rate = (float(total) / count) * 100
     else:
         percentage_fail = 0
         execution_rate = 0
@@ -436,7 +436,7 @@ Conversion error rate: %.2f %%
         successes,
         failures,
         percentage_fail
-       )
+       ))
 
     for mode in opts['mode'].split(','):
         # 1. find all the logs corresponding to a particular mode
