@@ -431,12 +431,13 @@ Files we managed to convert successfully: %d
 Files we failed to convert due to errors: %d
 --
 Conversion error rate: %.2f %%
-""" % (count, total, (
-        execution_rate,
-        successes,
-        failures,
-        percentage_fail
-       ))
+""" % (count,
+       total,
+       execution_rate,
+       successes,
+       failures,
+       percentage_fail
+       )
 
     for mode in opts['mode'].split(','):
         # 1. find all the logs corresponding to a particular mode
