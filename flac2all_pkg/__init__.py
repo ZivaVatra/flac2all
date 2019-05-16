@@ -44,7 +44,7 @@ if os.path.exists(os.path.join(here, "version")):
     with open(os.path.join(here, "version"), 'r') as fd:
         version = fd.read().strip()
 else:
-    version = "v4"
+    version = "undef"
 
 # error handling
 modeError = Exception("Error understanding mode. Is mode valid?")
