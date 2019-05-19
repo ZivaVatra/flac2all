@@ -233,7 +233,7 @@ class lameMp3(object):
         # Metadata population complete
         return tagstring
 
-    def mp3convert(self, infile, outfile, logq):
+    def mp3convert(self, infile, outfile):
         pipe = "/tmp/flac2all_%s" % str(uuid.uuid4()).strip()
         startTime = time()
         inmetadata = flac().getflacmeta(infile)
@@ -260,21 +260,20 @@ class lameMp3(object):
         if errline.strip() != '':
             print("ERRORLINE: %s" % errline)
         if errline.find("ERROR") != -1 or rc != 0:
-            logq.put([
+            return [
                 infile,
+                outfile,
                 "mp3",
-                "ERROR: decoder error: %s" % (
-                    errline, -1,
-                    time() - startTime
-                )],
-                timeout=10)
-            return False
+                "ERROR: decoder error: %s" % errline,
+                -1,
+                time() - startTime
+            ]
 
-        logq.put([
+        return [
             infile,
             outfile,
             "mp3",
             "SUCCESS",
             0,
             time() - startTime
-        ])
+        ]

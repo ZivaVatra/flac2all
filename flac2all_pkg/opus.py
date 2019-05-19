@@ -31,7 +31,7 @@ class opus:
         self.version = (release, major, minor)
         self.opts = opusencopts
 
-    def opusConvert(self, infile, outfile, logq):
+    def opusConvert(self, infile, outfile):
         # As the new versions of opus support flac natively, I think that the
         # best option is to
         # use >0.1.7 by default, but support earlier ones without tagging.
@@ -70,11 +70,11 @@ class opus:
                     result = "ERROR: opusenc error '%s'. Could not convert" % (
                         e.message
                     )
-        logq.put([
+        return [
             infile,
             outfile,
             "opus",
             result,
             rc,
             time() - startTime
-        ])
+        ]

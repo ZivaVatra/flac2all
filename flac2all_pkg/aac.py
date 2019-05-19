@@ -22,7 +22,7 @@ class aacplus(object):
 			Cannot convert" % ipath.aacpath)
 			sys.exit(-1)
 
-	def AACPconvert(self, infile, outfile, logq):
+	def AACPconvert(self, infile, outfile):
 		pipe = "/tmp/flac2all_%s" % str(uuid.uuid4()).strip()
 		startTime = time()
 		_, decoder = flacdecode(infile, pipe)()
@@ -45,24 +45,25 @@ class aacplus(object):
 			error = "cmd: %s, rc: %d," % (' '.join(cmd), enc_rc)
 
 		if enc_rc == 0:
-			logq.put([
+			return [
 				infile,
 				outfile,
 				"aacplus",
 				"SUCCESS",
 				0,
 				time() - startTime
-			])
+			]
 		else:
 			if procinst is not None:
 				error += "stderr:'%s'" % procinst.stderr.decode("utf-8").strip()
-			logq.put([
+			return [
 				infile,
+				outfile,
 				"aacplus",
 				"ERROR: %s" % error,
 				enc_rc,
 				time() - startTime
-			], timeout=10)
+			]
 
 
 # For the binary-only Nero AAC encoder

@@ -30,7 +30,7 @@ class flac(object):
 		self.qEscape = \
 			lambda x: self.shell.parse_escape_chars(x, True)
 
-	def flacConvert(self, infile, outfile, logq):
+	def flacConvert(self, infile, outfile):
 		# Seems newer versions of flac actually support flac -> flac
 		# recompression natively. Which is nice. This is now very
 		# simple to implement, hence removed the old code
@@ -39,15 +39,14 @@ class flac(object):
 			self.opts += " -f "
 		else:
 			if os.path.exists(outfile):
-				logq.put([
+				return [
 					infile,
 					outfile,
 					"flac",
 					"SUCCESS:skipped due to existing file",
 					0,
 					time() - startTime
-				])
-				return 0
+				]
 		cmd = [
 			"%sflac" % ipath.flacpath,
 			"-s",
@@ -61,23 +60,23 @@ class flac(object):
 		rc = sp.check_call(cmd)
 
 		if (rc == 0):
-			logq.put([
+			return [
 				infile,
 				outfile,
 				"flac",
 				"SUCCESS",
 				rc,
 				time() - startTime
-			])
+			]
 		else:
-			logq.put([
+			[
 				infile,
 				outfile,
 				"flac",
 				"ERROR:flac ",
 				rc,
 				time() - startTime
-			])
+			]
 
 	def getflacmeta(self, flacfile):
 		flacdata = sp.check_output([
@@ -119,7 +118,7 @@ class flac(object):
 			commentlist[comment[0]] = comment[1]
 		return commentlist
 
-	def flactest(self, infile, outfile, logq):
+	def flactest(self, infile, outfile):
 		startTime = time()
 		try:
 			sp.check_call([
@@ -137,11 +136,11 @@ class flac(object):
 			results = "SUCCESS"
 			rc = 0
 
-		logq.put([
+		return [
 			infile,
 			outfile,
 			"flactest",
 			results,
 			rc,
 			time() - startTime
-		])
+		]
