@@ -28,7 +28,7 @@ opts = {
 	"copy": False,  # Copy non flac files (default is to ignore)
 	"lameopts": "--preset standard -q 0",  # your mp3 encoding settings
 	"oggencopts": "quality=2",  # your vorbis encoder settings
-	"flacopts": "-q 8",  # your flac encoder settings
+	"flacopts": "",  # your flac encoder settings
 	"aacplusopts": "-a 1 -t 29",
 	"neroaacplusopts": "-q 0.3 ",  # aac as well
 	"opusopts": "bitrate 96",  # For opus (placeholder for now)
