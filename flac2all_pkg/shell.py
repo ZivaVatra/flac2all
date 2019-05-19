@@ -18,7 +18,7 @@ class shell:
             # return the output
             return outdir
 
-    def parseEscapechars(self, file, quoteonly=False):
+    def parse_escape_chars(self, file, quoteonly=False):
         if quoteonly:
             # characters which must be escaped in the shell, note
             # "[" and "]" seems to be automatically escaped
