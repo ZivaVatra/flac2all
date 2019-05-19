@@ -20,18 +20,13 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-from aac import aacplusNero, aacplus
-from vorbis import vorbis
-from flac import flac
-from mp3 import lameMp3 as mp3
 from shell import shell
-from opus import opus
 
 import multiprocessing as mp
-import threading as mt
 from shutil import copy as copytarget
 from optparse import OptionParser
 from config import opts
+from core import encode_thread
 
 import sys
 import os
@@ -64,98 +59,6 @@ Dev website: https://github.com/ZivaVatra/flac2all
 \tYou can specify multiple encode targets with a comma seperated list.
 
 """ % (version, sys.argv[0], "mp3 vorbis aacplus aacplusnero opus flac test")
-
-
-# Classes
-class encode_thread(mt.Thread):
-    def __init__(self, threadID, name, taskq, opts, logq):
-        mt.Thread.__init__(self)
-        self.threadID = threadID
-        self.name = name
-        self.taskq = taskq
-        self.opts = opts
-        self.logq = logq
-
-    def run(self):
-        taskq = self.taskq
-        opts = self.opts
-        logq = self.logq
-        while not taskq.empty():
-            try:
-                # Get the task, with one minute timeout
-                task = taskq.get(timeout=60)
-            except queue.Empty:
-                # No more tasks after 60 seconds, we can quit
-                return True
-
-            mode = task[3].lower()
-            infile = task[0]
-            outfile = task[0].replace(task[1], os.path.join(task[2], task[3]))
-            outpath = os.path.dirname(outfile)
-            try:
-                if not os.path.exists(outpath):
-                    os.makedirs(outpath)
-            except OSError as e:
-                # Error 17 means folder exists already. We can reach this
-                # despite the check above, due to a race condition when a
-                # bunch of spawned processes all try to mkdir at once.
-                # So if Error 17, continue, otherwise re-raise the exception
-                if e.errno != 17:
-                    raise(e)
-
-            if mode == "mp3":
-                encoder = mp3(opts['lameopts'])
-                encf = encoder.mp3convert
-            elif mode == "ogg" or mode == "vorbis":
-                encoder = vorbis(opts['oggencopts'])
-                encf = encoder.oggconvert
-            elif mode == "aacplus":
-                encoder = aacplus(opts['aacplusopts'])
-                encf = encoder.AACPconvert
-            elif mode == "aacplusnero":
-                encoder = aacplusNero(opts['neroaacplusopts'])
-                encf = encoder.AACPconvert
-            elif mode == "opus":
-                encoder = opus(opts['opusencopts'])
-                encf = encoder.opusConvert
-            elif mode == "flac":
-                encoder = flac(opts['flacopts'])
-                encf = encoder.flacConvert
-            elif mode == "test":
-                encoder = flac(opts['flacopts'])
-                encf = encoder.flactest
-#                logq.put([
-#                    infile,
-#                    outfile,
-#                    mode,
-#                    "ERROR: Flac testing not implemented yet",
-#                    1,
-#                    0
-#                ])
-#                continue
-            else:
-                logq.put([
-                    infile,
-                    outfile,
-                    mode,
-                    "ERROR: Not understanding mode '%s' is mode valid?" % mode,
-                    1,
-                    0
-                ])
-                raise modeError
-
-            outfile = outfile.replace('.flac', '')
-            if opts['overwrite'] is False:
-                if os.path.exists(outfile + "." + mode):
-                    print("Output file already exists, skipping")
-                    continue
-
-            print("Converting: \t %-40s  target: %8s " % (
-                task[0].
-                split('/')[-1],
-                task[3]
-            ))
-            encf(infile, outfile, logq)
 
 
 def main():
@@ -243,6 +146,11 @@ a dash: '-abr'"
         default=False, help="Don't create Directories, put everything together"
     )
 
+    parser.add_option(
+        "-C", "--cluster", dest="cluster_enable", action="store_true",
+        default=False, help="Start flac2all in clustered mode. Starts a server for flac2all_workers to connect to"
+    )
+
     (options, args) = parser.parse_args()
 
     # update the opts dictionary with new values
@@ -307,203 +215,209 @@ a dash: '-abr'"
 
     # Magic goes here :)
 
-    # 1. populate the queue with flac files
-    files = sh.getfiles(opts['dirpath'])
-    count = 0
-    for infile in files:
+    if opts['cluster_enable']:
+        # Here we do the clustering magic
+        pass
+    else:
+            # The non clusterred (original) method
+            # 1. populate the queue with flac files
+            files = sh.getfiles(opts['dirpath'])
+            count = 0
+            for infile in files:
 
-        for mode in opts['mode'].split(','):
-            if infile.endswith(".flac"):
-                pQ.put([infile, opts['dirpath'], opts['outdir'], mode])
-                count += 1
+                for mode in opts['mode'].split(','):
+                    if infile.endswith(".flac"):
+                        pQ.put([infile, opts['dirpath'], opts['outdir'], mode])
+                        count += 1
+                    else:
+                        if opts['copy']:
+                            cQ.put([infile, opts['dirpath'], opts['outdir'], mode])
+
+            time.sleep(1)  # Delay to resolve queue "broken pipe" errors
+
+            print("We have %d flac files to convert" % count)
+            print("We have %d non-flac files to copy across" % cQ.qsize())
+
+            # Right, how this will work here, is that we will pass the whole queue
+            # to the encode threads (one per processor) and have them pop off/on as
+            # necessary. Allows for far more fine grained control.
+
+            opts['threads'] = int(opts['threads'])
+
+            # keep flags for state (pQ,cQ)
+            sflags = [0, 0]
+            ap = []  # active processes
+            while True:
+
+                cc = opts['threads']
+
+                while int(cc) > (len(ap)):
+                    print(">> Spawning execution process")
+                    proc = encode_thread(int(cc), "Thread %d" % int(cc), pQ, opts, lQ)
+                    proc.start()
+                    ap.append(proc)
+
+                time.sleep(0.5)
+
+                # Believe it or not, the only way way to be sure a queue is actually
+                # empty is to try to get with a timeout. So we get and put back
+                # and if we get a timeout error (10 secs), register it
+
+                try:
+                    pQ.put(pQ.get(timeout=10))
+                except mp.TimeoutError as e:
+                    print("Process queue finished.")
+                    sflags[0] = 1
+                except queue.Empty as e:
+                    print("Process queue finished.")
+                    sflags[0] = 1
+                else:
+                    sflags[0] = 0
+
+                # sflags[1] = 1
+                # Commented out until we get the shell_process_thread function written
+                #
+                try:
+                    command = cQ.get(timeout=10)
+                    srcfile, srcroot, dest, encformat = command
+                    outdir = sh.generateoutdir(srcfile, os.path.join(dest, encformat), srcroot)
+                    copytarget(srcfile, outdir)
+                    print(("%s => %s" % (srcfile, outdir)))
+                except mp.TimeoutError as e:
+                    sflags[1] = 1
+                except queue.Empty as e:
+                    sflags[1] = 1
+                else:
+                    sflags[1] = 0
+
+                if sflags == [1, 1]:
+                    print("Processing Complete!")
+                    break
+
+                # Sometimes processes die (due to errors, or exit called), which
+                # will slowly starve the script as they are not restarted. The below
+                # filters out dead processes, allowing us to respawn as necessary
+                ap = [x for x in ap if x.isAlive()]
+
+            # Now wait for all running processes to complete
+            print("Waiting for all running process to complete.")
+
+            # We don't use os.join because if a child hangs, it takes the entire program
+            # with it
+            st = time.time()
+            while True:
+
+                if len([x for x in ap if x.is_alive()]) == 0:
+                    break
+                print("-" * 80)
+                for proc in [x for x in ap if x.is_alive()]:
+                    print("\"%s\" is still running! Waiting..." % proc.name)
+                    print("-" * 80)
+                time.sleep(4)
+                print("")
+                if (time.time() - st) > 600:
+                    print("Process timeout reached, terminating stragglers and continuing\
+                    anyway")
+                    list(map(lambda x: x.terminate(), [x for x in ap if x.is_alive()]))
+                    break
+
+            # Now we fetch the log results, for the summary
+            print("Processing run log...")
+            log = []
+            while not lQ.empty():
+                log.append(lQ.get(timeout=2))
+
+            total = len(log)
+            successes = len([x for x in log if x[4] == 0])
+            failures = total - successes
+            if total != 0:
+                percentage_fail = (failures / float(total)) * 100
             else:
-                if opts['copy']:
-                    cQ.put([infile, opts['dirpath'], opts['outdir'], mode])
+                percentage_fail = 0
 
-    time.sleep(1)  # Delay to resolve queue "broken pipe" errors
-
-    print("We have %d flac files to convert" % count)
-    print("We have %d non-flac files to copy across" % cQ.qsize())
-
-    # Right, how this will work here, is that we will pass the whole queue
-    # to the encode threads (one per processor) and have them pop off/on as
-    # necessary. Allows for far more fine grained control.
-
-    opts['threads'] = int(opts['threads'])
-
-    # keep flags for state (pQ,cQ)
-    sflags = [0, 0]
-    ap = []  # active processes
-    while True:
-
-        cc = opts['threads']
-
-        while int(cc) > (len(ap)):
-            print(">> Spawning execution process")
-            proc = encode_thread(int(cc), "Thread %d" % int(cc), pQ, opts, lQ)
-            proc.start()
-            ap.append(proc)
-
-        time.sleep(0.5)
-
-        # Believe it or not, the only way way to be sure a queue is actually
-        # empty is to try to get with a timeout. So we get and put back
-        # and if we get a timeout error (10 secs), register it
-
-        try:
-            pQ.put(pQ.get(timeout=10))
-        except mp.TimeoutError as e:
-            print("Process queue finished.")
-            sflags[0] = 1
-        except queue.Empty as e:
-            print("Process queue finished.")
-            sflags[0] = 1
-        else:
-            sflags[0] = 0
-
-        # sflags[1] = 1
-        # Commented out until we get the shell_process_thread function written
-        #
-        try:
-            command = cQ.get(timeout=10)
-            srcfile, srcroot, dest, encformat = command
-            outdir = sh.generateoutdir(srcfile, os.path.join(dest, encformat), srcroot)
-            copytarget(srcfile, outdir)
-            print(("%s => %s" % (srcfile, outdir)))
-        except mp.TimeoutError as e:
-            sflags[1] = 1
-        except queue.Empty as e:
-            sflags[1] = 1
-        else:
-            sflags[1] = 0
-
-        if sflags == [1, 1]:
-            print("Processing Complete!")
-            break
-
-        # Sometimes processes die (due to errors, or exit called), which
-        # will slowly starve the script as they are not restarted. The below
-        # filters out dead processes, allowing us to respawn as necessary
-        ap = [x for x in ap if x.isAlive()]
-
-    # Now wait for all running processes to complete
-    print("Waiting for all running process to complete.")
-    print(ap)
-
-    # We don't use os.join because if a child hangs, it takes the entire program
-    # with it
-    st = time.time()
-    while True:
-
-        if len([x for x in ap if x.is_alive()]) == 0:
-            break
-        print("-" * 80)
-        for proc in [x for x in ap if x.is_alive()]:
-            print("Process \"%s\" is still running! Waiting..." % proc.name)
+            print("\n\n")
+            print("=" * 80)
+            print("| Summary ")
             print("-" * 80)
-        time.sleep(4)
-        print("")
-        if (time.time() - st) > 600:
-            print("Process timeout reached, terminating stragglers and continuing\
-            anyway")
-            list(map(lambda x: x.terminate(), [x for x in ap if x.is_alive()]))
-            break
-
-    # Now we fetch the log results, for the summary
-    print("Processing run log...")
-    log = []
-    while not lQ.empty():
-        log.append(lQ.get(timeout=2))
-
-    total = len(log)
-    successes = len([x for x in log if x[4] == 0])
-    failures = total - successes
-    if total != 0:
-        percentage_fail = (failures / float(total)) * 100
-    else:
-        percentage_fail = 0
-
-    print("\n\n")
-    print("=" * 80)
-    print("| Summary ")
-    print("-" * 80)
-    print("""
-Total files on input: %d
-Total files actually processed: %d
---
-Execution rate: %.2f %%
+            print("""
+        Total files on input: %d
+        Total files actually processed: %d
+        --
+        Execution rate: %.2f %%
 
 
-Files we managed to convert successfully: %d
-Files we failed to convert due to errors: %d
---
-Conversion error rate: %.2f %%
-""" % (count, total, (
-        (float(total) / count) * 100),
-        successes,
-        failures,
-        (percentage_fail)
-       ))
+        Files we managed to convert successfully: %d
+        Files we failed to convert due to errors: %d
+        --
+        Conversion error rate: %.2f %%
+        """ % (count, total, (
+                (float(total) / count) * 100),
+                successes,
+                failures,
+                (percentage_fail)
+               ))
 
-    for mode in opts['mode'].split(','):
-        # 1. find all the logs corresponding to a particular mode
-        x = [x for x in log if x[2] == mode]
-        # 2. Get the execution time for all relevant logs
-        execT = [y[5] for y in x]
-        if len(execT) != 0:
-            esum = sum(execT)
-            emean = sum(execT) / len(execT)
-        else:
-            # Empty set, just continue
-            print(("For mode %s:\nNo data (no files converted)\n" % mode))
-            continue
+            for mode in opts['mode'].split(','):
+                # 1. find all the logs corresponding to a particular mode
+                x = [x for x in log if x[2] == mode]
+                # 2. Get the execution time for all relevant logs.
+                #    -1 times are events which were no-ops (either due to errors or
+                #    file already existing when overwrite == false), and are filtered out
+                execT = [y[5] for y in x if y[5] != -1]
+                if len(execT) != 0:
+                    esum = sum(execT)
+                    emean = sum(execT) / len(execT)
+                else:
+                    # Empty set, just continue
+                    print(("For mode %s:\nNo data (no files converted)\n" % mode))
+                    continue
 
-        execT.sort()
-        if len(execT) % 2 != 0:
-            # Odd number, so median is middle
-            emedian = execT[int((len(execT) - 1) / 2)]
-        else:
-            # Even set. So median is average of two middle numbers
-            num1 = execT[int((len(execT) - 1) / 2) - 1]
-            num2 = execT[int(((len(execT) - 1) / 2))]
-            emedian = (sum([num1, num2]) / 2.0)
+                execT.sort()
+                if len(execT) % 2 != 0:
+                    # Odd number, so median is middle
+                    emedian = execT[int((len(execT) - 1) / 2)]
+                else:
+                    # Even set. So median is average of two middle numbers
+                    num1 = execT[int((len(execT) - 1) / 2) - 1]
+                    num2 = execT[int(((len(execT) - 1) / 2))]
+                    emedian = (sum([num1, num2]) / 2.0)
 
-        etime = "Total execution time: "
-        if esum < 600:
-            etime += "%.4f seconds" % esum
-        elif esum > 600 < 3600:
-            etime += "%.4f minutes" % (esum / 60)
-        else:
-            etime += "%.4f hours" % (esum / 60 / 60)
+                etime = "Total execution time: "
+                if esum < 600:
+                    etime += "%.4f seconds" % esum
+                elif esum > 600 < 3600:
+                    etime += "%.4f minutes" % (esum / 60)
+                else:
+                    etime += "%.4f hours" % (esum / 60 / 60)
 
-        print("""
-For mode: %s
-%s
-Per file conversion:
-\tMean execution time: %.4f seconds
-\tMedian execution time: %.4f seconds
-""" % (mode, etime, emean, emedian))
+                print("""
+        For mode: %s
+        %s
+        Per file conversion:
+        \tMean execution time: %.4f seconds
+        \tMedian execution time: %.4f seconds
+        """ % (mode, etime, emean, emedian))
 
-    errout_file = opts['outdir'] + "/conversion_results.log"
-    print("Writing log file (%s)" % errout_file)
-    fd = open(errout_file, "w")
-    fd.write(
-        "infile,outfile,format,conversion_status,return_code,execution_time\n"
-    )
-    for item in log:
-        item = [str(x) for x in item]
-        line = ','.join(item)
-        fd.write("%s\n" % line)
-    fd.close()
-    print("Done!")
+            errout_file = opts['outdir'] + "/conversion_results.log"
+            print("Writing log file (%s)" % errout_file)
+            fd = open(errout_file, "w")
+            fd.write(
+                "infile,outfile,format,conversion_status,return_code,execution_time\n"
+            )
+            for item in log:
+                item = [str(x) for x in item]
+                line = ','.join(item)
+                fd.write("%s\n" % line)
+            fd.close()
+            print("Done!")
 
-    if failures != 0:
-        print("We had some failures in encoding :-(")
-        print("Check %s file for info." % errout_file)
-        print("Done! Returning non-zero exit status! ")
-        sys.exit(-1)
-    else:
-        sys.exit(0)
+            if failures != 0:
+                print("We had some failures in encoding :-(")
+                print("Check %s file for info." % errout_file)
+                print("Done! Returning non-zero exit status! ")
+                sys.exit(-1)
+            else:
+                sys.exit(0)
 
 
 if __name__ == "__main__":
