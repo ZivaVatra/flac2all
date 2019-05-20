@@ -28,7 +28,7 @@ class vorbis:
         try:
             rc = sp.check_call(cmd)
         except sp.CalledProcessError as e:
-            result = "ERROR:oggenc %s" % e.message
+            result = "ERROR:oggenc %s" % str(e)
         else:
             result = "SUCCESS"
 

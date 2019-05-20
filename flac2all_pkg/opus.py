@@ -68,7 +68,7 @@ class opus:
             except sp.CalledProcessError as e:
                     rc = e.returncode
                     result = "ERROR: opusenc error '%s'. Could not convert" % (
-                        e.message
+                        str(e)
                     )
         return [
             infile,
