@@ -218,6 +218,12 @@ a dash: '-abr'"
         print("Creating output directory")
         os.mkdir(opts['outdir'])
 
+    # Check if we have the special mode "all", which really brings flac2all into
+    # perspective. We convert to every single format supported. This is added for
+    # testing primarily
+    if opts['mode'] == "all":
+        opts['mode'] = ','.join([x[0] for x in modetable])
+
     # In this version, we can convert multiple format at once, so for e.g.
     # mode = mp3,vorbis will create both in parallel
     for mode in opts['mode'].split(','):

@@ -89,9 +89,9 @@ Before you raise a bug report, please test with the latest version from git. Som
 
 Full information, including options and all current available conversion modes, can be found by running "flac2all -h".
 
-Attempts were made to keep version4 backwards compatible with the options from version3. In theory you should be able to run the exact same commands and flac2all v4 should still work as expected.
+Attempts were made to keep this version backwards compatible with prior versions. In theory you should be able to run the exact same commands and it should still work as expected.
 
-There are some differences though. Unlike the 3.x version, version 4 allows multiple codecs to be specified on the command line, and in the target folder it will create a subfolder for each codec. So for example:
+You can specify multiple codecs to be specified on the command line, and in the target folder it will create a subfolder for each codec. So for example:
 
 ``` flac2all vorbis,mp3,test --vorbis-options='quality=2' -o ./fromFlac/ /path/to/flac/Lossless/ ```
 
@@ -103,6 +103,8 @@ will create the following structure:
 ./fromFlac/test
 ```
 This example will encode both to ogg vorbis and mp3 formats, while generating per file test logs, simultaniously.
+
+There is also a special mode, "all", which converts to every single codec flac2all supports. I use this primarily for testing all codec paths when doing development, but its there if you really feel crazy. You can't specify "all" with any other comma separated mode (as it would be redundant)
 
 In addition, a summary conversion log is created. This is printed to stdout after a run. An example (with partial failures) looks like this:
 
