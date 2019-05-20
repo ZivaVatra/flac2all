@@ -295,7 +295,7 @@ a dash: '-abr'"
         inlist = []
         for mode in opts['mode'].split(','):
             for infile in files:
-                if not infile.endwith(".flac"):
+                if not infile.endswith(".flac"):
                     continue  # TODO: Write logic to copy stuff here
                 line = [infile, mode, opts]
                 inlist.append(line)
