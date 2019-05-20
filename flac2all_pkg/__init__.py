@@ -295,6 +295,8 @@ a dash: '-abr'"
         inlist = []
         for mode in opts['mode'].split(','):
             for infile in files:
+                if not infile.endwith(".flac"):
+                    continue  # TODO: Write logic to copy stuff here
                 line = [infile, mode, opts]
                 inlist.append(line)
                 tsock.send_json(line)

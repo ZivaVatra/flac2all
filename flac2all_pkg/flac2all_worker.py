@@ -16,16 +16,16 @@ import core
 import sys
 
 
-def worker_process():
+def worker_process(target_host):
 	print("Spawned worker process")
 	encoder = core.transcoder()
 	# because we are a process, we just exit at the end
-	sys.exit(encoder.runworker())
+	sys.exit(encoder.runworker(target_host))
 
 
 procs = []
 while len(procs) != mp.cpu_count():
-	procs.append(mp.Process(target=worker_process, args=()))
+	procs.append(mp.Process(target=worker_process, args=("athena",)))
 
 [x.start() for x in procs]
 # And now wait

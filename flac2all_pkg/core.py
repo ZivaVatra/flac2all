@@ -44,14 +44,14 @@ class transcoder():
     def __init__(self):
         pass
 
-    def runworker(self):
+    def runworker(self, host_target):
         # Task socket, recieves tasks
         tsock = zcontext.socket(zmq.PULL)
-        tsock.connect("tcp://localhost:2019")
+        tsock.connect("tcp://%s:2019" % host_target)
 
         # Comm socket, for communicating with task server
         csock = zcontext.socket(zmq.PUSH)
-        csock.connect("tcp://localhost:2020")
+        csock.connect("tcp://%s:2020" % host_target)
 
         # Send EHLO command indicating we are ready
         csock.send_json(["EHLO"])
