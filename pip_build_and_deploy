@@ -3,8 +3,19 @@ use warnings;
 
 # We use this as a simple bool, to dictate whether we use the
 # pypi test url, or we are publishing live
-my $test = 1;
-my $repo_extra = "";
+my $test;
+($test = "NULL") unless ($test = shift);
+if ($test =~ m/test/i) {
+	print("Publishing to test environment\n");
+	$test = 1;
+} elsif ($test =~ m/prod/i) {
+	print("Publishing to prod environment\n");
+	$test = 0;
+} else {
+	print("Usage: $0 test|prod\n");
+	exit(1);
+}
+my $repo_extra = " --verbose ";
 
 # Add the test repo url if we are in test most
 if ($test == 1) {
@@ -35,7 +46,7 @@ if ($answer =~ '(y|Y)') {
 }
 sleep(1); # give user a moment to panic CTRL-C if needs be
 # Write version into file for setup.py
-die("Could not write version\n") unless (0 == system("echo $new_version > version"));
+die("Could not write version\n") unless (0 == system("echo $new_version > flac2all_pkg/version"));
 # Create the git tag
 die("Could not create git tag\n") unless (0 == system("git tag -a $new_version -m \"Auto-Release Version $new_version\""));
 # And we remove the build and dist folder, to make sure fresh files are used
