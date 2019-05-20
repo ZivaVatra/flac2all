@@ -22,10 +22,15 @@ def worker_process(target_host):
 	# because we are a process, we just exit at the end
 	sys.exit(encoder.runworker(target_host))
 
+try:
+	hostname = sys.argv[1]
+except IndexError:
+	print("Usage: %s $master_hostname" % sys.argv[0])
+	sys.exit(1)
 
 procs = []
 while len(procs) != mp.cpu_count():
-	procs.append(mp.Process(target=worker_process, args=("athena",)))
+	procs.append(mp.Process(target=worker_process, args=(hostname,)))
 
 [x.start() for x in procs]
 # And now wait
