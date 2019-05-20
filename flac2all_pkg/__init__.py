@@ -147,8 +147,8 @@ a dash: '-abr'"
     )
 
     parser.add_option(
-        "-C", "--cluster", dest="cluster_enable", action="store_true",
-        default=False, help="Start flac2all in clustered mode. Starts a server for flac2all_workers to connect to"
+        "-m", "--master", dest="master_enable", action="store_true",
+        default=False, help="Start flac2all in master mode (for clustering)."
     )
 
     (options, args) = parser.parse_args()
@@ -215,7 +215,7 @@ a dash: '-abr'"
 
     # Magic goes here :)
 
-    if opts['cluster_enable']:
+    if opts['master_enable']:
         # Here we do the clustering magic
         pass
     else:
