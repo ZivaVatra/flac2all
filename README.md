@@ -30,7 +30,7 @@ In many ways it is the progression of the original multiprocess flac2all, which 
 * Lame: for mp3 support
 * Opus-tools: for opus support
 * Vorbis-tools: for ogg support
-* fdk-aac for AAC support
+* aac-enc for AAC support
 
 
 ## Packages for Distros
