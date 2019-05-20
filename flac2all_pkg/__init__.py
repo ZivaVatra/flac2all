@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 # vim: ts=4 ai expandtab
-
 #    flac2all: Multi process flac converter
 #       -  https://github.com/ZivaVatra/flac2all/
 #
@@ -245,9 +244,93 @@ a dash: '-abr'"
 
     if opts['master_enable']:
         # Here we do the clustering magic
-        pass
+
+        # This is here rather than at the top as is usual so that flac2all can work
+        # even if ZeroMQ is not installed. Perhaps in future zmq will become a hard
+        # dependency, and then we can move it.
+        import zmq
+
+        zcontext = zmq.Context()
+
+        # Task socket (to send tasks out)
+        tsock = zcontext.socket(zmq.PUSH)
+        tsock.bind("tcp://*:2019")
+
+        # recieve socket (gets results from workers)
+        rsock = zcontext.socket(zmq.PULL)
+        rsock.bind("tcp://*:2020")
+
+        # connect loopback to recieve socket
+        csock = zcontext.socket(zmq.PUSH)
+        csock.connect("tcp://localhost:2020")
+        # We wait a bit for workers to connect
+        # TODO: Make this a command switch
+        workers = 0
+        timeout = 15  # in seconds
+        print("Waiting %d seconds for worker(s) to connect. We need at least one worker to continue" % timeout)
+        while True:
+            timeout -= 0.01
+            if timeout <= 0:
+                break  # time is up
+            try:
+                line = rsock.recv_json(flags=zmq.NOBLOCK)
+            except zmq.error.Again as e:
+                # errno 11 is "Resource temporarily unavailable"
+                # We expect this if no data, so we sit in a loop and wait
+                if (e.errno == 11):
+                    sys.stdout.flush()
+                    time.sleep(0.01)  # wait a little bit and try again
+                    continue
+            if line[0] == 'EHLO':
+                workers += 1
+                print("Got %d worker(s)" % workers)
+        if workers == 0:
+            print("Got no workers, cannot continue.")
+            sys.exit(1)
+        print("Commencing run")
+        csock.send_json([0, 0])
+
+        # Gathering file data
+        files = sh.getfiles(opts['dirpath'])
+        count = 0
+        for infile in files:
+            count += 1
+            print(infile, mode)
+            tsock.send_json([infile, mode])
+        print("We have %d flac files to convert" % count)
+        # print("We have %d non-flac files to copy across" % cQ.qsize())
+        # TODO: Send $worker number of EOL, and wait for $worker EOLACK
+        # to make sure all workers recieved the command and acknowledged it
+
+        x = 0
+        while(x != workers):
+            # send "end of list" once per worker, indicates finished
+            tsock.send_json(["EOL", None])
+            x += 1
+        results = []
+        x = 0
+        while(x != workers):
+            # Once done, we collect results from the workersa
+            infile, result = rsock.recv_json()  # Get data
+            # If the data is EOLACK, we increment x, as it
+            # indicates a worker has received our EOL and has quit
+            # When number of workers == EOLACKs, we break out of loop
+            if (infile == 'EOLACK'):
+                print("Got EOLACK %d" % x)
+                x += 1
+            else:
+                results.append([infile, result])
+        for entry in results:
+            print("i: %s, r: %s" % (entry[0], entry[1]))
+        rsock.close()
+        csock.close()
+        rsock.close()
+
+        # Now, we confirm that the number of files sent equals the number processed
+        # TODO
+
     else:
-            # The non clusterred (original) method
+            # The non clustered (original) method
             # 1. populate the queue with flac files
             files = sh.getfiles(opts['dirpath'])
             count = 0
