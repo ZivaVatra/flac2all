@@ -13,6 +13,7 @@ import threading as mt
 import os
 import queue
 import zmq
+import time
 
 
 modeError = Exception("Error understanding mode. Is mode valid?")
@@ -57,18 +58,19 @@ class transcoder():
 
         # Process tasks until EOL received
         while True:
-            infile, mode = tsock.recv_json()
+            infile, mode, opts = tsock.recv_json()
             if infile == "EOL":
-                csock.send_json(["EOLACK", None])  # Send Ack
+                csock.send_json(["EOLACK"])
+                time.sleep(0.1)
                 tsock.close()
                 csock.close()
                 return 0
 
             # We send the result back up the chain
-            result = self.encode(infile, mode)
+            result = self.encode(infile, mode, opts)
             csock.send_json(result)
 
-    def encode(self, infile, dirpath, outdir, mode, opts):
+    def encode(self, infile, mode, opts):
         # Return format:
         # [¬
         #   $infile,¬
@@ -78,7 +80,7 @@ class transcoder():
         #   $return_code,¬
         #   $execution_time¬
         # ]
-        outfile = infile.replace(dirpath, os.path.join(outdir, mode))
+        outfile = infile.replace(opts['dirpath'], os.path.join(opts['outdir'], mode))
         outpath = os.path.dirname(outfile)
         try:
             if not os.path.exists(outpath):

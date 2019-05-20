@@ -288,46 +288,43 @@ a dash: '-abr'"
             print("Got no workers, cannot continue.")
             sys.exit(1)
         print("Commencing run")
-        csock.send_json([0, 0])
+        csock.send_json([0, 0, 0])
 
         # Gathering file data
         files = sh.getfiles(opts['dirpath'])
         count = 0
-        for infile in files:
-            count += 1
-            print(infile, mode)
-            tsock.send_json([infile, mode])
-        print("We have %d flac files to convert" % count)
-        # print("We have %d non-flac files to copy across" % cQ.qsize())
-        # TODO: Send $worker number of EOL, and wait for $worker EOLACK
-        # to make sure all workers recieved the command and acknowledged it
+        for mode in opts['mode'].split(','):
+            for infile in files:
+                count += 1
+                tsock.send_json([infile, mode, opts])
+        print("We have %d flac conversions" % count)
 
         x = 0
         while(x != workers):
             # send "end of list" once per worker, indicates finished
-            tsock.send_json(["EOL", None])
+            tsock.send_json(["EOL", None, None])
             x += 1
+
         results = []
         x = 0
         while(x != workers):
-            # Once done, we collect results from the workersa
-            infile, result = rsock.recv_json()  # Get data
+            # Once done, we collect results from the workers
+            result = rsock.recv_json()  # Get data
             # If the data is EOLACK, we increment x, as it
             # indicates a worker has received our EOL and has quit
             # When number of workers == EOLACKs, we break out of loop
-            if (infile == 'EOLACK'):
+            if (result[0] == 'EOLACK'):
                 print("Got EOLACK %d" % x)
                 x += 1
             else:
-                results.append([infile, result])
-        for entry in results:
-            print("i: %s, r: %s" % (entry[0], entry[1]))
+                results.append(result)
         rsock.close()
         csock.close()
         rsock.close()
 
         # Now, we confirm that the number of files sent equals the number processed
-        # TODO
+        print("input: %d, output: %d" % (len(files), len(results)))
+        print(list(set([x[0] for x in files]) - set([x[0] for x in results])))
 
     else:
             # The non clustered (original) method
