@@ -9,7 +9,7 @@ class vorbis:
     def __init__(self, vorbis_options):
             self.opts = [x for x in vorbis_options.split(' ') if x.strip() != ""]
 
-    def oggconvert(self, infile, outfile):
+    def convert(self, infile, outfile):
         # oggenc automatically parses the flac file + metadata, quite wonderful
         # really, we don't need to do anything here
         # The binary itself deals with the tag conversion etc

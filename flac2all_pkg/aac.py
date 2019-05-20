@@ -22,7 +22,7 @@ class aacplus(object):
 			Cannot convert" % ipath.aacpath)
 			sys.exit(-1)
 
-	def AACPconvert(self, infile, outfile):
+	def convert(self, infile, outfile):
 		pipe = "/tmp/flac2all_%s" % str(uuid.uuid4()).strip()
 		startTime = time()
 		_, decoder = flacdecode(infile, pipe)()
@@ -133,7 +133,7 @@ class aacplusNero(object):
 
 		return tags
 
-	def AACPconvert(self, infile, outfile, logq):
+	def convert(self, infile, outfile, logq):
 		print("WARNING:  Nero AAC is deprecated and will be removed in a future release")
 		startTime = time()
 		inmetadata = flac().getflacmeta("\"" + infile + "\"")

@@ -30,7 +30,7 @@ class flac(object):
 		self.qEscape = \
 			lambda x: self.shell.parse_escape_chars(x, True)
 
-	def flacConvert(self, infile, outfile):
+	def convert(self, infile, outfile):
 		# Seems newer versions of flac actually support flac -> flac
 		# recompression natively. Which is nice. This is now very
 		# simple to implement, hence removed the old code
@@ -125,6 +125,7 @@ class flac(object):
 				"%sflac" % ipath.flacpath,
 				"-s",
 				"-a",
+				"-f",  # force overwrite, we always do this when testing
 				"-o",
 				"%s.ana" % outfile,
 				infile

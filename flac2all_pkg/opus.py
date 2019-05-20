@@ -31,7 +31,7 @@ class opus:
         self.version = (release, major, minor)
         self.opts = opusencopts
 
-    def opusConvert(self, infile, outfile):
+    def convert(self, infile, outfile):
         # As the new versions of opus support flac natively, I think that the
         # best option is to
         # use >0.1.7 by default, but support earlier ones without tagging.

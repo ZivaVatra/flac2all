@@ -233,7 +233,7 @@ class lameMp3(object):
         # Metadata population complete
         return tagstring
 
-    def mp3convert(self, infile, outfile):
+    def convert(self, infile, outfile):
         pipe = "/tmp/flac2all_%s" % str(uuid.uuid4()).strip()
         startTime = time()
         inmetadata = flac().getflacmeta(infile)
