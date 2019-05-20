@@ -292,11 +292,13 @@ a dash: '-abr'"
 
         # Gathering file data
         files = sh.getfiles(opts['dirpath'])
-        count = 0
+        inlist = []
         for mode in opts['mode'].split(','):
             for infile in files:
-                count += 1
-                tsock.send_json([infile, mode, opts])
+                line = [infile, mode, opts]
+                inlist.append(line)
+                tsock.send_json(line)
+        count = len(inlist)
         print("We have %d flac conversions" % count)
 
         x = 0
@@ -323,8 +325,8 @@ a dash: '-abr'"
         rsock.close()
 
         # Now, we confirm that the number of files sent equals the number processed
-        print("input: %d, output: %d" % (len(files), len(results)))
-        print(list(set([x[0] for x in files]) - set([x[0] for x in results])))
+        print("input: %d, output: %d" % (len(inlist), len(results)))
+        print(list(set([x[0] for x in inlist]) - set([x[0] for x in results])))
 
     else:
             # The non clustered (original) method
