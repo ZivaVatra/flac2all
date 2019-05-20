@@ -315,7 +315,9 @@ a dash: '-abr'"
             time.sleep(0.1)
             # Once done, we collect results from the workers
             result = rsock.recv_json()  # Get data
-            print("%s (%s) %s" % (result[0].split('/')[-1], result[2], result[3]))
+            if result[0] == 0:
+                continue
+            print("n: %s t: %s s: %s" % (result[0].split('/')[-1], result[2], result[3]))
             # If the data is EOLACK, we increment x, as it
             # indicates a worker has received our EOL and has quit
             # When number of workers == EOLACKs, we break out of loop
