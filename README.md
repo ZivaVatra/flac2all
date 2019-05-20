@@ -10,38 +10,27 @@
 * Migration of code to python3
 * Removal of old (pre 0.1.7) opus codec support. The logic is broken, and most people use newer codecs, so not worth converting the logic to python3
 
-### 18/02/2019
-
-* Version 4.1 pushed to pypi.
-* AUR (Arch Linux) package updated (thanks to Graysky)
-
 
 ## What is it
-Started in 2003 as a flac to ogg vorbis script, flac2all has grown into a parallel processing program that will convert your collection of FLAC files into various other formats (currently mp3,ogg vorbis,opus,flac and aac), complete with any tags that the source file had. Designed to be extended with new formats easily as time goes on, it is a utility for people with with large FLAC collections who also want a way to convert multiple files in parallel.
+Started in 2003 as a simple flac to ogg vorbis script, flac2all has grown into a clustered parallel processing program that will convert your collection of FLAC files into various other formats (see "Formats" section for list), complete with any tags that the source file had. Designed to be extended with new formats easily as time goes on, it is a utility for people with with large FLAC collections who also want a way to convert multiple files in parallel.
 ## Details
 
-After many years of (admittadly slow) development, version 4 is finally ready for general release.
+Version5 is the new release of flac2all. The decision to bump up a version number was primarily driven by the move to python3. Python2 was scheduled to be EOL after the 1st January 2020, and a lot of distros are already defaulting to python3 as the system Python interpreter. Rather than hold two versions of "version4", one for py2 and one for py3, it made more sense to bump the version number (thats what they are there for, after all).
 
-This is the new stable version, replacing V3. Its been in "Beta" for a few years now, and now I feel ready to release it to the public. Please test and raise any issues you find.
+Following on from my tradition of adding at least one major change in versions. Version5 has support for network distributed transcoding via ZeroMQ. This allows you to launch a single flac2all "master", and then have flac2all "workers" connect to it over a TCP connection. In other words, you can delegrate encoding tasks to multiple computers, each with multiple cores.
 
-The older v3 releases are also still available in the downloads area, as well as the "version3" branch of git, if v4 isn't working for you.
-
-Biggest changes for this version are:
-* A rewrite of the multi process core
-* The ability to encode multiple codecs in parallel (e.g. mp3 and vorbis at once)
-* Logging support, plus statistical capture and summary at the end
-* Break up of code from one monolithic file into smaller core files, and files for codecs, for easier maintenance and development/extension
-* Proper packaging, with future releases going via PyPi
+In many ways it is the progression of the original multiprocess flac2all, which would allow you use all CPUs on your machine. Now you can use multiple machines (each with multiple CPUs) to transcode in parallel.
 
 ## Dependencies
-* Python >2.7
+* Python >= 3.6
 * Flac
 
 ## Optional dependencies
+* ZeroMQ (for clustering)
 * Lame: for mp3 support
 * Opus-tools: for opus support
 * Vorbis-tools: for ogg support
-* neroAAC and/or fdk-aac for AAC support
+* fdk-aac for AAC support
 
 
 ## Packages for Distros
@@ -52,12 +41,12 @@ There is a pip package available. You can install flac2all by running  "pip inst
 To upgrade to a new release you run the same commands as installation, but with "--upgrade" option set.
 
 ## Development:
-If you want the bleeding edge version, best to check out the latest "version4" branch from git.
+If you want the bleeding edge version, best to check out the latest "version5" branch from git.
 Generally development work will be done in branches then merged, so master should be functional.
 
 Tu run the version straight from the git repo, cd to "flac2all_pkg", and then run "python ./\_\_init\_\_.py -h". The rest should work as normal.
 
-The main goal of version 4 was to split the codecs into their own modules, which should allow developers to easily add new codecs. The internal function tables stay the same, meaning that as long as you follow the structure of the main functions, you can add any codec you want.
+Since version 4, all codecs are split into their own modules, which allows developers to easily add new codecs. The internal function tables stay the same, meaning that as long as you follow the structure of the main functions, you can add any codec you want.
 
 The easiest way to get started writing a codec module is to look at an existing one. I would recommend "flac.py", as it shows both encoding and decoding, and flac to flac conversion was very simple to implement. A more complex example is the mp3 module, which shows how complex things can get.
 
@@ -65,13 +54,15 @@ The easiest way to get started writing a codec module is to look at an existing 
 There are some branches that are considered "fixed". This means that they tend to be self contained, and they need not track any other branch. A list of these branches as as follows:
 
 * master: Main branch, where final merges and tests are done prior to tagging and deployment. From here we generate the releases.
-* version4: The current development branch, where changes are made, pulls merged and tested, prior to merge with master for release.
+* version5: The current development branch, where changes are made, pulls merged and tested, prior to merge with master for release.
+* version4: The old stable branch. No active development, but kept in case someone needs/wants access to the old version4
 * version3: The old stable branch. No active development, but kept in case someone needs/wants access to the old version3
+
 
 ### Dev etiquette
 If you wish to contribute to flac2all, I ask that you keep to the following guidelines:
 
-* If you want to extend/modify flac2all, checkout the latest copy of the repo, switch to the development branch (currently "version4"), and then make your own branch, develop/test/debug until ready, then issue a pull request. Do not start hacking away on the master branch directly.
+* If you want to extend/modify flac2all, checkout the latest copy of the repo, switch to the development branch, and then make your own branch, develop/test/debug until ready, then issue a pull request. Do not start hacking away on the master branch directly.
 
 * The goal of the master branch is to be the final stage before a tagged release. As such, any code merged into master should not break things badly. All testing and debugging should be done on your branch prior to merge.
 
