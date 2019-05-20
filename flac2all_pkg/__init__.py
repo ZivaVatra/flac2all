@@ -26,7 +26,7 @@ import multiprocessing as mp
 from shutil import copy as copytarget
 from optparse import OptionParser
 from config import opts
-from core import encode_thread
+from core import encode_thread, modetable
 
 import sys
 import os
@@ -45,6 +45,19 @@ else:
 modeError = Exception("Error understanding mode. Is mode valid?")
 
 
+def flatten(iterable):
+    try:
+        iterator = iter(iterable)
+    except TypeError:
+        yield iterable
+    else:
+        for element in iterator:
+            if type(element) is str:
+                yield element
+            else:
+                yield from flatten(element)
+
+
 def prog_usage():
     return """
 Flac2all python script, %s. Copyright 2003 ziva-vatra
@@ -55,10 +68,10 @@ Dev website: https://github.com/ZivaVatra/flac2all
 
 \tUsage: %s enctype1[,enctype2..] [options]  inputdir
 
-\tValid encode types are as follows: %s
+\tValid encode types are as follows:\n\t\t%s
 \tYou can specify multiple encode targets with a comma seperated list.
 
-""" % (version, sys.argv[0], "mp3 vorbis aacplus aacplusnero opus flac test")
+""" % (version, sys.argv[0], "\n\t\t".join([x[0] for x in modetable]))
 
 
 def main():
@@ -91,6 +104,10 @@ def main():
     parser.add_option(
         "-c", "--copy", action="store_true", dest="copy",
         default=False, help="Copy non flac files across (default=False)"
+    )
+    parser.add_option(
+        "", "--ffmpeg-options", dest="ffmpegopts",
+        default="-b:a 128k", help="Comma delimited options to pass to ffmpeg. Exact options will vary based on which of the ffmpeg codecs you are using"
     )
 
     parser.add_option(
@@ -174,6 +191,11 @@ a dash: '-abr'"
     # so we need to specify on command line with dashes whether it is a long op or
     # short
     opts['lameopts'] = ' -' + ' -'.join(opts['lameopts'].split(':'))
+
+    # ffmpeg uses colons as delimiters, just like flac2all (of course), so we had to
+    # switch to commas for this one
+    opts['ffmpegopts'] = opts['ffmpegopts'].split(',')
+    opts['ffmpegopts'] = list(flatten([x.split(' ') for x in opts['ffmpegopts']]))
 
     try:
         opts['mode'] = args[0]

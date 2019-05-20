@@ -15,6 +15,7 @@ class paths(object):
 		self.aacpath = "/usr/bin/"  # path to aacplus binary, blank by default
 		self.neropath = ""  # path to the Nero aacplus binary, blank by default
 		self.opusencpath = ""
+		self.ffmpegpath = ""
 		self.path = ""
 
 
