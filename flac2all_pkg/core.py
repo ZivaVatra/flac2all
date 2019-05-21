@@ -14,6 +14,12 @@ import os
 import queue
 import time
 
+try:
+    import zmq
+except ImportError:
+    has_zmq = False
+else:
+    has_zmq = True
 
 modeError = Exception("Error understanding mode. Is mode valid?")
 # The modetable holds all the "modes" (read: formats we can convert to), in the format:
@@ -108,8 +114,8 @@ class transcoder():
 
 class encode_worker(transcoder):
     def __init__(self):
+        assert has_zmq is True, "No ZeroMQ module importable. Cannot use clustered mode"
         transcoder.__init__(self)
-        import zmq
         # 1. Set up the zmq context to receive tasks
         self.zcontext = zmq.Context()
 
@@ -119,7 +125,7 @@ class encode_worker(transcoder):
         tsock.connect("tcp://%s:2019" % host_target)
 
         # Comm socket, for communicating with task server
-        csock = zcontext.socket(zmq.PUSH)
+        csock = self.zcontext.socket(zmq.PUSH)
         csock.connect("tcp://%s:2020" % host_target)
 
         # Send EHLO command indicating we are ready
