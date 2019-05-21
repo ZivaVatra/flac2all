@@ -318,11 +318,15 @@ a dash: '-abr'"
             if result[0] == 0:
                 continue
             if len(result) == 6:
-                name = str(result[0].split('/')[-1])
-                name = name.replace(".flac", "")
-                if len(name) > 55:
-                    name = name[:55] + "..."
-                print("n:%-60s\tt:%-10s\ts:%-10s" % (name, str(result[2]), str(result[3])))
+                try:
+                    name = str(result[0].split('/')[-1]).strip()
+                    name = name.replace(".flac", "")
+                    if len(name) > 55:
+                        name = name[:55] + "..."
+                    result = [str(x).strip() for x in result]
+                    print("n:%-60st:%-10ss:%-10s" % (name, result[2], result[3]))
+                except UnicodeEncodeError:
+                    print("n:ERROR: Malformed Unicode, cannot print")
             else:
                 print(result);
             # If the data is EOLACK, we increment x, as it
