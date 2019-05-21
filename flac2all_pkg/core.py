@@ -38,6 +38,9 @@ modetable.extend([["f:" + x[0], x[1]] for x in ffmpeg("", None).codeclist()])
 
 
 class transcoder():
+    def __init__(self):
+        pass
+
     def encode(self, infile, mode, opts):
         # Return format:
         # [¬
@@ -105,7 +108,7 @@ class transcoder():
 
 class encode_worker(transcoder):
     def __init__(self):
-        self.transcoder.__init__(self)
+        transcoder.__init__(self)
         import zmq
         # 1. Set up the zmq context to receive tasks
         self.zcontext = zmq.Context()
