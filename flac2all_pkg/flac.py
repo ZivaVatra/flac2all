@@ -133,10 +133,16 @@ class flac(object):
 		except sp.CalledProcessError as e:
 			if e is not None:
 				results = "FAIL:%s" % e.output.encode("utf-8")
+				rc = str(e.returncode)
 			else:
-				results = e
+				# We got an error, but with a "NoneType". This happens
+				# yet the python docs don't mention that it should, but its a fail,
+				# so report it as such.
+				# This is the links to the docs I had a look:
+				# https://docs.python.org/3/library/subprocess.html#subprocess.check_call
+				results = "FAIL"
+				rc = 1
 
-			rc = str(e.returncode)
 		else:
 			if (rc == 0):
 				results = "SUCCESS"
