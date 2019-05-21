@@ -106,8 +106,7 @@ class transcoder():
                 # return code is 0 because an existing file is not an error
                 return [infile, outfile, "Output file already exists, skipping", mode, 0, -1]
         print("Converting: \t %-40s  target: %8s " % (
-            infile.
-            split('/')[-1],
+            infile.split('/')[-1],
             mode
         ))
         return encf(infile, outfile)
@@ -135,8 +134,8 @@ class encode_worker(transcoder):
         while True:
             infile, mode, opts = tsock.recv_json()
             if infile == "EOL":
-                csock.send_json(["EOLACK"])
                 time.sleep(0.1)
+                csock.send_json(["EOLACK"])
                 tsock.close()
                 csock.close()
                 return 0

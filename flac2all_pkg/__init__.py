@@ -278,7 +278,6 @@ a dash: '-abr'"
                 # errno 11 is "Resource temporarily unavailable"
                 # We expect this if no data, so we sit in a loop and wait
                 if (e.errno == 11):
-                    sys.stdout.flush()
                     time.sleep(0.01)  # wait a little bit and try again
                     continue
             if line[0] == 'EHLO':
@@ -288,7 +287,10 @@ a dash: '-abr'"
             print("Got no workers, cannot continue.")
             sys.exit(1)
         print("Commencing run")
-        csock.send_json([0, 0, 0])
+        x = 0
+        while(x != (workers * 2)):
+            csock.send_json([0, 0, 0])
+            x += 1
 
         # Gathering file data
         files = sh.getfiles(opts['dirpath'])
@@ -317,14 +319,18 @@ a dash: '-abr'"
             if result[0] == 0:
                 continue
             if len(result) == 6:
-                print("n:%-60s\tt:%-10s\ts:%-10s" % (result[0].split('/')[-1], result[2], result[3]))
+                name = result[0].split('/')[-1]
+                name = name.replace(".flac", "")
+                if len(name) > 55:
+                    name = name[:55] + "..."
+                print("n:%-60s\tt:%-10s\ts:%-10s" % (name, result[2], result[3]))
             else:
                 print(result);
             # If the data is EOLACK, we increment x, as it
             # indicates a worker has received our EOL and has quit
             # When number of workers == EOLACKs, we break out of loop
             if (result[0] == 'EOLACK'):
-                print("Got EOLACK %d" % x)
+                print("Got EOLACK %d/%d" % (x, workers))
                 x += 1
             else:
                 results.append(result)
