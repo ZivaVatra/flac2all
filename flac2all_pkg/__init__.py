@@ -322,7 +322,7 @@ a dash: '-abr'"
                 name = name.replace(".flac", "")
                 if len(name) > 55:
                     name = name[:55] + "..."
-                print("n:%-60s\tt:%-10s\ts:%-10s" % (name, sre(result[2]), str(result[3])))
+                print("n:%-60s\tt:%-10s\ts:%-10s" % (name, str(result[2]), str(result[3])))
             else:
                 print(result);
             # If the data is EOLACK, we increment x, as it
