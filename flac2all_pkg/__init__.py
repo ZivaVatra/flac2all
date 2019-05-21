@@ -295,8 +295,8 @@ a dash: '-abr'"
         # Gathering file data
         files = sh.getfiles(opts['dirpath'])
         inlist = []
-        for mode in opts['mode'].split(','):
-            for infile in files:
+        for infile in files:
+            for mode in opts['mode'].split(','):
                 if not infile.endswith(".flac"):
                     continue  # TODO: Write logic to copy stuff here
                 line = [infile, mode, opts]
