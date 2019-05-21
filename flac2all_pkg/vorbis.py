@@ -30,7 +30,7 @@ class vorbis:
         if self.overwrite is False:
             if os.path.exists(outfile) is True:
                 # return code is 0 because an existing file is not an error
-                return [infile, outfile, "vorbis", "Output file already exists, skipping", 0, -1]
+                return [infile, outfile, "vorbis", "SUCCESS:EXISTS, skipping", 0, -1]
         else:
             os.unlink(outfile)
 
