@@ -132,9 +132,9 @@ class flac(object):
 			], stderr=sp.STDOUT)
 		except sp.CalledProcessError as e:
 			if e.output is not None:
-				results = "FAIL:%s" % e.output.encode("utf-8")
+				results = "FAIL:%s" % str(e.output).encode("utf-8")
 			else:
-				results = "FAIL:%s" % e.encode("utf-8")
+				results = "FAIL:%s" % str(e).encode("utf-8")
 			rc = e.returncode
 
 		else:
