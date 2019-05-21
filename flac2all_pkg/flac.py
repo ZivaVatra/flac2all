@@ -121,7 +121,7 @@ class flac(object):
 	def flactest(self, infile, outfile):
 		startTime = time()
 		try:
-			sp.check_call([
+			rc = sp.check_call([
 				"%sflac" % ipath.flacpath,
 				"-s",
 				"-a",
@@ -131,11 +131,17 @@ class flac(object):
 				infile
 			], stderr=sp.STDOUT)
 		except sp.CalledProcessError as e:
-			results = str(e.output)
+			if e is not None:
+				results = "FAIL:%s" % e.output.encode("utf-8")
+			else:
+				results = e
+
 			rc = str(e.returncode)
 		else:
-			results = "SUCCESS"
-			rc = 0
+			if (rc == 0):
+				results = "SUCCESS"
+			else:
+				results = "FAIL"
 
 		return [
 			infile,
