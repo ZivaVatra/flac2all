@@ -343,7 +343,8 @@ a dash: '-abr'"
 
         # Now, we confirm that the number of files sent equals the number processed
         print("input: %d, output: %d" % (len(inlist), len(results)))
-        print(list(set([x[0] for x in inlist]) - set([x[0] for x in results])))
+        assert len(inlist) == len(results), "Execution failure. Not all tasks were completed."
+        #print(list(set([x[0] for x in inlist]) - set([x[0] for x in results])))
 
     else:
             # The non clustered (original) method

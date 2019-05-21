@@ -32,7 +32,8 @@ class vorbis:
                 # return code is 0 because an existing file is not an error
                 return [infile, outfile, "vorbis", "SUCCESS:EXISTS, skipping", 0, -1]
         else:
-            os.unlink(outfile)
+            if os.path.exists(outfile) is True:
+                os.unlink(outfile)
 
         cmd.append(infile)
         rc = -1
