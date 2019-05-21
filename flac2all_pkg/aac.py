@@ -41,7 +41,7 @@ class aacplus(object):
 		try:
 			procinst.check_returncode()
 		except sp.CalledProcessError as e:
-			enc_rc = -1
+			enc_rc = e.returncode
 			error = "cmd: %s, rc: %d," % (' '.join(cmd), enc_rc)
 
 		if enc_rc == 0:

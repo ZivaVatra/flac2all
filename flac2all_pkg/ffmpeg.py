@@ -14,10 +14,14 @@ class ffmpeg:
 
     def codeclist(self):
         """ Returns list of Audio codecs supported by ffmpeg """
-        flist = sp.check_output([
-            "%sffmpeg" % ipath.ffmpegpath,
-            "-encoders"
-        ], stderr=sp.PIPE)
+        try:
+            flist = sp.check_output([
+                "%sffmpeg" % ipath.ffmpegpath,
+                "-encoders"
+            ], stderr=sp.PIPE)
+        except FileNotFoundError:
+            # No ffmpeg, no codeclist
+            return []
         # Parse out codec details
         flist = [x.strip().split(' ', 1) for x in flist.decode("utf-8").split("\n")]
         flist = list(filter(lambda x: len(x) == 2, flist))
