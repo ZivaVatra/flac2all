@@ -2,6 +2,7 @@
 from config import ipath
 from time import time
 import subprocess as sp
+import os
 
 
 # Class that deals with vorbis

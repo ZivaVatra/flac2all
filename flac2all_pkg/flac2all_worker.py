@@ -18,9 +18,9 @@ import sys
 
 def worker_process(target_host):
 	print("Spawned worker process")
-	encoder = core.transcoder()
+	eworker = core.encode_worker()
 	# because we are a process, we just exit at the end
-	sys.exit(encoder.runworker(target_host))
+	sys.exit(eworker.run(target_host))
 
 try:
 	hostname = sys.argv[1]

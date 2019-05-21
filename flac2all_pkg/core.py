@@ -12,7 +12,6 @@ import threading as mt
 
 import os
 import queue
-import zmq
 import time
 
 
@@ -34,42 +33,11 @@ modetable = [
 modetable.extend([["f:" + x[0], x[1]] for x in ffmpeg("", None).codeclist()])
 
 
-# 1. Set up the zmq context to receive tasks
-zcontext = zmq.Context()
-
 
 # Classes
 
+
 class transcoder():
-    def __init__(self):
-        pass
-
-    def runworker(self, host_target):
-        # Task socket, recieves tasks
-        tsock = zcontext.socket(zmq.PULL)
-        tsock.connect("tcp://%s:2019" % host_target)
-
-        # Comm socket, for communicating with task server
-        csock = zcontext.socket(zmq.PUSH)
-        csock.connect("tcp://%s:2020" % host_target)
-
-        # Send EHLO command indicating we are ready
-        csock.send_json(["EHLO"])
-
-        # Process tasks until EOL received
-        while True:
-            infile, mode, opts = tsock.recv_json()
-            if infile == "EOL":
-                csock.send_json(["EOLACK"])
-                time.sleep(0.1)
-                tsock.close()
-                csock.close()
-                return 0
-
-            # We send the result back up the chain
-            result = self.encode(infile, mode, opts)
-            csock.send_json(result)
-
     def encode(self, infile, mode, opts):
         # Return format:
         # [¬
@@ -135,6 +103,38 @@ class transcoder():
         ))
         return encf(infile, outfile)
 
+class encode_worker(transcoder):
+    def __init__(self):
+        self.transcoder.__init__(self)
+        import zmq
+        # 1. Set up the zmq context to receive tasks
+        self.zcontext = zmq.Context()
+
+    def run(self, host_target):
+        # Task socket, recieves tasks
+        tsock = self.zcontext.socket(zmq.PULL)
+        tsock.connect("tcp://%s:2019" % host_target)
+
+        # Comm socket, for communicating with task server
+        csock = zcontext.socket(zmq.PUSH)
+        csock.connect("tcp://%s:2020" % host_target)
+
+        # Send EHLO command indicating we are ready
+        csock.send_json(["EHLO"])
+
+        # Process tasks until EOL received
+        while True:
+            infile, mode, opts = tsock.recv_json()
+            if infile == "EOL":
+                csock.send_json(["EOLACK"])
+                time.sleep(0.1)
+                tsock.close()
+                csock.close()
+                return 0
+
+            # We send the result back up the chain
+            result = self.encode(infile, mode, opts)
+            csock.send_json(result)
 
 class encode_thread(mt.Thread, transcoder):
     def __init__(self, threadID, name, taskq, opts, logq):
