@@ -10,7 +10,7 @@ class vorbis:
     def __init__(self, opts):
             self.opts = [x for x in opts['oggencopts'].split(' ') if x.strip() != ""]
             self.overwrite = opts['overwrite']
-            self.mode = opts['mode']
+            self.mode = "vorbis"
 
     def convert(self, infile, outfile):
         # oggenc automatically parses the flac file + metadata, quite wonderful

@@ -241,7 +241,6 @@ a dash: '-abr'"
                     raise e
 
     # Magic goes here :)
-
     if opts['master_enable']:
         # Here we do the clustering magic
 
