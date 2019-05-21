@@ -83,8 +83,7 @@ class transcoder():
         elif mode == "test":
             pass  # 'test' is special as it isn't a converter, it is handled below
         elif mode[0:2] == "f:":
-            codec = mode[2:]  # Get the codec we want
-            encoder = ffmpeg(opts['ffmpegopts'], codec)
+            encoder = ffmpeg(opts)
         else:
             return [
                 infile,
@@ -104,7 +103,7 @@ class transcoder():
         if opts['overwrite'] is False:
             if os.path.exists(outfile + "." + mode):
                 # return code is 0 because an existing file is not an error
-                return [infile, outfile, mode, "Output file already exists, skipping", 0, -1]
+                return [infile, outfile, mode, "SUCCESS:EXISTS, skipping", 0, -1]
         print("Converting: \t %-40s  target: %8s " % (
             infile.split('/')[-1],
             mode

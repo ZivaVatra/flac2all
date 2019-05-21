@@ -8,9 +8,10 @@ import os
 
 # Class that deals with ffmpeg
 class ffmpeg:
-    def __init__(self, ffmpeg_options, audio_codec):
-        self.opts = ffmpeg_options
-        self.audio_codec = audio_codec
+    def __init__(self, opts):
+        self.opts = opts['ffmpegopts']
+        self.audio_codec = opts['mode'][2:]
+        self.overwrite=opts['overwrite']
 
     def codeclist(self):
         """ Returns list of Audio codecs supported by ffmpeg """
@@ -32,7 +33,7 @@ class ffmpeg:
         alist = list(filter(lambda x: len(x) == 2, alist))
         return alist
 
-    def convert(self, infile, outfile, overwrite=False):
+    def convert(self, infile, outfile):
         # Seems ffmpeg now automatically parses the flac file + metadata. This
         # make things really simple (like with vorbis)
 
@@ -54,12 +55,12 @@ class ffmpeg:
         else:
             extension = self.audio_codec
         outfile = outfile.strip() + "." + extension
-        if os.path.exists(outfile) and overwrite is False:
+        if os.path.exists(outfile) and self.overwrite is False:
             return [
                 infile,
                 outfile,
                 "ffmpeg:" + self.audio_codec,
-                "File exists, skipping",
+                "SUCCESS:EXISTS, skipping",
                 0,
                 -1
             ]
