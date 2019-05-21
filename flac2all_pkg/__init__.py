@@ -312,13 +312,12 @@ a dash: '-abr'"
         results = []
         x = 0
         while(x != workers):
-            time.sleep(0.1)
             # Once done, we collect results from the workers
-            result = rsock.recv_json()  # Get data
+            result = rsock.recv_json()  # Get data in blocking mode
             if result[0] == 0:
                 continue
-            if len(result) == 5:
-                print("n:%s\tt:%s\ts:%s" % (result[0].split('/')[-1], result[2], result[3]))
+            if len(result) == 6:
+                print("n:%-60s\tt:%-10s\ts:%-10s" % (result[0].split('/')[-1], result[2], result[3]))
             else:
                 print(result);
             # If the data is EOLACK, we increment x, as it
