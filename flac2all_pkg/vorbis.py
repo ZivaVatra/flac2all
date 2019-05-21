@@ -10,6 +10,7 @@ class vorbis:
     def __init__(self, opts):
             self.opts = [x for x in opts['oggencopts'].split(' ') if x.strip() != ""]
             self.overwrite = opts['overwrite']
+            self.mode = opts['mode']
 
     def convert(self, infile, outfile):
         # oggenc automatically parses the flac file + metadata, quite wonderful
@@ -17,7 +18,7 @@ class vorbis:
         # The binary itself deals with the tag conversion etc
         # Which makes our life rather easy
         startTime = time()
-        outfile = "%s.ogg" % outfile
+        outfile = "%s.ogg" % outfile.strip()
 
         cmd = [
             "%soggenc" % ipath.oggencpath,
@@ -30,7 +31,7 @@ class vorbis:
         if self.overwrite is False:
             if os.path.exists(outfile):
                 # return code is 0 because an existing file is not an error
-                return [infile, outfile, self.opts['mode'], "Output file already exists, skipping", 0, -1]
+                return [infile, outfile, self.mode, "Output file already exists, skipping", 0, -1]
             else:
                 os.unlink(outfile)
         cmd.append(infile)
