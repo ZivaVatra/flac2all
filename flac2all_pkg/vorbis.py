@@ -6,8 +6,9 @@ import subprocess as sp
 
 # Class that deals with vorbis
 class vorbis:
-    def __init__(self, vorbis_options):
-            self.opts = [x for x in vorbis_options.split(' ') if x.strip() != ""]
+    def __init__(self, opts):
+            self.opts = [x for x in opts['oggencopts'].split(' ') if x.strip() != ""]
+            self.overwrite = opts['overwrite']
 
     def convert(self, infile, outfile):
         # oggenc automatically parses the flac file + metadata, quite wonderful
@@ -15,14 +16,22 @@ class vorbis:
         # The binary itself deals with the tag conversion etc
         # Which makes our life rather easy
         startTime = time()
+        outfile = "%s.ogg" % outfile
+
         cmd = [
             "%soggenc" % ipath.oggencpath,
             "-Q",
             "-o",
-            "%s.ogg" % outfile,
+            outfile,
         ]
         if len(self.opts) != 0:
             cmd.extend(self.opts)
+        if self.overwrite is False:
+            if os.path.exists(outfile):
+                # return code is 0 because an existing file is not an error
+                return [infile, outfile, mode, "Output file already exists, skipping", 0, -1]
+            else:
+                os.unlink(outfile)
         cmd.append(infile)
         rc = -1
         try:

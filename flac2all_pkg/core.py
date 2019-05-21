@@ -96,7 +96,7 @@ class transcoder():
         if mode == "mp3":
             encoder = mp3(opts['lameopts'])
         elif mode == "ogg" or mode == "vorbis":
-            encoder = vorbis(opts['oggencopts'])
+            encoder = vorbis(opts)
         elif mode == "aacplus":
             encoder = aacplus(opts['aacplusopts'])
         elif mode == "opus":
