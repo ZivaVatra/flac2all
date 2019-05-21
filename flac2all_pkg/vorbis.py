@@ -10,7 +10,6 @@ class vorbis:
     def __init__(self, opts):
             self.opts = [x for x in opts['oggencopts'].split(' ') if x.strip() != ""]
             self.overwrite = opts['overwrite']
-            self.mode = "vorbis"
 
     def convert(self, infile, outfile):
         # oggenc automatically parses the flac file + metadata, quite wonderful
@@ -31,7 +30,7 @@ class vorbis:
         if self.overwrite is False:
             if os.path.exists(outfile) is True:
                 # return code is 0 because an existing file is not an error
-                return [infile, outfile, self.mode, "Output file already exists, skipping", 0, -1]
+                return [infile, outfile, "vorbis", "Output file already exists, skipping", 0, -1]
         else:
             os.unlink(outfile)
 

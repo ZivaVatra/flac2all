@@ -71,7 +71,7 @@ class transcoder():
                 raise(e)
 
         if mode == "mp3":
-            encoder = mp3(opts['lameopts'])
+            encoder = mp3(opts)
         elif mode == "ogg" or mode == "vorbis":
             encoder = vorbis(opts)
         elif mode == "aacplus":
@@ -104,7 +104,7 @@ class transcoder():
         if opts['overwrite'] is False:
             if os.path.exists(outfile + "." + mode):
                 # return code is 0 because an existing file is not an error
-                return [infile, outfile, "Output file already exists, skipping", mode, 0, -1]
+                return [infile, outfile, mode, "Output file already exists, skipping", 0, -1]
         print("Converting: \t %-40s  target: %8s " % (
             infile.split('/')[-1],
             mode

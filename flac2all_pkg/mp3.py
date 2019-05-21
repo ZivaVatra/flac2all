@@ -11,8 +11,9 @@ import subprocess as sp
 
 
 class lameMp3(object):
-    def __init__(self, lame_options):
-        self.opts = lame_options
+    def __init__(self, opts):
+        self.opts = opts["lameopts"]
+        self.overwrite = opts['overwrite']
 
     def generate_lame_meta(self, metastring):
         tagstring = []
@@ -234,6 +235,12 @@ class lameMp3(object):
         return tagstring
 
     def convert(self, infile, outfile):
+        if self.overwrite is True:
+            if os.path.exists(outfile) is True:
+                os.unlink(outfile)
+        else:
+            return [infile, outfile, "mp3", "Outfile exists, skipping", 0, -1]
+
         pipe = "/tmp/flac2all_%s" % str(uuid.uuid4()).strip()
         startTime = time()
         inmetadata = flac().getflacmeta(infile)
@@ -264,7 +271,7 @@ class lameMp3(object):
                 infile,
                 outfile,
                 "mp3",
-                "ERROR: decoder error: %s" % errline,
+                "ERROR: %s" % errline,
                 -1,
                 time() - startTime
             ]
