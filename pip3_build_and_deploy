@@ -11,7 +11,7 @@ if ($test == 1) {
 	$repo_extra = "--repository-url https://test.pypi.org/legacy/";
 }
 
-my $base="v4"; # This is the base version, either v3 or v4 atm.
+my $base="v5"; # This is the base version, version5 in this case
 my @tags = `git tag -l`;
 my $version = "$base.0";
 foreach (reverse(@tags)) {
