@@ -36,7 +36,7 @@ modetable = [
 ]
 # Add the ffmpeg codecs to the modetable, we prefix "f:", so end user knows to use the ffmpeg
 # options
-modetable.extend([["f:" + x[0], x[1]] for x in ffmpeg("", None).codeclist()])
+modetable.extend([["f:" + x[0], x[1]] for x in ffmpeg(None).codeclist()])
 
 
 
