@@ -140,7 +140,10 @@ class encode_worker(transcoder):
                 return 0
 
             # We send the result back up the chain
-            result = self.encode(infile, mode, opts)
+            try:
+                result = self.encode(infile, mode, opts)
+            except Exception as e:
+                result = [infile, "", mode, "ERROR:GLOBAL EXCEPTION:%s" % str(e).encode("utf-8"), -1, -1]
             csock.send_json(result)
 
 class encode_thread(mt.Thread, transcoder):

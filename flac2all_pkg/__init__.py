@@ -318,7 +318,7 @@ a dash: '-abr'"
             if result[0] == 0:
                 continue
             if len(result) == 6:
-                name = result[0].split('/')[-1]
+                name = str(result[0].split('/')[-1])
                 name = name.replace(".flac", "")
                 if len(name) > 55:
                     name = name[:55] + "..."
