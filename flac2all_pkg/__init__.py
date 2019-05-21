@@ -324,7 +324,7 @@ a dash: '-abr'"
                     if len(name) > 55:
                         name = name[:55] + "..."
                     result = [str(x).strip() for x in result]
-                    print("n:%-60st:%-10ss:%-10s" % (name, result[2], result[3]))
+                    print("n:%-60s\tt:%-10s\ts:%-10s" % (name, result[2], result[3]))
                 except UnicodeEncodeError:
                     print("n:ERROR: Malformed Unicode, cannot print")
             else:
