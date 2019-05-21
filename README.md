@@ -1,5 +1,12 @@
 ## News
 
+### 22/05/2019
+
+* Minor internal API changes
+* Refinement of clustering mode
+* Lots of small bugfixes (mostly to do with handling Unicode/byte type errors)
+* Started removal of NeroAAC. We have aac-enc, and two ffmpeg provided aac encoders (f:aac and f:libfdk_aac), so we are well sorted for AAC options.
+
 ### 20/05/2019
 * Code refactoring
 * Added ffmpeg support. Now flac2all supports all the audio encoders ffmpeg does. These modes are prefixed with "f:" to indicate underlying library, and the --ffmpeg-options switch lets you set codec parameters.
@@ -23,8 +30,8 @@ Started in 2003 as a simple flac to ogg vorbis script, flac2all has grown into a
 Version5 is the new release of flac2all. The decision to bump up a version number was primarily driven by the move to python3. Python2 is scheduled to be EOL after the 1st January 2020, and a lot of distros are already defaulting to python3 as the system Python interpreter. Rather than hold two versions of "version4", one for py2 and one for py3, it made more sense to bump the version number (thats what they are there for, after all).
 
 Following on from my tradition of adding at least one major feature in major version upgrades. Version5 has the following new features:
-* Support for 72 new codecs via ffmpeg
-* support for network distributed transcoding via ZeroMQ. This allows you to launch a single flac2all "master" on a machine, and then have flac2all "workers" running on other machines connect to it over a TCP connection. In other words, you can delegrate encoding tasks to multiple computers, each with multiple cores. For more details see the "Usage: clustering" section.
+* Support for ~72 new codecs via ffmpeg. Actual number of codecs subject to change based on what version of ffmpeg you have installed, and what options it is compiled with
+* support for network distributed transcoding via ZeroMQ. This allows you to launch a single flac2all "master" on a machine, and then have flac2all "workers" running on other machines connect to it over a TCP connection. In other words, you can delegrate encoding tasks to multiple computers, each with multiple cores. For more details see the Usage->clustering section.
 
 Note that the clustering function is optional, and flac2all will still work in the original way if ZeroMQ (and its python bindings) are not installed. As such we have not placed a hard dependency on ZeroMQ. This may change in future (e.g. if we decide to abandon the old logic and make everything ZeroMQ based internally).
 
@@ -38,7 +45,7 @@ Note that the clustering function is optional, and flac2all will still work in t
 * Opus-tools: for opus support
 * Vorbis-tools: for ogg support
 * aac-enc for AAC support
-
+* ffmpeg for supporting all the audio encoders it supports
 
 ## Packages for Distros
 
@@ -189,7 +196,7 @@ The first line shows what each field refers to, and the other lines are a sample
 
 In clustered mode flac2all works a bit differently. There is a "master" program, which generates the conversion list, delegates tasks to workers and collates the results into one place. It does no encoding of its own.
 
-Then there are the "worker" programs. There launch one worker per CPU, and all connect to the master via ZeroMQ sockets. These workers can be on the same computer as the master progam, or they can be on another computer. Using an IP network the workers are agnostic to the physical machine the master is on.
+Then there are the "worker" programs. They launch one worker per CPU, and all connect to the master via ZeroMQ sockets. These workers can be on the same computer as the master progam, or they can be on another computer. Using an IP network the workers are agnostic to the physical machine the master is on.
 
 This means you can attach multiple multi-core computers to a single master program, and they will all work together as a cluster to convert your files.
 
@@ -213,13 +220,13 @@ This is the setup I am using:
                                                                -------------------------
 ```
 
-Athena is just a processing machine. It has no local storage (apart from the OS). The path to both the flac source and converted destination is a NFS mount, which resides on Mnemosyne (which is my file server).
+Athena is just a processing machine. It has no local storage (apart from the OS). The path to both the flac source and converted destination is a NFS mount, which resides on Mnemosyne (which is my file server). As the file server, Mnemosyne has the local path access, and needs not to go through NFS. 
 
-Mnemosyne is the file server, so it has the local path access, and needs not to go through NFS.
+The paths are set up so that they mirror on both machines exactly.
 
-With the old flac2all, one of these machines would sit idle while the other would be churning away, however now both can be used simultaniously, like so.
+With the old flac2all, one of these machines would sit idle while the other would be churning away, however now both can be used simultaniously, like so:
 
-#. First, I run the master node on Mnemosyne. This is the exact same syntax as flac2all is normally, except that the added option "-m" is specified:
+First, I run the master node on Mnemosyne. This is the exact same syntax as flac2all is normally, except that the added option "-m" is specified:
 
 ```
 mnemosyne:~$ flac2all vorbis -m --vorbis-options="quality=9"  -o /storage/muzika/Lossy/FromFlac/ /storage/muzika/Lossless/
@@ -228,7 +235,7 @@ Waiting 15 seconds for worker(s) to connect. We need at least one worker to cont
 
 At this point, you launch the worker program on every node you want to use, with the syntax "flac2all_worker $master_hostname":
 ```
-mnemosyne:~$ flac2all_worker localhost
+mnemosyne:~$ flac2all_worker mnemosyne
 Spawned worker process
 Spawned worker process
 Spawned worker process
