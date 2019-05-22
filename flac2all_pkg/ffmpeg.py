@@ -56,15 +56,16 @@ class ffmpeg:
         else:
             extension = self.audio_codec
         outfile = outfile.strip() + "." + extension
-        if os.path.exists(outfile) and self.overwrite is False:
-            return [
-                infile,
-                outfile,
-                "ffmpeg:" + self.audio_codec,
-                "SUCCESS:EXISTS, skipping",
-                0,
-                -1
-            ]
+        if self.overwrite is False:
+            if os.path.exists(outfile):
+                return [
+                    infile,
+                    outfile,
+                    "ffmpeg:" + self.audio_codec,
+                    "SUCCESS:EXISTS, skipping",
+                    0,
+                    -1
+                ]
 
         startTime = time()
         cmd = [
@@ -82,7 +83,7 @@ class ffmpeg:
         cmd.append(outfile)
         rc = -1
         try:
-            rc = sp.check_call(cmd)
+            rc = sp.check_call(cmd, stderr=sp.PIPE)
         except sp.CalledProcessError as e:
             result = "ERROR:ffmpeg:%s %s" % (self.audio_codec, e)
         else:
