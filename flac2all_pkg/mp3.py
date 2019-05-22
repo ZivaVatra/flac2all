@@ -241,7 +241,7 @@ class lameMp3(object):
         else:
             return [infile, outfile, "mp3", "Outfile exists, skipping", 0, -1]
 
-        pipe = "/tmp/flac2all_%s" % str(uuid.uuid4()).strip()
+        pipe = "/tmp/flac2all_%s-%s" % (uuid.uuid4(), uuid.uuid4())
         startTime = time()
         inmetadata = flac().getflacmeta(infile)
         os.mkfifo(pipe)
