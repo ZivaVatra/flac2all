@@ -279,6 +279,8 @@ a dash: '-abr'"
                 if (e.errno == 11):
                     time.sleep(0.01)  # wait a little bit and try again
                     continue
+                else:
+                    raise(e)  # re-raise other errnos
             if line[0] == 'EHLO':
                 workers += 1
                 print("Got %d worker(s)" % workers)
@@ -286,6 +288,7 @@ a dash: '-abr'"
             print("Got no workers, cannot continue.")
             sys.exit(1)
         print("Commencing run")
+        start_time = time.time()
         x = 0
         while(x != (workers * 2)):
             csock.send_json([0, 0, 0])
@@ -297,7 +300,7 @@ a dash: '-abr'"
         for infile in files:
             for mode in opts['mode'].split(','):
                 if not infile.endswith(".flac"):
-                    continue  # TODO: Write logic to copy stuff here
+                    continue  # TODO: Write logic to copy stuff here, if requested
                 line = [infile, mode, opts]
                 inlist.append(line)
                 tsock.send_json(line)
@@ -327,16 +330,17 @@ a dash: '-abr'"
                     print("n:%-60s\tt:%-10s\ts:%-10s" % (name, result[2], result[3]))
                 except UnicodeEncodeError:
                     print("n:ERROR: Malformed Unicode, cannot print")
-            else:
-                print(result);
             # If the data is EOLACK, we increment x, as it
             # indicates a worker has received our EOL and has quit
             # When number of workers == EOLACKs, we break out of loop
-            if (result[0] == 'EOLACK'):
+            elif (result[0] == 'EOLACK'):
                 print("Got EOLACK %d/%d" % (x, workers))
                 x += 1
+                continue
             else:
-                results.append(result)
+                print(result);
+            results.append(result)
+        end_time = time.time()
         rsock.close()
         csock.close()
         rsock.close()
@@ -345,6 +349,7 @@ a dash: '-abr'"
         print("input: %d, output: %d" % (len(inlist), len(results)))
         assert len(inlist) == len(results), "Execution failure. Not all tasks were completed."
         #print(list(set([x[0] for x in inlist]) - set([x[0] for x in results])))
+        #generate_summary(start_time, end_time, inlist, results))
 
     else:
             # The non clustered (original) method
