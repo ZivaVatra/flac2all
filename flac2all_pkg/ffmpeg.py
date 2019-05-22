@@ -78,7 +78,7 @@ class ffmpeg:
         cmd.append(outfile)
         rc = -1
         try:
-            rc = sp.check_call(cmd, stderr=sp.PIPE)
+            rc = sp.check_call(cmd)
         except sp.CalledProcessError as e:
             result = "ERROR:ffmpeg:%s %s" % (self.audio_codec, e)
         else:
