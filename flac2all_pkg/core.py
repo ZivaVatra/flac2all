@@ -36,8 +36,7 @@ modetable = [
 ]
 # Add the ffmpeg codecs to the modetable, we prefix "f:", so end user knows to use the ffmpeg
 # options
-modetable.extend([["f:" + x[0], x[1]] for x in ffmpeg(None).codeclist()])
-
+modetable.extend([["f:" + x[0], x[1]] for x in ffmpeg(None, None).codeclist()])
 
 
 # Classes
@@ -46,6 +45,30 @@ modetable.extend([["f:" + x[0], x[1]] for x in ffmpeg(None).codeclist()])
 class transcoder():
     def __init__(self):
         pass
+
+    def modeswitch(mode, opts):
+        if mode == "mp3":
+            encoder = mp3(opts)
+        elif mode == "ogg" or mode == "vorbis":
+            encoder = vorbis(opts)
+        elif mode == "aacplus":
+            encoder = aacplus(opts['aacplusopts'])
+        elif mode == "opus":
+            encoder = opus(opts['opusencopts'])
+        elif mode == "flac":
+            encoder = flac(opts['flacopts'])
+        elif mode == "test":
+            pass  # 'test' is special as it isn't a converter, it is handled below
+        elif mode[0:2] == "f:":
+            encoder = ffmpeg(opts, mode[2:])  # Second argument is the codec
+        else:
+            return None
+        if mode == "test":
+            encoder = flac(opts['flacopts'])
+            encf = encoder.flactest
+        else:
+            encf = encoder.convert
+        return encf
 
     def encode(self, infile, mode, opts):
         # Return format:
@@ -70,21 +93,8 @@ class transcoder():
             if e.errno != 17:
                 raise(e)
 
-        if mode == "mp3":
-            encoder = mp3(opts)
-        elif mode == "ogg" or mode == "vorbis":
-            encoder = vorbis(opts)
-        elif mode == "aacplus":
-            encoder = aacplus(opts['aacplusopts'])
-        elif mode == "opus":
-            encoder = opus(opts['opusencopts'])
-        elif mode == "flac":
-            encoder = flac(opts['flacopts'])
-        elif mode == "test":
-            pass  # 'test' is special as it isn't a converter, it is handled below
-        elif mode[0:2] == "f:":
-            encoder = ffmpeg(opts)
-        else:
+        encf = self.modeswitch(mode, opts)
+        if encf is None:
             return [
                 infile,
                 outfile,
@@ -93,11 +103,6 @@ class transcoder():
                 1,
                 -1
             ]
-        if mode == "test":
-            encoder = flac(opts['flacopts'])
-            encf = encoder.flactest
-        else:
-            encf = encoder.convert
 
         outfile = outfile.replace('.flac', '')
         if opts['overwrite'] is False:
@@ -109,6 +114,7 @@ class transcoder():
             mode
         ))
         return encf(infile, outfile)
+
 
 class encode_worker(transcoder):
     def __init__(self):
@@ -146,6 +152,7 @@ class encode_worker(transcoder):
                 result = [infile, "", mode, "ERROR:GLOBAL EXCEPTION:%s" % str(e).encode("utf-8"), -1, -1]
             csock.send_json(result)
 
+
 class encode_thread(mt.Thread, transcoder):
     def __init__(self, threadID, name, taskq, opts, logq):
         mt.Thread.__init__(self)
@@ -166,7 +173,5 @@ class encode_thread(mt.Thread, transcoder):
                 return True
 
             infile = task[0]
-            dirpath = task[1]
-            outdir = task[2]
             mode = task[3].lower()
-            self.logq.put(self.encode(infile, dirpath, outdir, mode, self.opts), timeout=10)
+            self.logq.put(self.encode(infile, mode, self.opts), timeout=10)

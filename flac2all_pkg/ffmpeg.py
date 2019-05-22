@@ -8,11 +8,11 @@ import os
 
 # Class that deals with ffmpeg
 class ffmpeg:
-    def __init__(self, opts):
+    def __init__(self, opts, codec):
         if opts is not None:
             self.opts = opts['ffmpegopts']
-            self.audio_codec = opts['mode'][2:]
-            self.overwrite=opts['overwrite']
+            self.audio_codec = codec
+            self.overwrite = opts['overwrite']
 
     def codeclist(self):
         """ Returns list of Audio codecs supported by ffmpeg """
