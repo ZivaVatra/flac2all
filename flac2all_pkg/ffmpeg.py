@@ -75,6 +75,10 @@ class ffmpeg:
             self.audio_codec,
         ]
         cmd.extend(self.opts)
+        if self.overwrite is True:
+            cmd.append("-y")
+        else:
+            cmd.append("-n")
         cmd.append(outfile)
         rc = -1
         try:
