@@ -242,9 +242,9 @@ class lameMp3(object):
             return [infile, outfile, "mp3", "Outfile exists, skipping", 0, -1]
 
         pipe = "/tmp/flac2all_%s-%s" % (uuid.uuid4(), uuid.uuid4())
+        os.mkfifo(pipe)
         startTime = time()
         inmetadata = flac().getflacmeta(infile)
-        os.mkfifo(pipe)
 
         try:
             metastring = self.generate_lame_meta(inmetadata)
@@ -261,9 +261,9 @@ class lameMp3(object):
         cmd.extend([pipe, "%s.mp3" % outfile])
 
         rc = sp.check_call(cmd)
-        os.unlink(pipe)
         errline = stderr.read().decode('utf-8')
         errline = errline.upper()
+        os.unlink(pipe)
         if errline.strip() != '':
             print("ERRORLINE: %s" % errline)
         if errline.find("ERROR") != -1 or rc != 0:
