@@ -47,7 +47,7 @@ class ffmpeg:
         # (eg: audio codec "aac" has "aac" extension).
         codectable = {
             "wmav1": "wma",
-            "vmav2": "wma",
+            "wmav2": "wma",
             "mp2fixed": "mp2",
             "ac3_fixed": "ac3",
         }
