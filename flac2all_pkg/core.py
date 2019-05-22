@@ -46,7 +46,7 @@ class transcoder():
     def __init__(self):
         pass
 
-    def modeswitch(mode, opts):
+    def modeswitch(self, mode, opts):
         if mode == "mp3":
             encoder = mp3(opts)
         elif mode == "ogg" or mode == "vorbis":
