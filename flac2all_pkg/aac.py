@@ -25,7 +25,7 @@ class aacplus(object):
 	def convert(self, infile, outfile):
 		pipe = "/tmp/flac2all_%s" % str(uuid.uuid4()).strip()
 		startTime = time()
-		_, decoder = flacdecode(infile, pipe)()
+		stderr = flacdecode(infile, pipe)()
 		error = ""
 		cmd = [
 			"%saac-enc" % ipath.aacpath,
@@ -42,7 +42,7 @@ class aacplus(object):
 			procinst.check_returncode()
 		except sp.CalledProcessError as e:
 			enc_rc = e.returncode
-			error = "cmd: %s, rc: %d," % (' '.join(cmd), enc_rc)
+			error = "cmd: %s, rc: %d, stderr: %s" % (' '.join(cmd), enc_rc, stderr.read())
 
 		if enc_rc == 0:
 			return [

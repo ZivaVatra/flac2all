@@ -251,7 +251,7 @@ class lameMp3(object):
         except(UnboundLocalError):
             metastring = []  # If we do not get meta information. leave blank
 
-        (_, stderr) = flacdecode(infile, pipe)()
+        stderr = flacdecode(infile, pipe)()
         cmd = [
             "%slame" % ipath.lamepath,
             "--silent",
