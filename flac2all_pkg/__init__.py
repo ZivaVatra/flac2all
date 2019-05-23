@@ -262,33 +262,9 @@ a dash: '-abr'"
         # connect loopback to recieve socket
         csock = zcontext.socket(zmq.PUSH)
         csock.connect("tcp://localhost:2020")
-        # We wait a bit for workers to connect
-        # TODO: Make this a command switch
-        workers = 0
-        timeout = 15  # in seconds
-        print("Waiting %d seconds for worker(s) to connect. We need at least one worker to continue" % timeout)
-        while True:
-            timeout -= 0.01
-            if timeout <= 0:
-                break  # time is up
-            try:
-                line = rsock.recv_json(flags=zmq.NOBLOCK)
-            except zmq.error.Again as e:
-                # errno 11 is "Resource temporarily unavailable"
-                # We expect this if no data, so we sit in a loop and wait
-                if (e.errno == 11):
-                    time.sleep(0.01)  # wait a little bit and try again
-                    continue
-                else:
-                    raise(e)  # re-raise other errnos
-            if line[0] == 'EHLO':
-                workers += 1
-                print("Got %d worker(s)" % workers)
-        if workers == 0:
-            print("Got no workers, cannot continue.")
-            sys.exit(1)
+
+
         print("Commencing run")
-        start_time = time.time()
         x = 0
         while(x != (workers * 2)):
             csock.send_json([0, 0, 0])
@@ -303,15 +279,53 @@ a dash: '-abr'"
                     continue  # TODO: Write logic to copy stuff here, if requested
                 line = [infile, mode, opts]
                 inlist.append(line)
-                tsock.send_json(line)
+
         count = len(inlist)
         print("We have %d flac conversions" % count)
+        start_time = time.time()
+        workers = 0
+        print("Waiting for at least one worker to join")
+        while workers != -1:
+            timeout -= 0.01
+            if timeout <= 0:
+                break  # time is up
+            try:
+                line = rsock.recv_json(flags=zmq.NOBLOCK)
+            except zmq.error.Again as e:
+                # errno 11 is "Resource temporarily unavailable"
+                # We expect this if no data, so we sit in a loop and wait
+                if (e.errno == 11):
+                    time.sleep(0.01)  # wait a little bit and try again
+                    continue
+                else:
+                    raise(e)  # re-raise other errnos
 
-        x = 0
-        while(x != workers):
-            # send "end of list" once per worker, indicates finished
-            tsock.send_json(["EOL", None, None])
-            x += 1
+
+            if line[0] == 'EHLO':
+                # A worker has joined.
+                workers += 1
+                print("Got %d worker(s)" % workers)
+            elif line[0] == 'EOLACK':
+                workers -= 1  # A worker has left
+                print("Got %d worker(s)" % workers)
+            elif line[0] == "READY":
+                # A worker is ready for a new task, so push it
+                if len(inlist) == 0:
+                    # We have reached the end. Send EOL
+                    x = 0
+                    while(x != workers):
+                        # send "end of list" once per worker, indicates finished
+                        tsock.send_json(["EOL", None, None])
+                        x += 1
+                    # We duduct one worker from the list, so that when they all exit
+                    # cleanly, we end up at -1, rather than 0, thereby terminating
+                    # the loop
+                    workers -= 1 
+                else:
+                    # Pop a job off the list and send to worker as task
+                    tsock.send_json(inlist.pop())
+
+
 
         results = []
         x = 0

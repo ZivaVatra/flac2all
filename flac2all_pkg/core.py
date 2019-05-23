@@ -223,8 +223,13 @@ class encode_worker(transcoder):
         # Send EHLO command indicating we are ready
         csock.send_json(["EHLO"])
 
+        # So, this implementation is driven by the workers. They request 
+        # work when ready, and we sit and wait until they are ready to
+        # send tasks
+
         # Process tasks until EOL received
         while True:
+            csock.send_json(["READY"])
             infile, mode, opts = tsock.recv_json()
             if infile == "EOL":
                 time.sleep(0.1)
