@@ -43,18 +43,26 @@ class ffmpeg:
         # valid extension, it fails, because ffmpeg uses the extension to decide which
         # container you want to mux to. So we have to keep a manual list of self.audio_codecs and
         # what extensions are used for it. That is what the codectable below does.
-        # If a codec is not in the table, we assume the codec name is the extension
-        # (eg: audio codec "aac" has "aac" extension).
+        # If a codec is not in the table, we attempt to mux it to the ogg container
+        # (which is designed to mux pretty much all audio formats)
         codectable = {
             "wmav1": "wma",
             "wmav2": "wma",
             "mp2fixed": "mp2",
+            "mp2": "mp2",
             "ac3_fixed": "ac3",
+            "libmp3lame": "mp3",
+            "libshine": "mp3",
+            "opus": "opus",
+            "libopus": "opus",
+            "libfdk_aac": "aac",
+            "aac": "aac",
+s
         }
         if self.audio_codec in codectable:
             extension = codectable[self.audio_codec]
         else:
-            extension = self.audio_codec
+            extension = "ogg"  # The ogg media container should be able to mux just about anything, in theory.
         outfile = outfile.strip() + "." + extension
         if self.overwrite is False:
             if os.path.exists(outfile):
