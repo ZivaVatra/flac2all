@@ -26,9 +26,11 @@ class opus:
                 os.path.join(ipath.opusencpath, "opusenc"), "-v"
             ]).decode("utf-8")
 
-        data = re.search("\d+\.\d+\.\d+", data).group(0)
-        (release, major, minor) = [int(x) for x in data.split('.')]
-        self.version = (release, major, minor)
+        data = re.search("\d+\.\d+\.\d+", data)
+        if data is not None:
+            data = data.group(0)
+            (release, major, minor) = [int(x) for x in data.split('.')]
+            self.version = (release, major, minor)
         self.opts = opusencopts
 
     def convert(self, infile, outfile):
