@@ -92,8 +92,6 @@ If you wish to contribute to flac2all, I ask that you keep to the following guid
 
 * following on from above, when terminated the script leaves a bunch of tmpfiles. We need to clean up properly.
 
-* Python3 has a distinction between "bytes" and "strings", as well as more strict string coding standards. This is proving a major PITA to sort out, as before the subprocess outputs were strings, and there was an "assumed" coding across the estate (i.e. you could pump subprocess output straight into a string to send via a Queue, to be printed/written to file, and it "just worked"). This is now not the case, and all kinds of UnicodeErrors, or Unicode(De|En)coderErrors are cropping up in random places. Having to explicitly handle byte/string encoding seems a step backwards from the old Python2 IMO. If I wanted to twiddle with the equivalent of casts and handle type mismatches myself, I would have gone with C++ or Java.
-
 ## Raising a bug report
 
 Before you raise a bug report, please test with the latest version from git. Sometimes distro packages lag the latest stable by a couple of versions, so you may hit bugs that have already been fixed.
@@ -124,8 +122,6 @@ will create the following structure:
 ./fromFlac/test
 ```
 This example will encode both to ogg vorbis and mp3 formats, while generating per file test logs, simultaniously.
-
-There is also a special mode, "all", which converts to every single codec flac2all supports. I use this primarily for testing all codec paths when doing development, but its there if you really feel crazy. You can't specify "all" with any other comma separated mode (as it would be redundant)
 
 In addition, a summary conversion log is created. This is printed to stdout after a run. An example (with partial failures) looks like this:
 
@@ -202,7 +198,7 @@ This means you can attach multiple multi-core computers to a single master progr
 
 N.B: flac2all does not transfer raw audio data. It just instructs the workers what files to process. This means that all your worker nodes must have the same paths with the same flac files in them in order to work. This was done deliberately. It gives the end user more flexibility in choice of what underlying data transfer technology they want to use. From NFS mounts to a central server, to shared ISCSI nodes, to batch runs on local disks then rsync together, the choice is yours.
 
-Fundementally, there is a large body of storage and remote access technology out there, with many man-years invested in their development by specialists in the field, and of varying types, features and maturity. and it seems unwise for me to ignore all that and reinvent yet another one (poorly).
+Fundementally, there is a large body of storage and remote data access technology out there, with many man-years invested in their development by specialists in the field, and of varying types, features and maturity. and it seems unwise for me to ignore all that and reinvent yet another one (poorly).
 
 #### An example setup ####
 
@@ -220,9 +216,9 @@ This is the setup I am using:
                                                                -------------------------
 ```
 
-Athena is just a processing machine. It has no local storage (apart from the OS). The path to both the flac source and converted destination is a NFS mount, which resides on Mnemosyne (which is my file server). As the file server, Mnemosyne has the local path access, and needs not to go through NFS. 
+Athena is just a processing machine. It has no local storage (apart from the OS). The path to both the flac source and converted destination (/storage/muzika) is a NFS mount, which resides on Mnemosyne (which is my file server). As the file server, Mnemosyne has the local path access, and needs not to go through NFS.
 
-The paths are set up so that they mirror on both machines exactly.
+The mounts are set up so that the paths are indential on both machines.
 
 With the old flac2all, one of these machines would sit idle while the other would be churning away, however now both can be used simultaniously, like so:
 
@@ -284,8 +280,12 @@ Got 17 worker(s)
 Got 18 worker(s)
 Commencing run...
 ```
-The number of workers should match the total number spawned on the nodes. At this point encoding will start, and both the worker and master program will output data indicating the current progress. The worker programs will output only what they have processed, and the master will output an aggregate of the nodes.
+At this point encoding will start, and both the worker and master program will output data indicating the current progress. The worker programs will output only what they have processed, and the master will output an aggregate of the nodes.
+
+As you can see, we effectively bound the two machines into an 18 core system. There is no upper bound to the number of worker threads you can attach to a master program, although if you use a central storage system (like I am doing), you will eventuall hit IO limits of the storage (in my example, when I added more machines to make it a 26 thread system, the file server was unable to supply data fast enough to feed all the encoding threads).
+
+As a rule, the number of workers printed by the master should match the total number spawned on the nodes. If it doesn't then something went wrong. This system needs a reliable network to function well.
 
 At the end the master program will collate all the results, check that the number of conversion tasks issued matches the results, and report back to the end user.
 
-At the moment there is no way to dynamically add/remove workers from the cluster during a conversion. Once the workers are registered at the start, the configuration cannot be changed. Any nodes that go down will lose the files that were being encoded, and any nodes added after will not get any tasks assigned to them.
+At the moment there is no way to dynamically add/remove workers from the cluster during a conversion. Once the workers are registered at the start, the configuration cannot be changed. Any nodes that go down will lose the tasks that were assigned to that worker by the master, and any nodes added after will not get any tasks assigned to them.
