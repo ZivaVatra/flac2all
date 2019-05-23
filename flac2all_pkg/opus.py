@@ -26,10 +26,16 @@ class opus:
                 os.path.join(ipath.opusencpath, "opusenc"), "-v"
             ]).decode("utf-8")
 
-        data = re.search("\d+\.\d+\.\d+", data)
+        # It is 2019, and opus is still inconsistent. Some versions print
+        # the relese, major and minor version, while others just the release
+        data = re.search("\d+\.\d+\.(\d+)?", data)
         if data is not None:
             data = data.group(0)
-            (release, major, minor) = [int(x) for x in data.split('.')]
+            if len(data) == 3:
+                # We only have release and major version. Set minor to 0
+                (release, major, minor) = [int(x) for x in data.split('.')], 0
+            else:
+                (release, major, minor) = [int(x) for x in data.split('.')]
             self.version = (release, major, minor)
         self.opts = opusencopts
 
