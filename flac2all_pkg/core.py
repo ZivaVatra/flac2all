@@ -39,9 +39,10 @@ modetable = [
 modetable.extend([["f:" + x[0], x[1]] for x in ffmpeg(None, None).codeclist()])
 
 # functions
-def generate_summary(start_time, end_time, infiles, results):
+def generate_summary(start_time, end_time, infiles, results, outdir):
     total = len(results)
-    successes = len([x for x in log if x[4] == 0])
+    count = len(infiles)
+    successes = len([x for x in results if x[4] == 0])
     failures = total - successes
     if total != 0:
         percentage_fail = (failures / float(total)) * 100
@@ -56,11 +57,11 @@ def generate_summary(start_time, end_time, infiles, results):
 Total files on input: %d
 Total files actually processed: %d
 --
-Execution rate: %.2f %%
-  Files we managed to convert successfully: %d
+Execution rate: %.2f%%
+Files we managed to convert successfully: %d
 Files we failed to convert due to errors: %d
 --
-Conversion error rate: %.2f %%
+Conversion error rate: %.2f%%
 """ % (count, total, (
         (float(total) / count) * 100),
         successes,
@@ -74,11 +75,11 @@ Conversion error rate: %.2f %%
 
     for mode in modes:
         # 1. find all the logs corresponding to a particular mode
-        x = [x for x in log if x[2] == mode]
+        x = [x for x in results if x[2] == mode]
         # 2. Get the execution time for all relevant logs.
         #    -1 times are events which were no-ops (either due to errors or
         #    file already existing when overwrite == false), and are filtered out
-        execT = [y[5] for y in x if y[5] != -1]
+        execT = [float(y[5]) for y in x if float(y[5]) != -1]
         if len(execT) != 0:
             esum = sum(execT)
             emean = sum(execT) / len(execT)
@@ -114,16 +115,16 @@ Per file conversion:
 """ % (mode, etime, emean, emedian))
 
     print("Total execution time: %.2f seconds" % (end_time - start_time))
-    errout_file = opts['outdir'] + "/conversion_results.log"
+    errout_file = outdir + "/conversion_results.log"
     print("Writing log file (%s)" % errout_file)
     fd = open(errout_file, "w")
     fd.write(
         "infile,outfile,format,conversion_status,return_code,execution_time\n"
     )
-    for item in log:
+    for item in results:
         item = [str(x) for x in item]
         line = ','.join(item)
-        fd.write("%s\n" % line)
+        fd.write("%s\n" % line.encode("utf-8", "backslashreplace"))
     fd.close()
     print("Done!")
     return failures

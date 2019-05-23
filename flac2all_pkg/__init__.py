@@ -25,7 +25,7 @@ import multiprocessing as mp
 from shutil import copy as copytarget
 from optparse import OptionParser
 from config import opts
-from core import encode_thread, modetable
+from core import encode_thread, modetable, generate_summary
 
 import sys
 import os
@@ -349,7 +349,7 @@ a dash: '-abr'"
         print("input: %d, output: %d" % (len(inlist), len(results)))
         assert len(inlist) == len(results), "Execution failure. Not all tasks were completed."
         #print(list(set([x[0] for x in inlist]) - set([x[0] for x in results])))
-        #generate_summary(start_time, end_time, inlist, results))
+        generate_summary(start_time, end_time, inlist, results, opts['outdir'])
 
     else:
             # The non clustered (original) method
@@ -380,6 +380,7 @@ a dash: '-abr'"
             # keep flags for state (pQ,cQ)
             sflags = [0, 0]
             ap = []  # active processes
+            start_time = time.time()
             while True:
 
                 cc = opts['threads']
@@ -454,99 +455,18 @@ a dash: '-abr'"
                     list(map(lambda x: x.terminate(), [x for x in ap if x.is_alive()]))
                     break
 
+            end_time = time.time()
             # Now we fetch the log results, for the summary
             print("Processing run log...")
             log = []
             while not lQ.empty():
                 log.append(lQ.get(timeout=2))
 
-            total = len(log)
-            successes = len([x for x in log if x[4] == 0])
-            failures = total - successes
-            if total != 0:
-                percentage_fail = (failures / float(total)) * 100
-            else:
-                percentage_fail = 0
-
-            print("\n\n")
-            print("=" * 80)
-            print("| Summary ")
-            print("-" * 80)
-            print("""
-        Total files on input: %d
-        Total files actually processed: %d
-        --
-        Execution rate: %.2f %%
-
-
-        Files we managed to convert successfully: %d
-        Files we failed to convert due to errors: %d
-        --
-        Conversion error rate: %.2f %%
-        """ % (count, total, (
-                (float(total) / count) * 100),
-                successes,
-                failures,
-                (percentage_fail)
-               ))
-
-            for mode in opts['mode'].split(','):
-                # 1. find all the logs corresponding to a particular mode
-                x = [x for x in log if x[2] == mode]
-                # 2. Get the execution time for all relevant logs.
-                #    -1 times are events which were no-ops (either due to errors or
-                #    file already existing when overwrite == false), and are filtered out
-                execT = [y[5] for y in x if y[5] != -1]
-                if len(execT) != 0:
-                    esum = sum(execT)
-                    emean = sum(execT) / len(execT)
-                else:
-                    # Empty set, just continue
-                    print(("For mode %s:\nNo data (no files converted)\n" % mode))
-                    continue
-
-                execT.sort()
-                if len(execT) % 2 != 0:
-                    # Odd number, so median is middle
-                    emedian = execT[int((len(execT) - 1) / 2)]
-                else:
-                    # Even set. So median is average of two middle numbers
-                    num1 = execT[int((len(execT) - 1) / 2) - 1]
-                    num2 = execT[int(((len(execT) - 1) / 2))]
-                    emedian = (sum([num1, num2]) / 2.0)
-
-                etime = "Total execution time: "
-                if esum < 600:
-                    etime += "%.4f seconds" % esum
-                elif esum > 600 < 3600:
-                    etime += "%.4f minutes" % (esum / 60)
-                else:
-                    etime += "%.4f hours" % (esum / 60 / 60)
-
-                print("""
-        For mode: %s
-        %s
-        Per file conversion:
-        \tMean execution time: %.4f seconds
-        \tMedian execution time: %.4f seconds
-        """ % (mode, etime, emean, emedian))
-
-            errout_file = opts['outdir'] + "/conversion_results.log"
-            print("Writing log file (%s)" % errout_file)
-            fd = open(errout_file, "w")
-            fd.write(
-                "infile,outfile,format,conversion_status,return_code,execution_time\n"
-            )
-            for item in log:
-                item = [str(x) for x in item]
-                line = ','.join(item)
-                fd.write("%s\n" % line)
-            fd.close()
-            print("Done!")
+            failures = generate_summary(start_time, end_time, files, log, opts['outdir'])
 
             if failures != 0:
                 print("We had some failures in encoding :-(")
-                print("Check %s file for info." % errout_file)
+                print("Check conversion log file for info.")
                 print("Done! Returning non-zero exit status! ")
                 sys.exit(-1)
             else:
