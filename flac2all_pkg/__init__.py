@@ -264,12 +264,6 @@ a dash: '-abr'"
         csock.connect("tcp://localhost:2020")
 
 
-        print("Commencing run")
-        x = 0
-        while(x != (workers * 2)):
-            csock.send_json([0, 0, 0])
-            x += 1
-
         # Gathering file data
         files = sh.getfiles(opts['dirpath'])
         inlist = []
@@ -280,15 +274,13 @@ a dash: '-abr'"
                 line = [infile, mode, opts]
                 inlist.append(line)
 
-        count = len(inlist)
-        print("We have %d flac conversions" % count)
+        incount = len(inlist)
+        print("We have %d flac conversions" % incount)
         start_time = time.time()
         workers = 0
         print("Waiting for at least one worker to join")
+        results = []
         while workers != -1:
-            timeout -= 0.01
-            if timeout <= 0:
-                break  # time is up
             try:
                 line = rsock.recv_json(flags=zmq.NOBLOCK)
             except zmq.error.Again as e:
@@ -307,7 +299,6 @@ a dash: '-abr'"
                 print("Got %d worker(s)" % workers)
             elif line[0] == 'EOLACK':
                 workers -= 1  # A worker has left
-                print("Got %d worker(s)" % workers)
             elif line[0] == "READY":
                 # A worker is ready for a new task, so push it
                 if len(inlist) == 0:
@@ -327,43 +318,25 @@ a dash: '-abr'"
 
 
 
-        results = []
-        x = 0
-        while(x != workers):
-            # Once done, we collect results from the workers
-            result = rsock.recv_json()  # Get data in blocking mode
-            if result[0] == 0:
-                continue
-            if len(result) == 6:
-                try:
-                    name = str(result[0].split('/')[-1]).strip()
-                    name = name.replace(".flac", "")
-                    if len(name) > 55:
-                        name = name[:55] + "..."
-                    result = [str(x).strip() for x in result]
-                    print("n:%-60s\tt:%-10s\ts:%-10s" % (name, result[2], result[3]))
-                except UnicodeEncodeError:
-                    print("n:ERROR: Malformed Unicode, cannot print")
-            # If the data is EOLACK, we increment x, as it
-            # indicates a worker has received our EOL and has quit
-            # When number of workers == EOLACKs, we break out of loop
-            elif (result[0] == 'EOLACK'):
-                print("Got EOLACK %d/%d" % (x, workers))
-                x += 1
-                continue
-            else:
-                print(result);
-            results.append(result)
+            if len(line) == 6:
+                name = line[0].split('/')[-1]
+                name = name.replace(".flac", "")
+                if len(name) > 55:
+                    name = name[:55] + "..."
+                line = [str(x).strip() for x in line]
+                print("n:%-60s\tt:%-10s\ts:%-10s" % (name.encode("utf-8", "backslashreplace").decode(), line[2], line[3]))
+                results.append(line)
+
         end_time = time.time()
         rsock.close()
         csock.close()
         rsock.close()
 
         # Now, we confirm that the number of files sent equals the number processed
-        print("input: %d, output: %d" % (len(inlist), len(results)))
-        assert len(inlist) == len(results), "Execution failure. Not all tasks were completed."
+        print("input: %d, output: %d" % (incount, len(results)))
+        assert incount == len(results), "Execution failure. Not all tasks were completed."
         #print(list(set([x[0] for x in inlist]) - set([x[0] for x in results])))
-        generate_summary(start_time, end_time, inlist, results, opts['outdir'])
+        generate_summary(start_time, end_time, incount, results, opts['outdir'])
 
     else:
             # The non clustered (original) method
@@ -476,7 +449,7 @@ a dash: '-abr'"
             while not lQ.empty():
                 log.append(lQ.get(timeout=2))
 
-            failures = generate_summary(start_time, end_time, files, log, opts['outdir'])
+            failures = generate_summary(start_time, end_time, len(files), log, opts['outdir'])
 
             if failures != 0:
                 print("We had some failures in encoding :-(")

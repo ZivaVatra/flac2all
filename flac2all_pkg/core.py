@@ -39,9 +39,8 @@ modetable = [
 modetable.extend([["f:" + x[0], x[1]] for x in ffmpeg(None, None).codeclist()])
 
 # functions
-def generate_summary(start_time, end_time, infiles, results, outdir):
+def generate_summary(start_time, end_time, count, results, outdir):
     total = len(results)
-    count = len(infiles)
     successes = len([x for x in results if x[4] == 0])
     failures = total - successes
     if total != 0:
