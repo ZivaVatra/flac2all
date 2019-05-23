@@ -21,6 +21,11 @@ except ImportError:
 else:
     has_zmq = True
 
+# If we want to refuse tasks, this global controls it
+# e.g. we ctrl-c, and want to empty the worker before a
+# clean shutdown
+refuse_tasks = False
+
 modeError = Exception("Error understanding mode. Is mode valid?")
 # The modetable holds all the "modes" (read: formats we can convert to), in the format:
 # [ "codec_name", "description" ]. The codec name is what the end_user will issue to
@@ -41,7 +46,7 @@ modetable.extend([["f:" + x[0], x[1]] for x in ffmpeg(None, None).codeclist()])
 # functions
 def generate_summary(start_time, end_time, count, results, outdir):
     total = len(results)
-    successes = len([x for x in results if x[4] == 0])
+    successes = len([x for x in results if int(x[4]) == 0])
     failures = total - successes
     if total != 0:
         percentage_fail = (failures / float(total)) * 100
@@ -239,7 +244,13 @@ class encode_worker(transcoder):
 
             # We send the result back up the chain
             try:
-                result = self.encode(infile, mode, opts)
+                if refuse_tasks is True:
+                    result = ["NACK"]
+                    # Send the task back, to be done by another
+                    # worker
+                    result.extend([infile, mode, opts])
+                else:
+                    result = self.encode(infile, mode, opts)
             except Exception as e:
                 result = [infile, "", mode, "ERROR:GLOBAL EXCEPTION:%s" % str(e).encode("utf-8"), -1, -1]
             csock.send_json(result)

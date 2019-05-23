@@ -311,14 +311,16 @@ a dash: '-abr'"
                     # We duduct one worker from the list, so that when they all exit
                     # cleanly, we end up at -1, rather than 0, thereby terminating
                     # the loop
-                    workers -= 1 
+                    workers -= 1
+                    continue
                 else:
                     # Pop a job off the list and send to worker as task
                     tsock.send_json(inlist.pop())
-
-
-
-            if len(line) == 6:
+            elif line[0] == "NACK":
+                # For whatever reason the worker is refusing the task, so
+                # put it back onto the inlist for another worker to do
+                infile.append(line[1:])
+            elif len(line) == 6:
                 name = line[0].split('/')[-1]
                 name = name.replace(".flac", "")
                 if len(name) > 55:
@@ -326,6 +328,9 @@ a dash: '-abr'"
                 line = [str(x).strip() for x in line]
                 print("n:%-60s\tt:%-10s\ts:%-10s" % (name.encode("utf-8", "backslashreplace").decode(), line[2], line[3]))
                 results.append(line)
+            else:
+                print("UNKNOWN RESULT!")
+                print(results)
 
         end_time = time.time()
         rsock.close()
