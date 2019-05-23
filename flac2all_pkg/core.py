@@ -113,7 +113,7 @@ Per file conversion:
 \tMedian execution time: %.4f seconds
 """ % (mode, etime, emean, emedian))
 
-    print "Total execution time: %.2f seconds" % (end_time - start_time)
+    print("Total execution time: %.2f seconds" % (end_time - start_time))
     errout_file = opts['outdir'] + "/conversion_results.log"
     print("Writing log file (%s)" % errout_file)
     fd = open(errout_file, "w")

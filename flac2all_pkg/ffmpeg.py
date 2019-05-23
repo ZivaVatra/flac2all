@@ -57,7 +57,6 @@ class ffmpeg:
             "libopus": "opus",
             "libfdk_aac": "aac",
             "aac": "aac",
-s
         }
         if self.audio_codec in codectable:
             extension = codectable[self.audio_codec]
