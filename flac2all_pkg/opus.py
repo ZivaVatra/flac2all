@@ -33,7 +33,8 @@ class opus:
             data = data.group(0)
             if len(data) == 3:
                 # We only have release and major version. Set minor to 0
-                (release, major, minor) = [int(x) for x in data.split('.')], 0
+                data += ".0"
+                (release, major, minor) = [int(x) for x in data.split('.')]
             else:
                 (release, major, minor) = [int(x) for x in data.split('.')]
             self.version = (release, major, minor)
