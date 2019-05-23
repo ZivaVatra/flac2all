@@ -28,7 +28,7 @@ class opus:
 
         # It is 2019, and opus is still inconsistent. Some versions print
         # the relese, major and minor version, while others just the release
-        data = re.search("\d+\.\d+\.(\d+)?", data)
+        data = re.search("\d+\.\d+(\.\d+)?", data)
         if data is not None:
             data = data.group(0)
             if len(data) == 3:
