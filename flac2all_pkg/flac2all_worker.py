@@ -38,9 +38,6 @@ while len(procs) != mp.cpu_count():
 [x.start() for x in procs]
 # And now wait
 
-# We instruct the parent to ignore SIGINT now, otherwise it
-# gets terminated before the children, preventing the children
-# from exiting cleanly
 terminate = False
 
 
