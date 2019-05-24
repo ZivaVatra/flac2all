@@ -1,5 +1,11 @@
 ## News
 
+### 23/05/2019
+* Changed clustering process. System is now dynamic
+* Changed summary generation so that it is independent of process method
+* More Unicode (En|De)coding py3 issues fixed
+* Added ability for workers to refuse tasks
+
 ### 22/05/2019
 
 * Minor internal API changes
@@ -226,10 +232,12 @@ First, I run the master node on Mnemosyne. This is the exact same syntax as flac
 
 ```
 mnemosyne:~$ flac2all vorbis -m --vorbis-options="quality=9"  -o /storage/muzika/Lossy/FromFlac/ /storage/muzika/Lossless/
-Waiting 15 seconds for worker(s) to connect. We need at least one worker to continue
+Waiting for worker(s) to connect. We need at least one worker to continue
 ```
 
-At this point, you launch the worker program on every node you want to use, with the syntax "flac2all_worker $master_hostname":
+At this point, the master will sit and wait for at least one worker to join. As soon as a worker joins it will start issuing tasks. Any workers that join afterwards will automatically get tasks.
+
+You launch the worker program on every node you want to use, with the syntax "flac2all_worker $master_hostname":
 ```
 mnemosyne:~$ flac2all_worker mnemosyne
 Spawned worker process
@@ -258,7 +266,7 @@ Spawned worker process
 If all goes as planned, you should see the following printed on the master programs stdout:
 ```
 mnemosyne:~$ flac2all vorbis -m --vorbis-options="quality=9"  -o /storage/muzika/Lossy/FromFlac/ /storage/muzika/Lossless/
-Waiting 15 seconds for worker(s) to connect. We need at least one worker to continue
+Waiting for worker(s) to connect. We need at least one worker to continue
 Got 1 worker(s)
 Got 2 worker(s)
 Got 3 worker(s)
@@ -282,10 +290,10 @@ Commencing run...
 ```
 At this point encoding will start, and both the worker and master program will output data indicating the current progress. The worker programs will output only what they have processed, and the master will output an aggregate of the nodes.
 
-As you can see, we effectively bound the two machines into an 18 core system. There is no upper bound to the number of worker threads you can attach to a master program, although if you use a central storage system (like I am doing), you will eventuall hit IO limits of the storage (in my example, when I added more machines to make it a 26 thread system, the file server was unable to supply data fast enough to feed all the encoding threads).
+As you can see, we effectively bind the two machines into an 18 core system. There is no upper bound to the number of worker threads you can attach to a master program, although if you use a central storage system (like I am doing), you will eventuall hit IO limits of the storage (in my example, when I added more machines to make it a 26 thread system, the file server was unable to supply data fast enough to feed all the encoding threads).
 
 As a rule, the number of workers printed by the master should match the total number spawned on the nodes. If it doesn't then something went wrong. This system needs a reliable network to function well.
 
 At the end the master program will collate all the results, check that the number of conversion tasks issued matches the results, and report back to the end user.
 
-At the moment there is no way to dynamically add/remove workers from the cluster during a conversion. Once the workers are registered at the start, the configuration cannot be changed. Any nodes that go down will lose the tasks that were assigned to that worker by the master, and any nodes added after will not get any tasks assigned to them.
+The system is dynamic, you can add and remove worker during the process. Note that you must do a clean exit of flac2all_worker, otherwise you may lose some tasks.
