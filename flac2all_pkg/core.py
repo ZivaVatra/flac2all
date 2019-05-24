@@ -236,8 +236,8 @@ class encode_worker(transcoder):
         csock = self.zcontext.socket(zmq.PUSH)
         csock.connect("tcp://%s:2020" % host_target)
 
-        # Send EHLO command indicating we are ready
-        csock.send_json(["EHLO"])
+        # Send ONLINE command indicating we are ready
+        csock.send_json(["ONLINE"])
 
         # So, this implementation is driven by the workers. They request
         # work when ready, and we sit and wait until they are ready to
@@ -266,6 +266,8 @@ class encode_worker(transcoder):
                     # worker
                     result.extend([infile, mode, opts])
                     csock.send_json(result)
+                    # tell flac2all master that this node is offline
+                    csock.send_json(["OFFLINE"])
                     csock.close()
                     tsock.close()
                     # Exit
