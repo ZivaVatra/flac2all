@@ -41,10 +41,20 @@ while len(procs) != mp.cpu_count():
 # We instruct the parent to ignore SIGINT now, otherwise it
 # gets terminated before the children, preventing the children
 # from exiting cleanly
-signal.signal(signal.SIGINT, signal.SIG_IGN)
+terminate = False
+
+
+def sig(signal, frame):
+	global terminate
+	terminate = True
+
+
+signal.signal(signal.SIGINT, sig)
 
 while True:
 	[x.join(timeout=1) for x in procs]
+	if terminate:
+		[x.terminate() for x in procs]
 	if len([x for x in procs if x.is_alive() is True]) == 0:
 		# All worker processes are done, exit
 		sys.exit(0)
