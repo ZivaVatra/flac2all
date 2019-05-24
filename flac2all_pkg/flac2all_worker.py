@@ -15,12 +15,15 @@ import multiprocessing as mp
 import core
 import sys
 
+import signal
+
 
 def worker_process(target_host):
 	print("Spawned worker process")
 	eworker = core.encode_worker()
 	# because we are a process, we just exit at the end
 	sys.exit(eworker.run(target_host))
+
 
 try:
 	hostname = sys.argv[1]
@@ -34,4 +37,14 @@ while len(procs) != mp.cpu_count():
 
 [x.start() for x in procs]
 # And now wait
-[x.join() for x in procs]
+
+# We instruct the parent to ignore SIGINT now, otherwise it
+# gets terminated before the children, preventing the children
+# from exiting cleanly
+signal.signal(signal.SIGINT, signal.SIG_IGN)
+
+while True:
+	[x.join(timeout=1) for x in procs]
+	if len([x for x in procs if x.is_alive() is True]) == 0:
+		# All worker processes are done, exit
+		sys.exit(0)

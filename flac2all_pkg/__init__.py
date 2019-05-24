@@ -263,7 +263,6 @@ a dash: '-abr'"
         csock = zcontext.socket(zmq.PUSH)
         csock.connect("tcp://localhost:2020")
 
-
         # Gathering file data
         files = sh.getfiles(opts['dirpath'])
         inlist = []
@@ -292,7 +291,6 @@ a dash: '-abr'"
                 else:
                     raise(e)  # re-raise other errnos
 
-
             if line[0] == 'EHLO':
                 # A worker has joined.
                 workers += 1
@@ -319,7 +317,7 @@ a dash: '-abr'"
             elif line[0] == "NACK":
                 # For whatever reason the worker is refusing the task, so
                 # put it back onto the inlist for another worker to do
-                infile.append(line[1:])
+                inlist.append(line[1:])
             elif len(line) == 6:
                 name = line[0].split('/')[-1]
                 name = name.replace(".flac", "")
@@ -340,7 +338,7 @@ a dash: '-abr'"
         # Now, we confirm that the number of files sent equals the number processed
         print("input: %d, output: %d" % (incount, len(results)))
         assert incount == len(results), "Execution failure. Not all tasks were completed."
-        #print(list(set([x[0] for x in inlist]) - set([x[0] for x in results])))
+        # print(list(set([x[0] for x in inlist]) - set([x[0] for x in results])))
         generate_summary(start_time, end_time, incount, results, opts['outdir'])
 
     else:
