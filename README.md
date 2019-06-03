@@ -224,7 +224,7 @@ This is the setup I am using:
 
 Athena is just a processing machine. It has no local storage (apart from the OS). The path to both the flac source and converted destination (/storage/muzika) is a NFS mount, which resides on Mnemosyne (which is my file server). As the file server, Mnemosyne has the local path access, and needs not to go through NFS.
 
-The mounts are set up so that the paths are indential on both machines.
+The mounts are set up so that the paths are identical on both machines.
 
 With the old flac2all, one of these machines would sit idle while the other would be churning away, however now both can be used simultaniously, like so:
 
@@ -290,7 +290,7 @@ Commencing run...
 ```
 At this point encoding will start, and both the worker and master program will output data indicating the current progress. The worker programs will output only what they have processed, and the master will output an aggregate of the nodes.
 
-As you can see, we effectively bind the two machines into an 18 core system. There is no upper bound to the number of worker threads you can attach to a master program, although if you use a central storage system (like I am doing), you will eventuall hit IO limits of the storage (in my example, when I added more machines to make it a 26 thread system, the file server was unable to supply data fast enough to feed all the encoding threads).
+As you can see, we effectively bind the two machines into an 18 core system. There is no upper bound to the number of worker threads you can attach to a master program, although if you use a central storage system (like I am doing), you will eventually hit IO limits of the storage (in my example, when I added more machines to make it a 26 thread system, the file server was unable to supply data fast enough to feed all the encoding threads).
 
 As a rule, the number of workers printed by the master should match the total number spawned on the nodes. If it doesn't then something went wrong. This system needs a reliable network to function well.
 

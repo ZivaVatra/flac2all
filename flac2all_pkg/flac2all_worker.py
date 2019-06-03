@@ -22,6 +22,7 @@ def worker_process(target_host):
 	# because we are a process, we just exit at the end
 	sys.exit(eworker.run(target_host))
 
+
 try:
 	hostname = sys.argv[1]
 except IndexError:
@@ -31,6 +32,8 @@ except IndexError:
 procs = []
 while len(procs) != mp.cpu_count():
 	procs.append(mp.Process(target=worker_process, args=(hostname,)))
+	# Here we filter out any dead processes.
+	# procs = [x for x in procs if x.is_alive() is True]
 
 [x.start() for x in procs]
 # And now wait

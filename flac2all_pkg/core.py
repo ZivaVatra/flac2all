@@ -43,6 +43,7 @@ modetable = [
 # options
 modetable.extend([["f:" + x[0], x[1]] for x in ffmpeg(None, None).codeclist()])
 
+
 # functions
 def generate_summary(start_time, end_time, count, results, outdir):
     total = len(results)
@@ -75,7 +76,7 @@ Conversion error rate: %.2f%%
 
     # Each result provides the mode, so we can build a set of modes
     # from this
-    modes = set([ x[2] for x in results ])
+    modes = set([x[2] for x in results])
 
     for mode in modes:
         # 1. find all the logs corresponding to a particular mode
@@ -109,7 +110,6 @@ Conversion error rate: %.2f%%
         else:
             etime += "%.4f hours" % (esum / 60 / 60)
 
-
         print("""
 For mode: %s
 %s
@@ -132,6 +132,7 @@ Per file conversion:
     fd.close()
     print("Done!")
     return failures
+
 
 # Classes
 class transcoder():
@@ -227,7 +228,7 @@ class encode_worker(transcoder):
         # Send EHLO command indicating we are ready
         csock.send_json(["EHLO"])
 
-        # So, this implementation is driven by the workers. They request 
+        # So, this implementation is driven by the workers. They request
         # work when ready, and we sit and wait until they are ready to
         # send tasks
 
