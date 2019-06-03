@@ -296,4 +296,4 @@ As a rule, the number of workers printed by the master should match the total nu
 
 At the end the master program will collate all the results, check that the number of conversion tasks issued matches the results, and report back to the end user.
 
-The system is dynamic, you can add and remove worker during the process. Note that you must do a clean exit of flac2all_worker, otherwise you may lose some tasks.
+The system is dynamic, you can add and remove worker during the process. Note that you must do a clean exit of the flac2all_worker, otherwise you may lose some tasks.
