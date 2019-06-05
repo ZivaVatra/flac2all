@@ -12,6 +12,7 @@ import threading as mt
 
 import os
 import queue
+import signal
 import time
 
 try:
@@ -25,6 +26,7 @@ else:
 # e.g. we ctrl-c, and want to empty the worker before a
 # clean shutdown
 refuse_tasks = False
+shutdown = False
 
 modeError = Exception("Error understanding mode. Is mode valid?")
 # The modetable holds all the "modes" (read: formats we can convert to), in the format:
@@ -45,6 +47,12 @@ modetable.extend([["f:" + x[0], x[1]] for x in ffmpeg(None, None).codeclist()])
 
 
 # functions
+def signal_handler(signal, frame):
+    global shutdown
+    print("Caught signal: %s" % signal)
+    shutdown = True
+
+
 def generate_summary(start_time, end_time, count, results, outdir):
     total = len(results)
     successes = len([x for x in results if int(x[4]) == 0])
@@ -215,8 +223,11 @@ class encode_worker(transcoder):
         transcoder.__init__(self)
         # 1. Set up the zmq context to receive tasks
         self.zcontext = zmq.Context()
+        signal.signal(signal.SIGINT, signal_handler)
 
     def run(self, host_target):
+        global shutdown
+
         # Task socket, recieves tasks
         tsock = self.zcontext.socket(zmq.PULL)
         tsock.connect("tcp://%s:2019" % host_target)
@@ -225,8 +236,8 @@ class encode_worker(transcoder):
         csock = self.zcontext.socket(zmq.PUSH)
         csock.connect("tcp://%s:2020" % host_target)
 
-        # Send EHLO command indicating we are ready
-        csock.send_json(["EHLO"])
+        # Send ONLINE command indicating we are ready
+        csock.send_json(["ONLINE"])
 
         # So, this implementation is driven by the workers. They request
         # work when ready, and we sit and wait until they are ready to
@@ -243,17 +254,29 @@ class encode_worker(transcoder):
                 csock.close()
                 return 0
 
-            # We send the result back up the chain
             try:
                 if refuse_tasks is True:
                     result = ["NACK"]
                     # Send the task back, to be done by another
                     # worker
                     result.extend([infile, mode, opts])
+                elif shutdown is True:
+                    result = ["NACK"]
+                    # Send the task back, to be done by another
+                    # worker
+                    result.extend([infile, mode, opts])
+                    csock.send_json(result)
+                    # tell flac2all master that this node is offline
+                    csock.send_json(["OFFLINE"])
+                    csock.close()
+                    tsock.close()
+                    # Exit
+                    raise(SystemExit(0))
                 else:
                     result = self.encode(infile, mode, opts)
             except Exception as e:
                 result = [infile, "", mode, "ERROR:GLOBAL EXCEPTION:%s" % str(e).encode("utf-8"), -1, -1]
+            # We send the result back up the chain
             csock.send_json(result)
 
 

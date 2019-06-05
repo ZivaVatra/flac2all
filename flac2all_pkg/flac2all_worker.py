@@ -15,6 +15,8 @@ import multiprocessing as mp
 import core
 import sys
 
+import signal
+
 
 def worker_process(target_host):
 	print("Spawned worker process")
@@ -37,4 +39,21 @@ while len(procs) != mp.cpu_count():
 
 [x.start() for x in procs]
 # And now wait
-[x.join() for x in procs]
+
+terminate = False
+
+
+def sig(signal, frame):
+	global terminate
+	terminate = True
+
+
+signal.signal(signal.SIGINT, sig)
+
+while True:
+	[x.join(timeout=1) for x in procs]
+	if terminate:
+		[x.terminate() for x in procs]
+	if len([x for x in procs if x.is_alive() is True]) == 0:
+		# All worker processes are done, exit
+		sys.exit(0)

@@ -31,6 +31,18 @@ import sys
 import os
 import time
 import queue
+import signal
+
+terminate = False
+
+
+def signal_handler(signal, frame):
+    global terminate
+    print("Caught signal: %s" % signal)
+    terminate = True
+
+
+signal.signal(signal.SIGINT, signal_handler)
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -263,7 +275,6 @@ a dash: '-abr'"
         csock = zcontext.socket(zmq.PUSH)
         csock.connect("tcp://localhost:2020")
 
-
         # Gathering file data
         files = sh.getfiles(opts['dirpath'])
         inlist = []
@@ -281,24 +292,35 @@ a dash: '-abr'"
         print("Waiting for at least one worker to join")
         results = []
         while workers != -1:
+            if terminate is True:
+                # If we want to terminate, clear the entire inlist
+                # This will clean up the same as when we end normally
+                inlist = []
+
             try:
                 line = rsock.recv_json(flags=zmq.NOBLOCK)
             except zmq.error.Again as e:
                 # errno 11 is "Resource temporarily unavailable"
                 # We expect this if no data, so we sit in a loop and wait
                 if (e.errno == 11):
+                    if terminate is True:
+                        rsock.close()
+                        csock.close()
+                        rsock.close()
+                        sys.exit(0)
                     time.sleep(0.01)  # wait a little bit and try again
                     continue
                 else:
                     raise(e)  # re-raise other errnos
 
-
-            if line[0] == 'EHLO':
+            if line[0] == 'ONLINE':
                 # A worker has joined.
                 workers += 1
                 print("Got %d worker(s)" % workers)
             elif line[0] == 'EOLACK':
-                workers -= 1  # A worker has left
+                workers -= 1  # A worker acknowleded end of list and will terminate
+            elif line[0] == 'OFFLINE':
+                workers -= 1  # Worker is offline
             elif line[0] == "READY":
                 # A worker is ready for a new task, so push it
                 if len(inlist) == 0:
@@ -319,7 +341,7 @@ a dash: '-abr'"
             elif line[0] == "NACK":
                 # For whatever reason the worker is refusing the task, so
                 # put it back onto the inlist for another worker to do
-                infile.append(line[1:])
+                inlist.append(line[1:])
             elif len(line) == 6:
                 name = line[0].split('/')[-1]
                 name = name.replace(".flac", "")
@@ -340,7 +362,7 @@ a dash: '-abr'"
         # Now, we confirm that the number of files sent equals the number processed
         print("input: %d, output: %d" % (incount, len(results)))
         assert incount == len(results), "Execution failure. Not all tasks were completed."
-        #print(list(set([x[0] for x in inlist]) - set([x[0] for x in results])))
+        # print(list(set([x[0] for x in inlist]) - set([x[0] for x in results])))
         generate_summary(start_time, end_time, incount, results, opts['outdir'])
 
     else:
