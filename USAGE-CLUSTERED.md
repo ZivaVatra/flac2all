@@ -105,7 +105,7 @@ The system is dynamic, you can add and remove worker during the process. Note th
 
 ## Output ##
 
-In the example above, we specified multiple codecs at once "vorbis,mp3,test", which means flac2all will convert to mp3 and vorbis at the same time, while also doing a test on each and every flac file (outputing ".ana" files). 
+In the example above, we specified multiple codecs at once "vorbis,mp3,test", which means flac2all will convert to mp3 and vorbis at the same time, while also doing a test on each and every flac file (outputting ".ana" files). 
 
 The output structure would create a subfolder for each codec. In the case of our example, it would look like this:
 ```
