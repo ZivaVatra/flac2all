@@ -35,7 +35,7 @@ With the old flac2all, one of these machines would sit idle while the other woul
 First, I run the master node on Mnemosyne. This is the exact same syntax as flac2all is normally, except that the added option "-m" is specified:
 
 ```
-mnemosyne:~$ flac2all vorbis -m --vorbis-options="quality=9"  -o /storage/muzika/Lossy/FromFlac/ /storage/muzika/Lossless/
+mnemosyne:~$ flac2all vorbis,mp3,test -m --vorbis-options="quality=9"  -o /storage/muzika/Lossy/FromFlac/ /storage/muzika/Lossless/
 Waiting for worker(s) to connect. We need at least one worker to continue
 ```
 
@@ -69,7 +69,7 @@ Spawned worker process
 ```
 If all goes as planned, you should see the following printed on the master programs stdout:
 ```
-mnemosyne:~$ flac2all vorbis -m --vorbis-options="quality=9"  -o /storage/muzika/Lossy/FromFlac/ /storage/muzika/Lossless/
+mnemosyne:~$ flac2all vorbis,mp3,test -m --vorbis-options="quality=9"  -o /storage/muzika/Lossy/FromFlac/ /storage/muzika/Lossless/
 Waiting for worker(s) to connect. We need at least one worker to continue
 Got 1 worker(s)
 Got 2 worker(s)
@@ -101,3 +101,79 @@ As a rule, the number of workers printed by the master should match the total nu
 At the end the master program will collate all the results, check that the number of conversion tasks issued matches the results, and report back to the end user.
 
 The system is dynamic, you can add and remove worker during the process. Note that you must do a clean exit of the flac2all_worker, otherwise you may lose some tasks.
+
+
+In the example above, we specified multiple codecs at once "vorbis,mp3,test", which means flac2all will convert to mp3 and vorbis at the same time, while also doing a test on each and every flac file (outputing ".ana" files). 
+
+The output structure would create a subfolder for each codec. In the case of our example, it would look like this:
+```
+./fromFlac/vorbis
+./fromFlac/mp3
+./fromFlac/test
+```
+In addition, a summary conversion log is created. This is printed to stdout after a run. An example (with partial failures) looks like this:
+
+```
+================================================================================
+| Summary
+--------------------------------------------------------------------------------
+
+
+Total files on input: 152
+Total files actually processed: 114
+--
+Execution rate: 75.00 %
+
+
+Files we managed to convert successfully: 108
+Files we failed to convert due to errors: 6
+--
+Conversion error rate: 5.26 %
+
+
+For mode: mp3
+Total execution time: 515.2738 seconds
+Per file conversion:
+    Mean execution time: 13.5598 seconds
+    Median execution time: 12.3224 seconds
+
+
+For mode: vorbis
+Total execution time: 434.2878 seconds
+Per file conversion:
+    Mean execution time: 11.4286 seconds
+    Median execution time: 10.8245 seconds
+
+
+For mode: opus
+Total execution time: 373.4832 seconds
+Per file conversion:
+    Mean execution time: 9.8285 seconds
+    Median execution time: 9.9392 seconds
+
+For mode: aacplus
+No data (no files converted)
+
+Writing log file (./fromFlac/conversion_results.log)
+Done!
+We had some failures in encoding :-(
+Writing out error log to file ./conversion_results.log
+Done! Returning non-zero exit status!
+```
+
+
+The "conversion_results.log" file is a simple CSV, with details of each file processed. Every successful process is marked "SUCCESS", so if you want to see the unsuccessful list, you can just grep it out, like so:
+
+```
+~$grep -v SUCCESS ./conversion_results.log
+
+infile,outfile,format,conversion_status,return_code,execution_time
+/storage/muzika/Lossless/test_flac/Earth Wind & Fire - Boogie Wonderland (12'' Version).flac,./fromFlac/vorbis/Earth Wind & Fire - Boogie Wonderland (12'' Version),vorbis,ERROR:oggenc ,-1,0.0104818344116
+Earth Wind & Fire - Boogie Wonderland (12'' Version).flac,./fromFlac/opus/Earth Wind & Fire - Boogie Wonderland (12''Version),opus,ERROR: opusenc error ''. Could not convert,1,0.00583696365356
+/storage/muzika/Lossless/test_flac/08_-_Seal_-_Knock_On_Wood.flac,./fromFlac/vorbis/08_-_Seal_-_Knock_On_Wood,vorbis,ERROR:oggenc ,-1,0.0239849090576
+```
+
+The first line shows what each field refers to, and the other lines are a sample of failed FLAC files, with their full paths.
+
+
+
