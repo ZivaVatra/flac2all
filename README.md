@@ -33,6 +33,45 @@ There is a pip package available. You can install flac2all by running  "pip inst
 
 To upgrade to a new release you run the same commands as installation, but with "--upgrade" option set.
 
+
+## Usage
+
+Full information, including options and all current available conversion modes, can be found by running "flac2all -h".
+
+### Non clustered (original) ###
+
+Please see USAGE.md
+
+### Clustered ###
+
+Please see USAGE-CLUSTERED.md
+
+### Use as a library ###
+
+You can in fact make use of flac2all as a library, if you so desire. Each module can be used independently if you want to integrate flac2all into your own system. You just have to make sure the flac2all path is in your PYTHONPATH variable.
+
+For example, to convert a flac to ogg vorbis:
+
+```
+from vorbis import vorbis
+
+codec = vorbis(opts={"oggencopts":"quality=2", "overwrite=False"})
+codec.convert("infile.flac", "outfile")
+
+```
+
+or to convert to mp3 (using lame):
+
+```
+from mp3 import lameMp3
+
+codec = lameMp3(opts={"lameopts":"-preset standard:q 0", "overwrite=False"})
+codec.convert("infile.flac", "outfile")
+
+```
+
+Notice you don't specify the outfile extension, that is added automatically.
+.
 ## Development:
 If you want the bleeding edge version, best to check out the latest "version5" branch from git.
 Generally development work will be done in branches then merged, so master should be functional.
@@ -49,7 +88,8 @@ There are some branches that are considered "fixed". This means that they tend t
 * master: Main branch, where final merges and tests are done prior to tagging and deployment. From here we generate the releases.
 * version5: The current development branch, where changes are made, pulls merged and tested, prior to merge with master for release.
 * version4: The current stable branch. No active development, but general maintenance and bugfixes are being handled.
-* version3: The old stable branch. No active development, but kept in case someone needs/wants access to the old version3
+* version3: The old stable branch. No active development, but kept for historic/archival purposes.
+* version2: The old stable branch. No active development, but kept for historic/archival purposes.
 
 
 ### Dev etiquette
@@ -78,16 +118,3 @@ Before you raise a bug report, please test with the latest version from git. Som
 ## Examples in use
 
 * Here is a video of flac2all (v3) saturating a 16 core machine with conversions: [[synapse-16_threads](https://www.youtube.com/watch?v=pXSpPjWtSJc)]
-
-## Usage
-
-Full information, including options and all current available conversion modes, can be found by running "flac2all -h".
-
-### Non clustered (original) ###
-
-Please see USAGE.md
-
-### Clustered ###
-
-Please see USAGE-CLUSTERED.md
-
