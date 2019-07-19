@@ -32,6 +32,8 @@ class lameMp3(object):
             update_tagstring(["--tg", metastring['GENRE']])
             update_tagstring(["--tn", metastring['TRACKNUMBER']])
         except KeyError:
+            # If the source file does not have the metadata set, we just
+            # silently continue
             pass
 
         # COMMENTS AND CDDB ARE PLACED TOGETHER, as there exists no seperate
