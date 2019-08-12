@@ -37,7 +37,7 @@ To upgrade to a new release you run the same commands as installation, but with 
 
 * If anyone has packaged flac2all for their OS/distro, feel free to get in touch and we can add it here
 
-### Development
+### Dev 
 
 * At the moment there are no packages for the development branch. If you want the bleeding edge, follow the instructions under [Development](#development)
 
@@ -79,7 +79,7 @@ codec.convert("infile.flac", "outfile")
 
 Notice you don't specify the outfile extension, that is added automatically.
 .
-<a name="development">## Development:</a>
+## <a name="development">Development:</a>
 If you want the bleeding edge version, best to check out the latest "version5" branch from git.
 Generally development work will be done in branches then merged, so master should be functional.
 
