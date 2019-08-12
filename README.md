@@ -29,10 +29,13 @@ Note that the clustering function is optional, and flac2all will still work in t
 ## Packages for Distros
 
 ### Stable:
-There is a pip package available. You can install flac2all by running  "pip install flac2all" as root, or "pip install flac2all --user" for a non root local install.
 
+* ![logo](http://www.monitorix.org/imgs/archlinux.png "arch logo") For users of Arch Linux, flac2all is in the [AUR](https://aur.archlinux.org/packages/flac2all).
+
+* For the rest of you, there is a pip package available. You can install flac2all by running  "pip install flac2all" as root, or "pip install flac2all --user" for a non root local install.
 To upgrade to a new release you run the same commands as installation, but with "--upgrade" option set.
 
+* If anyone has packaged flac2all for their OS/distro, feel free to get in touch and we can add it here
 
 ## Usage
 
