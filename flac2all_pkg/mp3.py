@@ -25,7 +25,7 @@ class lameMp3(object):
         if "GENRE" in metastring:
             metastring['GENRE'] = metastring['GENRE'].capitalize()
         else:
-            print("No Genre detected, setting to \"Unknown\"")
+            print("Warning: No Genre detected, setting to \"Unknown\"")
             metastring.update({"GENRE": "Unknown"})
 
         try:
@@ -62,8 +62,9 @@ class lameMp3(object):
                 )
             except(KeyError):
                 pass
-        if comment_tag.strip() != "":
-            update_tagstring(['--tc', "'%s'" % comment_tag])
+        comment_tag += " || Converted with flac2all (http://flac2all.witheredfire.com/)"
+
+        update_tagstring(['--tc', "'%s'" % comment_tag])
 
         # Metadata population complete
         return tagstring
