@@ -22,7 +22,11 @@ class lameMp3(object):
             tagstring.extend([items[0], "%s" % items[1]])
 
         # Capitalise the Genre, as per lame requirements
-        metastring['GENRE'] = metastring['GENRE'].capitalize()
+        if "GENRE" in metastring:
+            metastring['GENRE'] = metastring['GENRE'].capitalize()
+        else:
+            print("No Genre detected, setting to \"Unknown\"")
+            metastring.update({"GENRE": "Unknown"})
 
         try:
             update_tagstring(["--tt", metastring["TITLE"]])
