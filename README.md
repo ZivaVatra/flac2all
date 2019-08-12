@@ -30,7 +30,7 @@ Note that the clustering function is optional, and flac2all will still work in t
 
 ### Stable:
 
-* ![logo](http://www.monitorix.org/imgs/archlinux.png "arch logo") For users of Arch Linux, flac2all is in the [AUR](https://aur.archlinux.org/packages/flac2all).
+* ![logo](http://www.monitorix.org/imgs/archlinux.png "arch logo") For users of Arch Linux, flac2all is in the [AUR](https://aur.archlinux.org/packages/flac2all). Big Thanks to [Graysky](https://github.com/graysky2) for the AUR effort over the years! 
 
 * For the rest of you, there is a pip package available. You can install flac2all by running `pip install flac2all` as root, or `pip install flac2all --user` for a non root local install.
 To upgrade to a new release you run the same commands as installation, but with `--upgrade` option set.
