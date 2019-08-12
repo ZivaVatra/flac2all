@@ -1,5 +1,8 @@
 ## News / Changes
 
+### 12/08/2019
+* Lame mp3: Removed logic that sets genre automatically to "other", as lame now does the right thing with id3v(1|2) tags. With this change, the last of the original flac2all code is now gone.
+
 ### 19/06/2019
 * README was getting too unwieldly, so split into multiple files: README.md, CHANGES.md, etc....
 
