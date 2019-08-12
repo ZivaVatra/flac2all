@@ -39,7 +39,7 @@ To upgrade to a new release you run the same commands as installation, but with 
 
 ### Development
 
-* At the moment there are no packages for the development branch. If you want the bleeding edge, follow the instructions under #Development
+* At the moment there are no packages for the development branch. If you want the bleeding edge, follow the instructions under [Development](#development)
 
 ## Usage
 
@@ -79,7 +79,7 @@ codec.convert("infile.flac", "outfile")
 
 Notice you don't specify the outfile extension, that is added automatically.
 .
-## Development:
+<a name="development">## Development:</a>
 If you want the bleeding edge version, best to check out the latest "version5" branch from git.
 Generally development work will be done in branches then merged, so master should be functional.
 
