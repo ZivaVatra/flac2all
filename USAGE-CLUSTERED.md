@@ -32,7 +32,7 @@ The mounts are set up so that the paths are identical on both machines.
 
 With the old flac2all, one of these machines would sit idle while the other would be churning away, however now both can be used simultaniously, like so:
 
-First, I run the master node on Mnemosyne. This is the exact same syntax as flac2all is normally, except that the added option "-m" is specified:
+First, I run the master node on Mnemosyne. This is the exact same syntax as when flac2all is used normally, except that the added option "-m" is specified:
 
 ```
 mnemosyne:~$ flac2all vorbis,mp3,test -m --vorbis-options="quality=9"  -o /storage/muzika/Lossy/FromFlac/ /storage/muzika/Lossless/
@@ -100,12 +100,12 @@ As a rule, the number of workers printed by the master should match the total nu
 
 At the end the master program will collate all the results, check that the number of conversion tasks issued matches the results, and report back to the end user.
 
-The system is dynamic, you can add and remove worker during the process. Note that you must do a clean exit of the flac2all_worker, otherwise you may lose some tasks.
+The system is dynamic, you can add and remove workers during the process. Note that you must do a clean exit of the flac2all_worker, otherwise you may lose some tasks. The easiest way it to hit "Ctrl-C" in the terminal, but a normal SIGTERM would work as well.
 
 
 ## Output ##
 
-In the example above, we specified multiple codecs at once "vorbis,mp3,test", which means flac2all will convert to mp3 and vorbis at the same time, while also doing a test on each and every flac file (outputting ".ana" files). 
+In the example above, we specified multiple codecs at once "vorbis,mp3,test", which means flac2all will convert to mp3 and vorbis at the same time, while also doing a test on each and every flac file (outputting ".ana" files).
 
 The output structure would create a subfolder for each codec. In the case of our example, it would look like this:
 ```
