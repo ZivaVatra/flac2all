@@ -2,7 +2,16 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 ai expandtab
 #    flac2all: Multi process flac converter
-#       -  https://github.com/ZivaVatra/flac2all/
+#       - Homepage: http://flac2all.witheredfire.com/
+#       - Devpage: https://github.com/ZivaVatra/flac2all/
+#
+#    If you like the software, donations are appreciated:
+#       BTC: 3QNErPVkkrn2R9R7uop9stfhzqUr8wecX6
+#       BCH: bitcoincash:qpy377yuntryz4zmlt5zukn82rxmuphr5q0y895nwp
+#       XMR: 45piRzk4fJxTNXdtLEoZ8QbQk2MQk6dAeGbHjaAWVtLEbR8tQUp7wo82EYGwD9AtJyFEfvitnvvJtfCftdetfgQASdJbdpH
+#
+#    All donations go to the ZV caffination fund, to keep me going through hacking sessions :-)
+#
 #
 #    Copyright (C) 2003 Z.V (info@ziva-vatra.com)
 #
