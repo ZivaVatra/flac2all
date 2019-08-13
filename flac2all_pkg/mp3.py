@@ -18,183 +18,15 @@ class lameMp3(object):
     def generate_lame_meta(self, metastring):
         tagstring = []
 
-        # Dealing with genres defined within lame
-        acceptable_genres = [
-            "A Cappella",
-            "Acid",
-            "Acid Jazz",
-            "Acid Punk",
-            "Acoustic",
-            "Alternative",
-            "Alt. Rock",
-            "Ambient",
-            "Anime",
-            "Avantgarde",
-            "Ballad",
-            "Bass",
-            "Beat",
-            "Bebob",
-            "Big Band",
-            "Black Metal",
-            "Bluegrass",
-            "Blues",
-            "Booty Bass",
-            "BritPop",
-            "Cabaret",
-            "Celtic",
-            "Chamber Music",
-            "Chanson",
-            "Chorus",
-            "Christian Gangsta Rap",
-            "Christian Rap",
-            "Christian Rock",
-            "Classical",
-            "Classic Rock",
-            "Club",
-            "Club-House",
-            "Comedy",
-            "Contemporary Christian",
-            "Country",
-            "Crossover",
-            "Cult",
-            "Dance",
-            "Dance Hall",
-            "Darkwave",
-            "Death Metal",
-            "Disco",
-            "Dream",
-            "Drum & Bass",
-            "Drum Solo",
-            "Duet",
-            "Easy Listening",
-            "Electronic",
-            "Ethnic",
-            "Eurodance",
-            "Euro-House",
-            "Euro-Techno",
-            "Fast-Fusion",
-            "Folk",
-            "Folklore",
-            "Folk/Rock",
-            "Freestyle",
-            "Funk",
-            "Fusion",
-            "Game",
-            "Gangsta Rap",
-            "Goa",
-            "Gospel",
-            "Gothic",
-            "Gothic Rock",
-            "Grunge",
-            "Hardcore",
-            "Hard Rock",
-            "Heavy Metal",
-            "Hip-Hop",
-            "House",
-            "Humour",
-            "Indie",
-            "Industrial",
-            "Instrumental",
-            "InstrumentalPop",
-            "InstrumentalRock",
-            "Jazz",
-            "Jazz+Funk",
-            "JPop",
-            "Jungle",
-            "Latin",
-            "Lo-Fi",
-            "Meditative",
-            "Merengue",
-            "Metal",
-            "Musical",
-            "NationalFolk",
-            "NativeAmerican",
-            "Negerpunk",
-            "NewAge",
-            "NewWave",
-            "Noise",
-            "Oldies",
-            "Opera",
-            "Other",
-            "Polka",
-            "PolskPunk",
-            "Pop",
-            "Pop-Folk",
-            "Pop/Funk",
-            "PornGroove",
-            "PowerBallad",
-            "Pranks",
-            "Primus",
-            "ProgressiveRock",
-            "Psychedelic",
-            "PsychedelicRock",
-            "Punk",
-            "PunkRock",
-            "Rap",
-            "Rave",
-            "R&B",
-            "Reggae",
-            "Retro",
-            "Revival",
-            "RhythmicSoul",
-            "Rock",
-            "Rock&Roll",
-            "Salsa",
-            "Samba",
-            "Satire",
-            "Showtunes",
-            "Ska",
-            "SlowJam",
-            "SlowRock",
-            "Sonata",
-            "Soul",
-            "SoundClip",
-            "Soundtrack",
-            "SouthernRock",
-            "Space",
-            "Speech",
-            "Swing",
-            "SymphonicRock",
-            "Symphony",
-            "Synthpop",
-            "Tango",
-            "Techno",
-            "Techno-Industrial",
-            "Terror",
-            "ThrashMetal",
-            "Top40",
-            "Trailer",
-            "Trance",
-            "Tribal",
-            "Trip-Hop",
-            "Vocal"
-        ]
-
-        genre_is_acceptable = 0  # By default the genre is not acceptable
-        current_genre = ""  # variable stores current genre tag
-
         def update_tagstring(items):
             tagstring.extend([items[0], "%s" % items[1]])
 
-        for genre in acceptable_genres:
-            try:
-                current_genre = metastring['GENRE'].strip().upper()
-            except(KeyError):
-                current_genre = "NO GENRE TAG"
-
-            # case-insesitive comparison
-            if current_genre == genre.strip().upper():
-                genre_is_acceptable = 1  # we can use the genre
-
-        if genre_is_acceptable == 0:  # if genre cannot be used
-            print("The Genre \"%s\" cannot be used with lame,\
-                setting to \"Other\" " % current_genre)
-            metastring['GENRE'] = "Other"
-
-        else:
-            # Capitalise the Genre, as per lame requirements
+        # Capitalise the Genre, as per lame requirements
+        if "GENRE" in metastring:
             metastring['GENRE'] = metastring['GENRE'].capitalize()
-            genre_is_acceptable = 0  # reset the value for the next time
+        else:
+            print("Warning: No Genre detected, setting to \"Unknown\"")
+            metastring.update({"GENRE": "Unknown"})
 
         try:
             update_tagstring(["--tt", metastring["TITLE"]])
@@ -204,6 +36,8 @@ class lameMp3(object):
             update_tagstring(["--tg", metastring['GENRE']])
             update_tagstring(["--tn", metastring['TRACKNUMBER']])
         except KeyError:
+            # If the source file does not have the metadata set, we just
+            # silently continue
             pass
 
         # COMMENTS AND CDDB ARE PLACED TOGETHER, as there exists no seperate
@@ -228,8 +62,9 @@ class lameMp3(object):
                 )
             except(KeyError):
                 pass
-        if comment_tag.strip() != "":
-            update_tagstring(['--tc', "'%s'" % comment_tag])
+        comment_tag += " || Converted with flac2all (http://flac2all.witheredfire.com/)"
+
+        update_tagstring(['--tc', "'%s'" % comment_tag])
 
         # Metadata population complete
         return tagstring
