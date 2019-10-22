@@ -188,12 +188,10 @@ def threaded_encode():
 
         if terminate is True:
             print("Aborting encode")
-            while (pQ.empty() is False):
-                # Drain the process queue
-                pQ.get()
-            for x in range(0, cc * 2):
-                pQ.put(["END", None, None])  # Send END to processes
-            break
+            # After multiple attempts to get it to stop encoding cleanly, none
+            # of which would reliably work, decided to just kill them dead.
+            list(map(lambda x: x.terminate(), [x for x in ap if x.is_alive()]))
+            return True
 
         if sflags == [1, 1]:
             print("Processing Complete!")

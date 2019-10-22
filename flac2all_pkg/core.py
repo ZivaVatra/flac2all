@@ -300,7 +300,5 @@ class encode_thread(mt.Thread, transcoder):
                 return True
 
             infile = task[0]
-            if infile == "END":
-                return 0
             mode = task[3].lower()
             self.logq.put(self.encode(infile, mode, self.opts), timeout=10)
