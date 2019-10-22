@@ -12,6 +12,7 @@
 #
 #    All donations go to the ZV caffination fund, to keep me going through hacking sessions :-)
 #
+# LEGAL BIT:
 #
 #    Copyright (C) 2003 Z.V (info@ziva-vatra.com)
 #

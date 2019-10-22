@@ -26,18 +26,12 @@ class opus:
                 os.path.join(ipath.opusencpath, "opusenc"), "-v"
             ]).decode("utf-8")
 
-        # It is 2019, and opus is still inconsistent. Some versions print
-        # the relese, major and minor version, while others just the release
-        data = re.search("\d+\.\d+(\.\d+)?", data)
-        if data is not None:
-            data = data.group(0)
-            if len(data) == 3:
-                # We only have release and major version. Set minor to 0
-                data += ".0"
-                (release, major, minor) = [int(x) for x in data.split('.')]
-            else:
-                (release, major, minor) = [int(x) for x in data.split('.')]
-            self.version = (release, major, minor)
+        # Opus has stabalised, on versioning, and most distros have the stable
+        # version, so we got rid of the logic that deals wit opeus version testing.
+
+        data = re.search("\d+\.\d+\.\d+", data).group(0)
+        (release, major, minor) = map(lambda x: int(x), data.split('.'))
+        self.version = (release, major, minor)
         self.opts = opusencopts
 
     def convert(self, infile, outfile):

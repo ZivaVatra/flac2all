@@ -97,8 +97,11 @@ class lameMp3(object):
 
         rc = sp.check_call(cmd)
         errline = stderr.read().decode('utf-8')
+        if os.path.exists(pipe):
+            os.unlink(pipe)
+        errline = stderr.read()
         errline = errline.upper()
-        os.unlink(pipe)
+
         if errline.strip() != '':
             print("ERRORLINE: %s" % errline)
         if errline.find("ERROR") != -1 or rc != 0:
