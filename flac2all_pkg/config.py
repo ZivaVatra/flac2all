@@ -32,6 +32,5 @@ opts = {
 	"oggencopts": "quality=2",  # your vorbis encoder settings
 	"flacopts": "",  # your flac encoder settings
 	"aacplusopts": "-a 1 -t 29",
-	"neroaacplusopts": "-q 0.3 ",  # aac as well
 	"opusencopts": "vbr",
 }

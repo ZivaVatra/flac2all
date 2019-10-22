@@ -386,12 +386,6 @@ a dash: '-abr'"
     )
 
     parser.add_option(
-        "", "--aacplus-options", dest="neroaacplusopts",
-        default="q 0.3", help="Nero AACplus options, valid options is one of:\
-    Quality (q $float), bitrate (br $int), or streaming bitrate (cbr $int) "
-    )
-
-    parser.add_option(
         "-o", "--outdir", dest="outdir", metavar="DIR",
         help="Set custom output directory (default='./')",
         default="./"
@@ -432,16 +426,6 @@ def main():
     # convert the formats in the args to valid formats for lame and oggenc
     opts['oggencopts'] = ' --' + ' --'.join(opts['oggencopts'].split(':'))
     opts['opusencopts'] = ' --' + ' --'.join(opts['opusencopts'].split(':'))
-
-    # Nero codec is annoying, as it takes bitrate in actual bits/s, rather than
-    # kbit/s as every other codec on earth works. So we need to parse things out
-    # and convert
-
-    enctype, rate = opts['neroaacplusopts'].split(' ')
-    if enctype == "br" or enctype == "cbr":
-        opts['neroaacplusopts'] = ' -%s %d' % (enctype, int(rate) * 1000)
-    else:
-        opts['neroaacplusopts'] = ' -%s %s' % (enctype, rate)
 
     # lame is not consistent, sometimes using long opts,sometimes not
     # so we need to specify on command line with dashes whether it is a long op or
