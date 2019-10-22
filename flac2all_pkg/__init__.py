@@ -232,9 +232,121 @@ def threaded_encode():
         sys.exit(0)
 
 
-def main():
+def clustered_encode():
     sh = shell()
+    # Here we do the clustering magic
 
+    # This is here rather than at the top as is usual so that flac2all can work
+    # even if ZeroMQ is not installed. Perhaps in future zmq will become a hard
+    # dependency, and then we can move it.
+    import zmq
+
+    zcontext = zmq.Context()
+
+    # Task socket (to send tasks out)
+    tsock = zcontext.socket(zmq.PUSH)
+    tsock.bind("tcp://*:2019")
+
+    # recieve socket (gets results from workers)
+    rsock = zcontext.socket(zmq.PULL)
+    rsock.bind("tcp://*:2020")
+
+    # connect loopback to recieve socket
+    csock = zcontext.socket(zmq.PUSH)
+    csock.connect("tcp://localhost:2020")
+
+    # Gathering file data
+    files = sh.getfiles(opts['dirpath'])
+    inlist = []
+    for infile in files:
+        for mode in opts['mode'].split(','):
+            if not infile.endswith(".flac"):
+                continue  # TODO: Write logic to copy stuff here, if requested
+            line = [infile, mode, opts]
+            inlist.append(line)
+
+    incount = len(inlist)
+    print("We have %d flac conversions" % incount)
+    start_time = time.time()
+    workers = 0
+    print("Waiting for at least one worker to join")
+    results = []
+    while workers != -1:
+        if terminate is True:
+            # If we want to terminate, clear the entire inlist
+            # This will clean up the same as when we end normally
+            inlist = []
+
+        try:
+            line = rsock.recv_json(flags=zmq.NOBLOCK)
+        except zmq.error.Again as e:
+            # errno 11 is "Resource temporarily unavailable"
+            # We expect this if no data, so we sit in a loop and wait
+            if (e.errno == 11):
+                if terminate is True:
+                    rsock.close()
+                    csock.close()
+                    rsock.close()
+                    sys.exit(0)
+                time.sleep(0.01)  # wait a little bit and try again
+                continue
+            else:
+                raise(e)  # re-raise other errnos
+
+        if line[0] == 'ONLINE':
+            # A worker has joined.
+            workers += 1
+            print("Got %d worker(s)" % workers)
+        elif line[0] == 'EOLACK':
+            workers -= 1  # A worker acknowleded end of list and will terminate
+        elif line[0] == 'OFFLINE':
+            workers -= 1  # Worker is offline
+        elif line[0] == "READY":
+            # A worker is ready for a new task, so push it
+            if len(inlist) == 0:
+                # We have reached the end. Send EOL
+                x = 0
+                while(x != workers):
+                    # send "end of list" once per worker, indicates finished
+                    tsock.send_json(["EOL", None, None])
+                    x += 1
+                # We duduct one worker from the list, so that when they all exit
+                # cleanly, we end up at -1, rather than 0, thereby terminating
+                # the loop
+                workers -= 1
+                continue
+            else:
+                # Pop a job off the list and send to worker as task
+                tsock.send_json(inlist.pop())
+        elif line[0] == "NACK":
+            # For whatever reason the worker is refusing the task, so
+            # put it back onto the inlist for another worker to do
+            inlist.append(line[1:])
+        elif len(line) == 6:
+            name = line[0].split('/')[-1]
+            name = name.replace(".flac", "")
+            if len(name) > 55:
+                name = name[:55] + "..."
+            line = [str(x).strip() for x in line]
+            print("n:%-60s\tt:%-10s\ts:%-10s" % (name.encode("utf-8", "backslashreplace").decode(), line[2], line[3]))
+            results.append(line)
+        else:
+            print("UNKNOWN RESULT!")
+            print(results)
+
+    end_time = time.time()
+    rsock.close()
+    csock.close()
+    rsock.close()
+
+    # Now, we confirm that the number of files sent equals the number processed
+    print("input: %d, output: %d" % (incount, len(results)))
+    assert incount == len(results), "Execution failure. Not all tasks were completed."
+    # print(list(set([x[0] for x in inlist]) - set([x[0] for x in results])))
+    generate_summary(start_time, end_time, incount, results, opts['outdir'])
+
+
+def main():
     # I've decided that the encoder options should just be long options.
     # quite frankly, we are running out of letters that make sense.
     # plus it makes a distinction between encoder opts, and program opts
@@ -382,117 +494,7 @@ a dash: '-abr'"
 
     # Magic goes here :)
     if opts['master_enable']:
-        # Here we do the clustering magic
-
-        # This is here rather than at the top as is usual so that flac2all can work
-        # even if ZeroMQ is not installed. Perhaps in future zmq will become a hard
-        # dependency, and then we can move it.
-        import zmq
-
-        zcontext = zmq.Context()
-
-        # Task socket (to send tasks out)
-        tsock = zcontext.socket(zmq.PUSH)
-        tsock.bind("tcp://*:2019")
-
-        # recieve socket (gets results from workers)
-        rsock = zcontext.socket(zmq.PULL)
-        rsock.bind("tcp://*:2020")
-
-        # connect loopback to recieve socket
-        csock = zcontext.socket(zmq.PUSH)
-        csock.connect("tcp://localhost:2020")
-
-        # Gathering file data
-        files = sh.getfiles(opts['dirpath'])
-        inlist = []
-        for infile in files:
-            for mode in opts['mode'].split(','):
-                if not infile.endswith(".flac"):
-                    continue  # TODO: Write logic to copy stuff here, if requested
-                line = [infile, mode, opts]
-                inlist.append(line)
-
-        incount = len(inlist)
-        print("We have %d flac conversions" % incount)
-        start_time = time.time()
-        workers = 0
-        print("Waiting for at least one worker to join")
-        results = []
-        while workers != -1:
-            if terminate is True:
-                # If we want to terminate, clear the entire inlist
-                # This will clean up the same as when we end normally
-                inlist = []
-
-            try:
-                line = rsock.recv_json(flags=zmq.NOBLOCK)
-            except zmq.error.Again as e:
-                # errno 11 is "Resource temporarily unavailable"
-                # We expect this if no data, so we sit in a loop and wait
-                if (e.errno == 11):
-                    if terminate is True:
-                        rsock.close()
-                        csock.close()
-                        rsock.close()
-                        sys.exit(0)
-                    time.sleep(0.01)  # wait a little bit and try again
-                    continue
-                else:
-                    raise(e)  # re-raise other errnos
-
-            if line[0] == 'ONLINE':
-                # A worker has joined.
-                workers += 1
-                print("Got %d worker(s)" % workers)
-            elif line[0] == 'EOLACK':
-                workers -= 1  # A worker acknowleded end of list and will terminate
-            elif line[0] == 'OFFLINE':
-                workers -= 1  # Worker is offline
-            elif line[0] == "READY":
-                # A worker is ready for a new task, so push it
-                if len(inlist) == 0:
-                    # We have reached the end. Send EOL
-                    x = 0
-                    while(x != workers):
-                        # send "end of list" once per worker, indicates finished
-                        tsock.send_json(["EOL", None, None])
-                        x += 1
-                    # We duduct one worker from the list, so that when they all exit
-                    # cleanly, we end up at -1, rather than 0, thereby terminating
-                    # the loop
-                    workers -= 1
-                    continue
-                else:
-                    # Pop a job off the list and send to worker as task
-                    tsock.send_json(inlist.pop())
-            elif line[0] == "NACK":
-                # For whatever reason the worker is refusing the task, so
-                # put it back onto the inlist for another worker to do
-                inlist.append(line[1:])
-            elif len(line) == 6:
-                name = line[0].split('/')[-1]
-                name = name.replace(".flac", "")
-                if len(name) > 55:
-                    name = name[:55] + "..."
-                line = [str(x).strip() for x in line]
-                print("n:%-60s\tt:%-10s\ts:%-10s" % (name.encode("utf-8", "backslashreplace").decode(), line[2], line[3]))
-                results.append(line)
-            else:
-                print("UNKNOWN RESULT!")
-                print(results)
-
-        end_time = time.time()
-        rsock.close()
-        csock.close()
-        rsock.close()
-
-        # Now, we confirm that the number of files sent equals the number processed
-        print("input: %d, output: %d" % (incount, len(results)))
-        assert incount == len(results), "Execution failure. Not all tasks were completed."
-        # print(list(set([x[0] for x in inlist]) - set([x[0] for x in results])))
-        generate_summary(start_time, end_time, incount, results, opts['outdir'])
-
+        clustered_encode()
     # Here we do non clustering magic
     else:
         threaded_encode()
