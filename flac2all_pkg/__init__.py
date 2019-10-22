@@ -92,25 +92,6 @@ Dev website: https://github.com/ZivaVatra/flac2all
 def main():
     sh = shell()
 
-    # process queue,the queue that will hold all the flac files we want to convert.
-    #  format: [ $infile, $target_format ]
-    pQ = mp.Queue()
-
-    # copy queue (for copying non flac files if requested)
-    #  format: [ $infile, $outfile ]
-    cQ = mp.Queue()
-
-    # logging queue, the encoders log progress to this
-    # format: [
-    #   $infile,
-    #   $outfile,
-    #   $format,
-    #   $error_status,
-    #   $return_code,
-    #   $execution_time
-    #   ]
-    lQ = mp.Queue()
-
     # I've decided that the encoder options should just be long options.
     # quite frankly, we are running out of letters that make sense.
     # plus it makes a distinction between encoder opts, and program opts
@@ -369,7 +350,27 @@ a dash: '-abr'"
         # print(list(set([x[0] for x in inlist]) - set([x[0] for x in results])))
         generate_summary(start_time, end_time, incount, results, opts['outdir'])
 
+    # Here we do non clustering magic
     else:
+            # process queue,the queue that will hold all the flac files we want to convert.
+            #  format: [ $infile, $target_format ]
+            pQ = mp.Queue()
+
+            # copy queue (for copying non flac files if requested)
+            #  format: [ $infile, $outfile ]
+            cQ = mp.Queue()
+
+            # logging queue, the encoders log progress to this
+            # format: [
+            #   $infile,
+            #   $outfile,
+            #   $format,
+            #   $error_status,
+            #   $return_code,
+            #   $execution_time
+            #   ]
+            lQ = mp.Queue()
+
             # The non clustered (original) method
             # 1. populate the queue with flac files
             files = sh.getfiles(opts['dirpath'])
