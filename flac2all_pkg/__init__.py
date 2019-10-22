@@ -188,6 +188,9 @@ def threaded_encode():
 
         if terminate is True:
             print("Aborting encode")
+            while (pQ.empty() is False):
+                # Drain the process queue
+                pQ.get()
             break
 
         if sflags == [1, 1]:
