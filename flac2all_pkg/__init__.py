@@ -191,6 +191,8 @@ def threaded_encode():
             while (pQ.empty() is False):
                 # Drain the process queue
                 pQ.get()
+            for x in range(0, cc * 2):
+                pQ.put(["END", None, None])  # Send END to processes
             break
 
         if sflags == [1, 1]:
