@@ -24,9 +24,9 @@ else:
 
 # If we want to refuse tasks, this global controls it
 # e.g. we ctrl-c, and want to empty the worker before a
-# clean shutdown
+# clean terminate
 refuse_tasks = False
-shutdown = False
+terminate = False
 
 modeError = Exception("Error understanding mode. Is mode valid?")
 # The modetable holds all the "modes" (read: formats we can convert to), in the format:
@@ -48,9 +48,9 @@ modetable.extend([["f:" + x[0], x[1]] for x in ffmpeg(None, None).codeclist()])
 
 # functions
 def signal_handler(signal, frame):
-    global shutdown
+    global terminate
     print("Caught signal: %s" % signal)
-    shutdown = True
+    terminate = True
 
 
 def generate_summary(start_time, end_time, count, results, outdir):
@@ -226,7 +226,7 @@ class encode_worker(transcoder):
         signal.signal(signal.SIGINT, signal_handler)
 
     def run(self, host_target):
-        global shutdown
+        global terminate
 
         # Task socket, recieves tasks
         tsock = self.zcontext.socket(zmq.PULL)
@@ -260,7 +260,7 @@ class encode_worker(transcoder):
                     # Send the task back, to be done by another
                     # worker
                     result.extend([infile, mode, opts])
-                elif shutdown is True:
+                elif terminate is True:
                     result = ["NACK"]
                     # Send the task back, to be done by another
                     # worker
