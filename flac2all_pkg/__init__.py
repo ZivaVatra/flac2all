@@ -346,7 +346,7 @@ def clustered_encode():
     generate_summary(start_time, end_time, incount, results, opts['outdir'])
 
 
-def main():
+def build_parser():
     # I've decided that the encoder options should just be long options.
     # quite frankly, we are running out of letters that make sense.
     # plus it makes a distinction between encoder opts, and program opts
@@ -420,6 +420,11 @@ a dash: '-abr'"
     )
 
     (options, args) = parser.parse_args()
+    return (options, args)
+
+
+def main():
+    options, args = build_parser()
 
     # update the opts dictionary with new values
     opts.update(eval(options.__str__()))
@@ -495,7 +500,6 @@ a dash: '-abr'"
     # Magic goes here :)
     if opts['master_enable']:
         clustered_encode()
-    # Here we do non clustering magic
     else:
         threaded_encode()
 
