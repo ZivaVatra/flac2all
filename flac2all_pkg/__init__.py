@@ -35,7 +35,7 @@ import multiprocessing as mp
 from shutil import copy as copytarget
 from optparse import OptionParser
 from config import opts
-from core import encode_thread, modetable, generate_summary, signal_handler
+from core import encode_thread, modetable, generate_summary
 
 import sys
 import os
@@ -44,6 +44,12 @@ import queue
 import signal
 
 terminate = False
+
+
+def signal_handler(signal, frame):
+    global terminate
+    print("Caught signal: %s" % signal)
+    terminate = True
 
 
 signal.signal(signal.SIGINT, signal_handler)
