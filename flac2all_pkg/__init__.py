@@ -167,9 +167,6 @@ def threaded_encode():
         else:
             sflags[0] = 0
 
-        # sflags[1] = 1
-        # Commented out until we get the shell_process_thread function written
-        #
         try:
             command = cQ.get(timeout=10)
             srcfile, srcroot, dest, encformat = command
@@ -182,6 +179,10 @@ def threaded_encode():
             sflags[1] = 1
         else:
             sflags[1] = 0
+
+        if terminate is True:
+            print("Aborting encode")
+            break
 
         if sflags == [1, 1]:
             print("Processing Complete!")
@@ -459,8 +460,8 @@ def main():
         os.mkdir(opts['outdir'])
 
     # Check if we have the special mode "all", which really brings flac2all into
-    # perspective. We convert to every single format supported. This is added for
-    # testing primarily
+    # perspective. We convert to every single format supported. This is mainly added for
+    # testing reasons.
     if opts['mode'] == "all":
         opts['mode'] = ','.join([x[0] for x in modetable])
 
