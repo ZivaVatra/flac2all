@@ -191,6 +191,8 @@ def threaded_encode():
             # After multiple attempts to get it to stop encoding cleanly, none
             # of which would reliably work, decided to just kill them dead.
             list(map(lambda x: x.terminate(), [x for x in ap if x.is_alive()]))
+            map(lambda x: x.join(), [x for x in ap if x.is_alive()])
+            print("Aborted, please note some output files may have been partially written")
             return True
 
         if sflags == [1, 1]:
