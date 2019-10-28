@@ -275,7 +275,14 @@ class encode_worker(transcoder):
                 else:
                     result = self.encode(infile, mode, opts)
             except Exception as e:
-                result = [infile, "", mode, "ERROR:GLOBAL EXCEPTION:%s" % str(e).encode("utf-8"), -1, -1]
+                # Perhaps move this to a "cleanup" function, we have repeated the logic above
+                result = ["NACK", infile, "", mode, "ERROR:GLOBAL EXCEPTION:%s" % str(e).encode("utf-8"), -1, -1]
+                csock.send_json(result)
+                csock.send_json(["OFFLINE"])
+                csock.close()
+                tsock.close()
+                # Finally, raise exception
+                raise(e)
             # We send the result back up the chain
             csock.send_json(result)
 
