@@ -11,7 +11,7 @@ class console():
 
 	def _genmsg(self, msg):
 		return "%s: %s" % (
-			datetime.datetime.utcnow().isoformat(timespec="seconds"),
+			datetime.datetime.utcnow().strftime("UTC~%H:%M:%S"),
 			msg
 		)
 
