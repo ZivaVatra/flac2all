@@ -10,8 +10,8 @@ class console():
 		self.stderr = stderr
 
 	def _genmsg(self, msg):
-		return "UTC,%s: %s" % (
-			datetime.datetime.utcnow().isoformat(),
+		return "%s: %s" % (
+			datetime.datetime.utcnow().isoformat(timespec="seconds"),
 			msg
 		)
 
@@ -21,7 +21,7 @@ class console():
 
 	def info(self, msg):
 		if self.stderr:
-			cprint(self._genmsg(msg), "magenta")
+			cprint(self._genmsg(msg))
 
 	def ok(self, msg):
 		if self.stderr:
