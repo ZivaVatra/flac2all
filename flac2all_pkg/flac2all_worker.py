@@ -17,9 +17,13 @@ import sys
 
 import signal
 
+from logging import console
+
+log = console(stderr=True)
+
 
 def worker_process(target_host):
-	print("Spawned worker process")
+	log.info("Spawned worker process")
 	eworker = core.encode_worker()
 	# because we are a process, we just exit at the end
 	sys.exit(eworker.run(target_host))
