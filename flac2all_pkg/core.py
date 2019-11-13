@@ -15,6 +15,11 @@ import queue
 import signal
 import time
 
+from logging import console
+
+log = console(stderr=True)
+
+
 try:
     import zmq
 except ImportError:
@@ -49,7 +54,7 @@ modetable.extend([["f:" + x[0], x[1]] for x in ffmpeg(None, None).codeclist()])
 # functions
 def signal_handler(signal, frame):
     global terminate
-    print("Caught signal: %s" % signal)
+    log.info("Caught signal: %s" % signal)
     terminate = True
 
 
@@ -98,7 +103,7 @@ Conversion error rate: %.2f%%
             emean = sum(execT) / len(execT)
         else:
             # Empty set, just continue
-            print(("For mode %s:\nNo data (no files converted)\n" % mode))
+            log.warn(("For mode %s:\nNo data (no files converted)\n" % mode))
             continue
         execT.sort()
         if len(execT) % 2 != 0:
@@ -128,7 +133,7 @@ Per file conversion:
 
     print("Total execution time: %.2f seconds" % (end_time - start_time))
     errout_file = outdir + "/conversion_results.log"
-    print("Writing log file (%s)" % errout_file)
+    log.info("Writing log file (%s)" % errout_file)
     fd = open(errout_file, "w")
     fd.write(
         "infile,outfile,format,conversion_status,return_code,execution_time\n"
@@ -210,7 +215,7 @@ class transcoder():
             if os.path.exists(outfile + "." + mode):
                 # return code is 0 because an existing file is not an error
                 return [infile, outfile, mode, "SUCCESS:EXISTS, skipping", 0, -1]
-        print("Converting: \t %-40s  target: %8s " % (
+        log.info("Converting: \t %-40s  target: %8s " % (
             infile.split('/')[-1],
             mode
         ))

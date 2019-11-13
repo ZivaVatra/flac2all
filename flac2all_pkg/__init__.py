@@ -44,10 +44,14 @@ import signal
 
 terminate = False
 
+from logging import console
+
+log = console(stderr=True)
+
 
 def signal_handler(signal, frame):
     global terminate
-    print("Caught signal: %s" % signal)
+    log.info("Caught signal: %s" % signal)
     terminate = True
 
 
@@ -128,10 +132,10 @@ def clustered_encode():
             inlist.append(line)
 
     incount = len(inlist)
-    print("We have %d flac conversions" % incount)
+    log.info("We have %d flac conversions" % incount)
     start_time = time.time()
     workers = 0
-    print("Waiting for at least one worker to join")
+    log.info("Waiting for at least one worker to join")
     results = []
     while workers != -1:
         if terminate is True:
@@ -158,14 +162,14 @@ def clustered_encode():
         if line[0] == 'ONLINE':
             # A worker has joined.
             workers += 1
-            print("Got %d worker(s)" % workers)
+            log.ok("Got %d worker(s)" % workers)
         elif line[0] == 'EOLACK':
-            print("Worker terminated (%d running)" % (workers - 1))
+            log.warn("Worker terminated (%d running)" % (workers - 1))
             workers -= 1  # A worker acknowleded end of list and will terminatea
             if workers <= 0:
                 break
         elif line[0] == 'OFFLINE':
-            print("Worker OFF LINE")
+            log.crit("Worker OFF LINE")
             workers -= 1  # Worker is offline
         elif line[0] == "READY":
             # A worker is ready for a new task, so push it
@@ -186,11 +190,11 @@ def clustered_encode():
             if len(name) > 55:
                 name = name[:55] + "..."
             line = [str(x).strip() for x in line]
-            print("n:%-60s\tt:%-10s\ts:%-10s" % (name.encode("utf-8", "backslashreplace").decode(), line[2], line[3]))
+            log.status("n:%-60s\tt:%-10s\ts:%-10s" % (name.encode("utf-8", "backslashreplace").decode(), line[2], line[3]))
             results.append(line)
         else:
-            print("UNKNOWN RESULT!")
-            print(results)
+            log.crit("UNKNOWN RESULT!")
+            log.crit(results)
 
     end_time = time.time()
     rsock.close()
@@ -198,7 +202,7 @@ def clustered_encode():
     rsock.close()
 
     # Now, we confirm that the number of files sent equals the number processed
-    print("input: %d, output: %d" % (incount, len(results)))
+    log.info("input: %d, output: %d" % (incount, len(results)))
     assert incount == len(results), "Execution failure. Not all tasks were completed."
     # print(list(set([x[0] for x in inlist]) - set([x[0] for x in results])))
     generate_summary(start_time, end_time, incount, results, opts['outdir'])
@@ -304,7 +308,6 @@ def main():
 
     try:
         opts['dirpath'] = os.path.abspath(args[1])
-        print("DEBUG: %s" % opts['dirpath'])
 
     except(IndexError):
         print("No directory specified! Run with '-h' for help")
@@ -313,7 +316,7 @@ def main():
     # end command line checking
 
     if not os.path.exists(opts['outdir']):
-        print("Creating output directory")
+        log.info("Creating output directory")
         os.mkdir(opts['outdir'])
 
     # Check if we have the special mode "all", which really brings flac2all into
@@ -330,9 +333,9 @@ def main():
                 os.mkdir(os.path.join(opts['outdir'], mode))
             except OSError as e:
                 if e.errno == 17:
-                    print("Folder %s already exists, reusing..." % mode)
+                    log.info("Folder %s already exists, reusing..." % mode)
                 elif e.errno == 2:
-                    print("Parent path %s does not exist! quitting..." % (
+                    log.info("Parent path %s does not exist! quitting..." % (
                         opts['outdir']
                     ))
                 else:
