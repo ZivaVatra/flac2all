@@ -171,11 +171,11 @@ def encode():
     end_time = time.time()
     # Now we fetch the log results, for the summary
     log.info("Processing run log...")
-    log = []
+    result_log = []
     while not lQ.empty():
-        log.append(lQ.get(timeout=2))
+        result_log.append(lQ.get(timeout=2))
 
-    failures = generate_summary(start_time, end_time, len(files), log, opts['outdir'])
+    failures = generate_summary(start_time, end_time, len(files), result_log, opts['outdir'])
 
     if failures != 0:
         log.crit("We had some failures in encoding :-(")
