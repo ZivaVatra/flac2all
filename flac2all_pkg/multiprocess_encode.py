@@ -41,6 +41,10 @@ import os
 import time
 import queue
 
+from logging import console
+
+log = console(stderr=True)
+
 
 def encode():
     sh = shell()  # Shell commands
@@ -80,8 +84,8 @@ def encode():
 
     time.sleep(1)  # Delay to resolve queue "broken pipe" errors
 
-    print("We have %d flac files to convert" % count)
-    print("We have %d non-flac files to copy across" % cQ.qsize())
+    log.info("We have %d flac files to convert" % count)
+    log.info("We have %d non-flac files to copy across" % cQ.qsize())
 
     # Right, how this will work here, is that we will pass the whole queue
     # to the encode threads (one per processor) and have them pop off/on as
@@ -98,7 +102,7 @@ def encode():
         cc = opts['threads']
 
         while int(cc) > (len(ap)):
-            print(">> Spawning execution process")
+            log.info("Spawning execution process")
             proc = encode_thread(int(cc), "Thread %d" % int(cc), pQ, opts, lQ)
             proc.start()
             ap.append(proc)
@@ -112,10 +116,10 @@ def encode():
         try:
             pQ.put(pQ.get(timeout=10))
         except mp.TimeoutError as e:
-            print("Process queue finished.")
+            log.ok("Process queue finished.")
             sflags[0] = 1
         except queue.Empty as e:
-            print("Process queue finished.")
+            log.ok("Process queue finished.")
             sflags[0] = 1
         else:
             sflags[0] = 0
@@ -125,7 +129,7 @@ def encode():
             srcfile, srcroot, dest, encformat = command
             outdir = sh.generateoutdir(srcfile, os.path.join(dest, encformat), srcroot)
             copytarget(srcfile, outdir)
-            print(("%s => %s" % (srcfile, outdir)))
+            log.info(("%s => %s" % (srcfile, outdir)))
         except mp.TimeoutError as e:
             sflags[1] = 1
         except queue.Empty as e:
@@ -134,7 +138,7 @@ def encode():
             sflags[1] = 0
 
         if sflags == [1, 1]:
-            print("Processing Complete!")
+            log.ok("Processing Complete!")
             break
 
         # Sometimes processes die (due to errors, or exit called), which
@@ -143,7 +147,7 @@ def encode():
         ap = [x for x in ap if x.isAlive()]
 
     # Now wait for all running processes to complete
-    print("Waiting for all running process to complete.")
+    log.info("Waiting for all running process to complete.")
 
     # We don't use os.join because if a child hangs, it takes the entire program
     # with it
@@ -152,21 +156,21 @@ def encode():
 
         if len([x for x in ap if x.is_alive()]) == 0:
             break
-        print("-" * 80)
+        log.info("-" * 80)
         for proc in [x for x in ap if x.is_alive()]:
-            print("\"%s\" is still running! Waiting..." % proc.name)
-            print("-" * 80)
+            log.warn("\"%s\" is still running! Waiting..." % proc.name)
+            log.info("-" * 80)
         time.sleep(4)
         print("")
         if (time.time() - st) > 600:
-            print("Process timeout reached, terminating stragglers and continuing\
+            log.crit("Process timeout reached, terminating stragglers and continuing\
             anyway")
             list(map(lambda x: x.terminate(), [x for x in ap if x.is_alive()]))
             break
 
     end_time = time.time()
     # Now we fetch the log results, for the summary
-    print("Processing run log...")
+    log.info("Processing run log...")
     log = []
     while not lQ.empty():
         log.append(lQ.get(timeout=2))
@@ -174,9 +178,9 @@ def encode():
     failures = generate_summary(start_time, end_time, len(files), log, opts['outdir'])
 
     if failures != 0:
-        print("We had some failures in encoding :-(")
-        print("Check conversion log file for info.")
-        print("Done! Returning non-zero exit status! ")
+        log.crit("We had some failures in encoding :-(")
+        log.crit("Check conversion log file for info.")
+        log.crit("Done! Returning non-zero exit status! ")
         sys.exit(-1)
     else:
         sys.exit(0)
