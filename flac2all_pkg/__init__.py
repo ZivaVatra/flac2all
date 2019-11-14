@@ -131,10 +131,10 @@ def clustered_encode():
                 # It would have to copy multiple times, once for each
                 # mode
                 # line = [infile, "copy", None]
-                pass
+                continue
             else:
                 line = [infile, mode, opts]
-            inlist.append(line)
+                inlist.append(line)
 
     incount = len(inlist)
     log.info("We have %d flac conversions" % incount)
