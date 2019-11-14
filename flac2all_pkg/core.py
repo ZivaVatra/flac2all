@@ -252,11 +252,16 @@ class encode_worker(transcoder):
         while True:
             csock.send_json(["READY"])
             try:
-                infile, mode, opts = tsock.recv_json(flags=zmq.NOBLOCK)
+                message = tsock.recv_json(flags=zmq.NOBLOCK)
+                infile, mode, opts = message
             except zmq.error.Again as e:
                 # If we get nothing in 5 seconds, retry sending READY
                 time.sleep(5)
                 continue
+            except ValueError as e:
+                print("ERROR, invalid message: %s (%s)" % (message, e))
+                continue
+
             if infile == "EOL":
                 time.sleep(0.1)
                 csock.send_json(["EOLACK"])
