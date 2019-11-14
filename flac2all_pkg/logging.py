@@ -10,6 +10,7 @@ class console():
 		self.stderr = stderr
 
 	def _genmsg(self, msg):
+		msg = msg.encode("utf-8", "replace")
 		return "%s: %s" % (
 			datetime.datetime.utcnow().strftime("UTC~%H:%M:%S"),
 			msg

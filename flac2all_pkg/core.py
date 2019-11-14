@@ -259,7 +259,7 @@ class encode_worker(transcoder):
                 time.sleep(5)
                 continue
             except ValueError as e:
-                print("ERROR, invalid message: %s (%s)" % (message, e))
+                log.crit("ERROR, Discarding invalid message: %s (%s)" % (message, e))
                 continue
 
             if infile == "EOL":
