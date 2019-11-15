@@ -126,6 +126,10 @@ def clustered_encode():
     inlist = []
     for infile in files:
         for mode in opts['mode'].split(','):
+            if mode.startswith("_"):
+                # This should never happen unless some smart-alec tries to call
+                # a private mode publicly, but just in case
+                continue
             if not infile.endswith(".flac"):
                 if opts['copy'] is True:
                     line = [infile, "_copy", opts]
@@ -135,7 +139,7 @@ def clustered_encode():
                 inlist.append(line)
 
     incount = len(inlist)
-    log.info("We have %d flac conversions" % incount)
+    log.info("We have %d tasks" % incount)
     start_time = time.time()
     workers = 0
     log.info("Waiting for at least one worker to join")
