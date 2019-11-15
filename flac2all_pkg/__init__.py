@@ -141,7 +141,7 @@ def clustered_encode():
     log.info("Waiting for at least one worker to join")
     results = []
 
-    timeout = 10
+    timeout = 60
     while workers != -1:
         if terminate is True:
             # If we want to terminate, clear the entire inlist
@@ -169,7 +169,7 @@ def clustered_encode():
             else:
                 raise(e)  # re-raise other errnos
         else:
-            timeout = 10  # The moment we get a response, reset the timeout
+            timeout = 60  # The moment we get a response, reset the timeout
         if line[0] == 'ONLINE':
             # A worker has joined.
             workers += 1
