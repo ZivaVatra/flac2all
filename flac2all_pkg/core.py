@@ -67,11 +67,11 @@ def generate_summary(start_time, end_time, count, results, outdir):
     else:
         percentage_fail = 0
 
-    print("\n\n")
-    print("=" * 80)
-    print("| Summary ")
-    print("-" * 80)
-    print("""
+    log.print("\n\n")
+    log.print("=" * 80)
+    log.print("| Summary ")
+    log.print("-" * 80)
+    log.print("""
 Total files on input: %d
 Total files actually processed: %d
 --
@@ -123,7 +123,7 @@ Conversion error rate: %.2f%%
         else:
             etime += "%.4f hours" % (esum / 60 / 60)
 
-        print("""
+        log.print("""
 For mode: %s
 %s
 Per file conversion:
@@ -131,7 +131,7 @@ Per file conversion:
 \tMedian execution time: %.4f seconds
 """ % (mode, etime, emean, emedian))
 
-    print("Total execution time: %.2f seconds" % (end_time - start_time))
+    log.print("Total execution time: %.2f seconds" % (end_time - start_time))
     errout_file = outdir + "/conversion_results.log"
     log.info("Writing log file (%s)" % errout_file)
     fd = open(errout_file, "w")
@@ -143,7 +143,7 @@ Per file conversion:
         line = ','.join(item)
         fd.write("%s\n" % line.encode("utf-8", "backslashreplace"))
     fd.close()
-    print("Done!")
+    log.print("Done!")
     return failures
 
 
@@ -154,9 +154,9 @@ class transcoder():
 
     def modeswitch(self, mode, opts):
         if mode == "mp3":
-            encoder = mp3(opts)
+            encoder = mp3(opts['lameopts'])
         elif mode == "ogg" or mode == "vorbis":
-            encoder = vorbis(opts)
+            encoder = vorbis(opts['oggencopts'])
         elif mode == "aacplus":
             encoder = aacplus(opts['aacplusopts'])
         elif mode == "opus":
@@ -211,10 +211,25 @@ class transcoder():
             ]
 
         outfile = outfile.replace('.flac', '')
-        if opts['overwrite'] is False:
-            if os.path.exists(outfile + "." + mode):
+        # We are moving to a global handler for overwrite, so this is being moved
+        # out of the modules (which will from now only deal with the encode)
+        # and put here
+
+        # I think vorbis is the only codec where the name it is referred to is
+        # not its extension, so we have to have extra logic for it
+        if mode == "vorbis":
+            mode = "ogg"
+
+        test_outfile = outfile + "." + mode.lower()
+
+        if os.path.exists(test_outfile):
+            if opts['overwrite'] is False:
                 # return code is 0 because an existing file is not an error
-                return [infile, outfile, mode, "SUCCESS:EXISTS, skipping", 0, -1]
+                return [infile, outfile, mode, "Outfile exists, skipping", 0, -1]
+            else:
+                # If the file exists and overwrite is true, unlink it here
+                os.unlink(test_outfile)
+
         log.info("Converting: \t %-40s  target: %8s " % (
             infile.split('/')[-1],
             mode
@@ -252,11 +267,16 @@ class encode_worker(transcoder):
         while True:
             csock.send_json(["READY"])
             try:
-                infile, mode, opts = tsock.recv_json(flags=zmq.NOBLOCK)
+                message = tsock.recv_json(flags=zmq.NOBLOCK)
+                infile, mode, opts = message
             except zmq.error.Again as e:
                 # If we get nothing in 5 seconds, retry sending READY
                 time.sleep(5)
                 continue
+            except ValueError as e:
+                log.crit("ERROR, Discarding invalid message: %s (%s)" % (message, e))
+                continue
+
             if infile == "EOL":
                 time.sleep(0.1)
                 csock.send_json(["EOLACK"])

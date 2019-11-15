@@ -9,11 +9,14 @@ from time import time
 import uuid
 import subprocess as sp
 
+from logging import console
+
+log = console(stderr=True)
+
 
 class lameMp3(object):
     def __init__(self, opts):
-        self.opts = opts["lameopts"]
-        self.overwrite = opts['overwrite']
+        self.opts = opts
 
     def generate_lame_meta(self, metastring):
         tagstring = []
@@ -25,7 +28,7 @@ class lameMp3(object):
         if "GENRE" in metastring:
             metastring['GENRE'] = metastring['GENRE'].capitalize()
         else:
-            print("Warning: No Genre detected, setting to \"Unknown\"")
+            log.print("Warning: No Genre detected, setting to \"Unknown\"")
             metastring.update({"GENRE": "Unknown"})
 
         try:
@@ -70,12 +73,6 @@ class lameMp3(object):
         return tagstring
 
     def convert(self, infile, outfile):
-        if self.overwrite is True:
-            if os.path.exists(outfile) is True:
-                os.unlink(outfile)
-        else:
-            return [infile, outfile, "mp3", "Outfile exists, skipping", 0, -1]
-
         pipe = "/tmp/flac2all_%s-%s" % (uuid.uuid4(), uuid.uuid4())
         os.mkfifo(pipe)
         startTime = time()
@@ -102,9 +99,7 @@ class lameMp3(object):
         errline = stderr.read()
         errline = errline.upper()
 
-        if errline.strip() != '':
-            print("ERRORLINE: %s" % errline)
-        if errline.find("ERROR") != -1 or rc != 0:
+        if rc != 0:
             return [
                 infile,
                 outfile,

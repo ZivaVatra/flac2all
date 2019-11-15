@@ -63,7 +63,8 @@ class opus:
             if self.opts.strip() != "":
                 cmd.extend([x for x in self.opts.split(' ') if x.strip() != ""])
 
-            cmd.extend([infile, "%s.opus" % (outfile)])
+            outfile = "%s.opus" % (outfile)
+            cmd.extend([infile, outfile])
 
             try:
                 rc = sp.check_call(cmd)
