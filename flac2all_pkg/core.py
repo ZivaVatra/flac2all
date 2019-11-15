@@ -46,6 +46,7 @@ modetable = [
     ["opus", "Opus Encoder"],
     ["flac", "FLAC encoder"],
     ["test", "FLAC testing procedure"],
+    ["copy", "Copy non flac files across"]
 ]
 # Add the ffmpeg codecs to the modetable, we prefix "f:", so end user knows to use the ffmpeg
 # options
@@ -191,7 +192,6 @@ class transcoder():
         #   $return_code,¬
         #   $execution_time¬
         # ]
-        log.warn("DEBUG: %s" % opts)
         outfile = infile.replace(opts['dirpath'], os.path.join(opts['outdir'], mode))
         outpath = os.path.dirname(outfile)
         try:
