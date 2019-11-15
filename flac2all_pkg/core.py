@@ -149,6 +149,13 @@ Per file conversion:
 
 
 # Classes
+
+class ModeException(Exception):
+    def __init__(self, msg):
+        Exception.__init__(self)
+        msg = "ERROR: Not understanding mode '%s' is mode valid?" % msg
+
+
 class transcoder():
     def __init__(self):
         pass
@@ -209,14 +216,14 @@ class transcoder():
 
         encf = self.modeswitch(mode, opts)
         if encf is None:
-            return [
-                infile,
-                outfile,
-                mode,
-                "ERROR: Not understanding mode '%s' is mode valid?" % mode,
-                1,
-                -1
-            ]
+            raise(ModeException(mode))
+#            return [
+#                infile,
+#                outfile,
+#                mode,
+#                1,
+#                -1
+#            ]
 
         outfile = outfile.replace('.flac', '')
         # We are moving to a global handler for overwrite, so this is being moved
