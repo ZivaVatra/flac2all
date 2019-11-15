@@ -7,6 +7,7 @@ from flac import flac
 from mp3 import lameMp3 as mp3
 from opus import opus
 from ffmpeg import ffmpeg
+from shell import filecopy
 
 import threading as mt
 
@@ -165,6 +166,8 @@ class transcoder():
             encoder = flac(opts['flacopts'])
         elif mode == "test":
             pass  # 'test' is special as it isn't a converter, it is handled below
+        elif mode == "copy":
+            pass  # Ditto
         elif mode[0:2] == "f:":
             encoder = ffmpeg(opts, mode[2:])  # Second argument is the codec
         else:
@@ -172,6 +175,8 @@ class transcoder():
         if mode == "test":
             encoder = flac(opts['flacopts'])
             encf = encoder.flactest
+        elif mode == "copy":
+            encf = filecopy
         else:
             encf = encoder.convert
         return encf

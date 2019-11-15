@@ -127,11 +127,9 @@ def clustered_encode():
     for infile in files:
         for mode in opts['mode'].split(','):
             if not infile.endswith(".flac"):
-                # TODO: Write logic to copy stuff here, if requested
-                # It would have to copy multiple times, once for each
-                # mode
-                # line = [infile, "copy", None]
-                continue
+                if opts['copy'] is True:
+                    line = [infile, "copy", None]
+                    inlist.append(line)
             else:
                 line = [infile, mode, opts]
                 inlist.append(line)
