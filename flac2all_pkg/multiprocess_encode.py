@@ -161,7 +161,7 @@ def encode():
             log.warn("\"%s\" is still running! Waiting..." % proc.name)
             log.info("-" * 80)
         time.sleep(4)
-        print("")
+        log.info("")
         if (time.time() - st) > 600:
             log.crit("Process timeout reached, terminating stragglers and continuing\
             anyway")

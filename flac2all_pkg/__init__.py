@@ -209,7 +209,7 @@ def clustered_encode():
     # Now, we confirm that the number of files sent equals the number processed
     log.info("input: %d, output: %d" % (incount, len(results)))
     assert incount == len(results), "Execution failure. Not all tasks were completed."
-    # print(list(set([x[0] for x in inlist]) - set([x[0] for x in results])))
+    # log.print(list(set([x[0] for x in inlist]) - set([x[0] for x in results])))
     generate_summary(start_time, end_time, incount, results, opts['outdir'])
 
 
@@ -308,14 +308,14 @@ def main():
         opts['mode'] = args[0]
 
     except(IndexError):  # if no arguments specified
-        print("No mode specified! Run with '-h' for help")
+        log.print("No mode specified! Run with '-h' for help")
         sys.exit(1)  # quit the program with non-zero status
 
     try:
         opts['dirpath'] = os.path.abspath(args[1])
 
     except(IndexError):
-        print("No directory specified! Run with '-h' for help")
+        log.print("No directory specified! Run with '-h' for help")
         sys.exit(2)  # quit the program with non-zero status
 
     # end command line checking

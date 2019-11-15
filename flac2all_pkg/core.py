@@ -67,11 +67,11 @@ def generate_summary(start_time, end_time, count, results, outdir):
     else:
         percentage_fail = 0
 
-    print("\n\n")
-    print("=" * 80)
-    print("| Summary ")
-    print("-" * 80)
-    print("""
+    log.print("\n\n")
+    log.print("=" * 80)
+    log.print("| Summary ")
+    log.print("-" * 80)
+    log.print("""
 Total files on input: %d
 Total files actually processed: %d
 --
@@ -123,7 +123,7 @@ Conversion error rate: %.2f%%
         else:
             etime += "%.4f hours" % (esum / 60 / 60)
 
-        print("""
+        log.print("""
 For mode: %s
 %s
 Per file conversion:
@@ -131,7 +131,7 @@ Per file conversion:
 \tMedian execution time: %.4f seconds
 """ % (mode, etime, emean, emedian))
 
-    print("Total execution time: %.2f seconds" % (end_time - start_time))
+    log.print("Total execution time: %.2f seconds" % (end_time - start_time))
     errout_file = outdir + "/conversion_results.log"
     log.info("Writing log file (%s)" % errout_file)
     fd = open(errout_file, "w")
@@ -143,7 +143,7 @@ Per file conversion:
         line = ','.join(item)
         fd.write("%s\n" % line.encode("utf-8", "backslashreplace"))
     fd.close()
-    print("Done!")
+    log.print("Done!")
     return failures
 
 

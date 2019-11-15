@@ -32,7 +32,7 @@ def worker_process(target_host):
 try:
 	hostname = sys.argv[1]
 except IndexError:
-	print("Usage: %s $master_hostname" % sys.argv[0])
+	log.print("Usage: %s $master_hostname" % sys.argv[0])
 	sys.exit(1)
 
 procs = []
