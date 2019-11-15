@@ -160,7 +160,7 @@ def clustered_encode():
                     rsock.close()
                     sys.exit(0)
                 time.sleep(0.01)  # wait a little bit and try again
-                timeout -= 1
+                timeout -= 0.01
                 if timeout > 0:
                     continue
                 else:
