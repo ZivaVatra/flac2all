@@ -214,6 +214,12 @@ class transcoder():
         # We are moving to a global handler for overwrite, so this is being moved
         # out of the modules (which will from now only deal with the encode)
         # and put here
+
+        # I think vorbis is the only codec where the name it is referred to is
+        # not the extension, so we have to have extra logic for it
+        if mode == "vorbis":
+            mode = "ogg"
+
         if os.path.exists(outfile + "." + mode):
             if opts['overwrite'] is False:
                 # return code is 0 because an existing file is not an error

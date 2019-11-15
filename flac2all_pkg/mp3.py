@@ -99,8 +99,6 @@ class lameMp3(object):
         errline = stderr.read()
         errline = errline.upper()
 
-        if errline.strip() != '':
-            log.print("ERRORLINE: %s" % errline)
         if rc != 0:
             return [
                 infile,
