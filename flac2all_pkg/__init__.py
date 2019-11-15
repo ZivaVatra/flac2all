@@ -331,7 +331,7 @@ def main():
     # perspective. We convert to every single format supported. This is mainly added for
     # testing reasons.
     if opts['mode'] == "all":
-        opts['mode'] = ','.join([x[0] for x in modetable])
+        opts['mode'] = ','.join([x[0] for x in modetable if not x[0].startswith("_")])
 
     # In this version, we can convert multiple format at once, so for e.g.
     # mode = mp3,vorbis will create both in parallel

@@ -34,7 +34,6 @@ else:
 refuse_tasks = False
 terminate = False
 
-modeError = Exception("Error understanding mode. Is mode valid?")
 # The modetable holds all the "modes" (read: formats we can convert to), in the format:
 # [ "codec_name", "description" ]. The codec name is what the end_user will issue to
 # flac2all as a mode command, so no spaces, or other special characters, and we will
