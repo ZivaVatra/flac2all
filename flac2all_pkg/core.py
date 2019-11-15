@@ -216,7 +216,7 @@ class transcoder():
         # and put here
 
         # I think vorbis is the only codec where the name it is referred to is
-        # not the extension, so we have to have extra logic for it
+        # not its extension, so we have to have extra logic for it
         if mode == "vorbis":
             mode = "ogg"
 
