@@ -220,13 +220,15 @@ class transcoder():
         if mode == "vorbis":
             mode = "ogg"
 
-        if os.path.exists(outfile + "." + mode):
+        test_outfile = outfile + "." + mode.lower()
+
+        if os.path.exists(test_outfile):
             if opts['overwrite'] is False:
                 # return code is 0 because an existing file is not an error
                 return [infile, outfile, mode, "Outfile exists, skipping", 0, -1]
             else:
                 # If the file exists and overwrite is true, unlink it here
-                os.unlink(outfile + "." + mode)
+                os.unlink(test_outfile)
 
         log.info("Converting: \t %-40s  target: %8s " % (
             infile.split('/')[-1],
