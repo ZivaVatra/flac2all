@@ -318,7 +318,7 @@ class encode_worker(transcoder):
                 csock.send_json(result)
                 csock.close()
                 tsock.close()
-                time.sleep(5)
+                time.sleep(1)
                 raise(e)
             # We send the result back up the chain
             csock.send_json(result)

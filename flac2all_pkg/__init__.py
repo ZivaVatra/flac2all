@@ -167,13 +167,16 @@ def clustered_encode():
             workers += 1
             log.ok("Got %d worker(s)" % workers)
         elif line[0] == 'EOLACK':
-            log.warn("Worker terminated (%d running)" % (workers - 1))
             workers -= 1  # A worker acknowleded end of list and will terminatea
+            log.warn("Worker terminated (%d running)" % workers)
             if workers <= 0:
                 break
         elif line[0] == 'OFFLINE':
-            log.crit("Worker gone OFF LINE (%d running)" % (workers - 1))
             workers -= 1  # Worker is offline
+            log.crit("Worker gone OFF LINE (%d running)" % workers)
+            if workers <= 0:
+                break
+
         elif line[0] == "READY":
             # A worker is ready for a new task, so push it
             if len(inlist) == 0:
