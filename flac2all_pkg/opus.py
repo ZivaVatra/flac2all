@@ -64,18 +64,6 @@ class opus:
                 cmd.extend([x for x in self.opts.split(' ') if x.strip() != ""])
 
             outfile = "%s.opus" % (outfile)
-            print("DEBUG: ", self.opts)
-            if self.opts['overwrite'] is False:
-                if os.path.exists(outfile):
-                    return [
-                        infile,
-                        outfile,
-                        "opus",
-                        "Outfile exists, skipping",
-                        0,
-                        -1
-                    ]
-
             cmd.extend([infile, outfile])
 
             try:
