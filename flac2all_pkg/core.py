@@ -211,10 +211,17 @@ class transcoder():
             ]
 
         outfile = outfile.replace('.flac', '')
-        if opts['overwrite'] is False:
-            if os.path.exists(outfile + "." + mode):
+        # We are moving to a global handler for overwrite, so this is being moved
+        # out of the modules (which will from now only deal with the encode)
+        # and put here
+        if os.path.exists(outfile + "." + mode):
+            if opts['overwrite'] is False:
                 # return code is 0 because an existing file is not an error
                 return [infile, outfile, mode, "Outfile exists, skipping", 0, -1]
+            else:
+                # If the file exists and overwrite is true, unlink it here
+                os.unlink(outfile + "." + mode)
+
         log.info("Converting: \t %-40s  target: %8s " % (
             infile.split('/')[-1],
             mode
