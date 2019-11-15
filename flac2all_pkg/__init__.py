@@ -165,6 +165,7 @@ def clustered_encode():
                 # Other errors, we retry with a timeout, in the hope we get something
                 time.sleep(1)
                 timeout -= 1
+                log.warn("Holding (Timeout in %d" % timeout)
                 if timeout > 0:
                     continue
                 else:
