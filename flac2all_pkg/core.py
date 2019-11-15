@@ -167,11 +167,14 @@ class transcoder():
         elif mode == "test":
             pass  # 'test' is special as it isn't a converter, it is handled below
         elif mode == "_copy":
-            pass  # Ditto
+            # Ditto for the copy function, with the addition of it not being public
+            # (hence the '_' prefix)
+            pass
         elif mode[0:2] == "f:":
             encoder = ffmpeg(opts, mode[2:])  # Second argument is the codec
         else:
             return None
+
         if mode == "test":
             encoder = flac(opts['flacopts'])
             encf = encoder.flactest
@@ -220,12 +223,15 @@ class transcoder():
         # out of the modules (which will from now only deal with the encode)
         # and put here
 
-        # I think vorbis is the only codec where the name it is referred to is
-        # not its extension, so we have to have extra logic for it
+        # Some codec names do not match its extension, so we have to have extra logic for it
         if mode == "vorbis":
-            mode = "ogg"
+            extension = "ogg"
+        elif mode == "aacplus":
+            extension = "aac"
+        else:
+            extension = mode
 
-        test_outfile = outfile + "." + mode.lower()
+        test_outfile = outfile + "." + extension.lower()
 
         if os.path.exists(test_outfile):
             if opts['overwrite'] is False:
