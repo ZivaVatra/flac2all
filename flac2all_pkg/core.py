@@ -191,6 +191,7 @@ class transcoder():
         #   $return_code,¬
         #   $execution_time¬
         # ]
+        log.warn("DEBUG: %s" % opts)
         outfile = infile.replace(opts['dirpath'], os.path.join(opts['outdir'], mode))
         outpath = os.path.dirname(outfile)
         try:
