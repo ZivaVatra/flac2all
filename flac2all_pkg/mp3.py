@@ -9,6 +9,10 @@ from time import time
 import uuid
 import subprocess as sp
 
+from logging import console
+
+log = console(stderr=True)
+
 
 class lameMp3(object):
     def __init__(self, opts):
@@ -24,7 +28,7 @@ class lameMp3(object):
         if "GENRE" in metastring:
             metastring['GENRE'] = metastring['GENRE'].capitalize()
         else:
-            print("Warning: No Genre detected, setting to \"Unknown\"")
+            log.print("Warning: No Genre detected, setting to \"Unknown\"")
             metastring.update({"GENRE": "Unknown"})
 
         try:
@@ -96,7 +100,7 @@ class lameMp3(object):
         errline = errline.upper()
 
         if errline.strip() != '':
-            print("ERRORLINE: %s" % errline)
+            log.print("ERRORLINE: %s" % errline)
         if errline.find("ERROR") != -1 or rc != 0:
             return [
                 infile,
