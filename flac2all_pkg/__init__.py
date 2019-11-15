@@ -172,7 +172,7 @@ def clustered_encode():
             if workers <= 0:
                 break
         elif line[0] == 'OFFLINE':
-            log.crit("Worker gone OFF LINE (%d running)")
+            log.crit("Worker gone OFF LINE (%d running)" % (workers - 1))
             workers -= 1  # Worker is offline
         elif line[0] == "READY":
             # A worker is ready for a new task, so push it
