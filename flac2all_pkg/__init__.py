@@ -188,6 +188,7 @@ def clustered_encode():
                 # Pop a job off the list and send to worker as task
                 tsock.send_json(inlist.pop())
         elif line[0] == "NACK":
+            log.warn("Task %s Refused by worker, rescheduling" % line)
             # For whatever reason the worker is refusing the task, so
             # put it back onto the inlist for another worker to do
             inlist.append(line[1:])
