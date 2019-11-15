@@ -269,8 +269,8 @@ class encode_worker(transcoder):
         # send tasks
 
         # Process tasks until EOL received
+        csock.send_json(["READY"])
         while True:
-            csock.send_json(["READY"])
             try:
                 message = tsock.recv_json(flags=zmq.NOBLOCK)
                 infile, mode, opts = message
@@ -322,6 +322,8 @@ class encode_worker(transcoder):
                 raise(e)
             # We send the result back up the chain
             csock.send_json(result)
+            # If we reach this point, means nothing messed up, and we can send READY command
+            csock.send_json(["READY"])
 
 
 class encode_thread(mt.Thread, transcoder):
