@@ -214,7 +214,7 @@ class transcoder():
         if opts['overwrite'] is False:
             if os.path.exists(outfile + "." + mode):
                 # return code is 0 because an existing file is not an error
-                return [infile, outfile, mode, "SUCCESS:EXISTS, skipping", 0, -1]
+                return [infile, outfile, mode, "Outfile exists, skipping", 0, -1]
         log.info("Converting: \t %-40s  target: %8s " % (
             infile.split('/')[-1],
             mode
