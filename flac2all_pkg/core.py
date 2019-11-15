@@ -318,8 +318,7 @@ class encode_worker(transcoder):
                 csock.send_json(result)
                 csock.close()
                 tsock.close()
-                # Finally, raise exception
-                raise(e)
+                return None  # Break out
             # We send the result back up the chain
             csock.send_json(result)
 
