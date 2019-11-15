@@ -6,30 +6,26 @@ import string
 from shutil import copyfile
 
 
-class fcopy:
-    def __init__(self, opts):
-        self.opts = opts
-
-    def filecopy(infile, outfile):
-        try:
-            copyfile(infile, outfile)
-        except Exception as e:
-            return [
-                infile,
-                outfile,
-                "copy",
-                "Error: %d" % str(e),
-                -1,
-                -1
-            ]
+def filecopy(infile, outfile):
+    try:
+        copyfile(infile, outfile)
+    except Exception as e:
         return [
             infile,
             outfile,
             "copy",
-            "SUCCESS",
-            0,
+            "Error: %d" % str(e),
+            -1,
             -1
         ]
+    return [
+        infile,
+        outfile,
+        "copy",
+        "SUCCESS",
+        0,
+        -1
+    ]
 
 
 class shell:
