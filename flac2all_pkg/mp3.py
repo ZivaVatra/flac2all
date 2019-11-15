@@ -74,7 +74,14 @@ class lameMp3(object):
             if os.path.exists(outfile) is True:
                 os.unlink(outfile)
         else:
-            return [infile, outfile, "mp3", "Outfile exists, skipping", 0, -1]
+            return [
+                infile,
+                outfile,
+                "mp3",
+                "Outfile exists, skipping",
+                0,
+                -1
+            ]
 
         pipe = "/tmp/flac2all_%s-%s" % (uuid.uuid4(), uuid.uuid4())
         os.mkfifo(pipe)

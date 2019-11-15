@@ -29,8 +29,8 @@ class vorbis:
             cmd.extend(self.opts)
         if self.overwrite is False:
             if os.path.exists(outfile) is True:
-                # return code is 0 because an existing file is not an error
-                return [infile, outfile, "vorbis", "SUCCESS:EXISTS, skipping", 0, -1]
+                # return code is 0 because an existing file is not an error in this case
+                return [infile, outfile, "vorbis", "Outfile exists, skipping", 0, -1]
         else:
             if os.path.exists(outfile) is True:
                 os.unlink(outfile)

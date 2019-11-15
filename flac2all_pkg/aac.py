@@ -66,7 +66,8 @@ class aacplus(object):
 			]
 
 
-# For the binary-only Nero AAC encoder
+# For the binary-only Nero AAC encoder. This is deprecated, can be removed
+# in future
 class aacplusNero(object):
 	def __init__(self, aacopts):
 		self.opts = aacopts

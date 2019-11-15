@@ -63,7 +63,19 @@ class opus:
             if self.opts.strip() != "":
                 cmd.extend([x for x in self.opts.split(' ') if x.strip() != ""])
 
-            cmd.extend([infile, "%s.opus" % (outfile)])
+            outfile = "%s.opus" % (outfile)
+            if self.overwrite is False:
+                if os.path.exists(outfile):
+                    return [
+                        infile,
+                        outfile,
+                        "opus",
+                        "Outfile exists, skipping",
+                        0,
+                        -1
+                    ]
+
+            cmd.extend([infile, outfile])
 
             try:
                 rc = sp.check_call(cmd)
