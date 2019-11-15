@@ -160,14 +160,16 @@ def clustered_encode():
                     rsock.close()
                     sys.exit(0)
                 time.sleep(0.01)  # wait a little bit and try again
-                timeout -= 0.01
+                continue
+            else:
+                # Other errors, we retry with a timeout, in the hope we get something
+                time.sleep(1)
+                timeout -= 1
                 if timeout > 0:
                     continue
                 else:
                     log.crit("TIMEOUT Reached, no workers responding. Cannot continue")
-                    sys.exit(1)
-            else:
-                raise(e)  # re-raise other errnos
+                    raise(e)  # re-raise other errnos
         else:
             timeout = 60  # The moment we get a response, reset the timeout
         if line[0] == 'ONLINE':
