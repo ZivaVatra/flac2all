@@ -141,7 +141,7 @@ def clustered_encode():
     log.info("Waiting for at least one worker to join")
     results = []
 
-    timeout = 60
+    timeout = 10
     while workers != -1:
         if terminate is True:
             # If we want to terminate, clear the entire inlist
@@ -160,7 +160,7 @@ def clustered_encode():
                     rsock.close()
                     sys.exit(0)
                 time.sleep(0.01)  # wait a little bit and try again
-                timeout -= 0.01
+                timeout -= 1
                 if timeout > 0:
                     continue
                 else:
@@ -168,7 +168,8 @@ def clustered_encode():
                     sys.exit(1)
             else:
                 raise(e)  # re-raise other errnos
-
+        else:
+            timeout = 10  # The moment we get a response, reset the timeout
         if line[0] == 'ONLINE':
             # A worker has joined.
             workers += 1
