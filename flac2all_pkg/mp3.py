@@ -101,7 +101,7 @@ class lameMp3(object):
 
         if errline.strip() != '':
             log.print("ERRORLINE: %s" % errline)
-        if errline.find("ERROR") != -1 or rc != 0:
+        if rc != 0:
             return [
                 infile,
                 outfile,
