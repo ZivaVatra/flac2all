@@ -163,7 +163,6 @@ def clustered_encode():
             else:
                 raise(e)  # re-raise other errnos
 
-        log.warn("DEBUG: %s" % line)
         if line[0] == 'ONLINE':
             # A worker has joined.
             workers += 1
