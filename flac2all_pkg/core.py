@@ -176,7 +176,7 @@ class transcoder():
             encoder = flac(opts['flacopts'])
             encf = encoder.flactest
         elif mode == "copy":
-            encf = encoder.filecopy
+            encf = filecopy
         else:
             encf = encoder.convert
         return encf
