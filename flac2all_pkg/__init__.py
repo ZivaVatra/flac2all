@@ -95,7 +95,7 @@ Dev website: https://github.com/ZivaVatra/flac2all
 \tValid encode types are as follows:\n\t\t%s
 \tYou can specify multiple encode targets with a comma seperated list.
 
-""" % (version, sys.argv[0], "\n\t\t".join([x[0] for x in modetable]))
+""" % (version, sys.argv[0], "\n\t\t".join([x[0] for x in modetable if not x[0].startswith("_")]))
 
 
 def clustered_encode():
@@ -128,7 +128,7 @@ def clustered_encode():
         for mode in opts['mode'].split(','):
             if not infile.endswith(".flac"):
                 if opts['copy'] is True:
-                    line = [infile, "copy", opts]
+                    line = [infile, "_copy", opts]
                     inlist.append(line)
             else:
                 line = [infile, mode, opts]

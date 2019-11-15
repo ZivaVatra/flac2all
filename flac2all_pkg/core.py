@@ -46,7 +46,7 @@ modetable = [
     ["opus", "Opus Encoder"],
     ["flac", "FLAC encoder"],
     ["test", "FLAC testing procedure"],
-    ["copy", "Copy non flac files across"]
+    ["_copy", "Copy non flac files across"]
 ]
 # Add the ffmpeg codecs to the modetable, we prefix "f:", so end user knows to use the ffmpeg
 # options
@@ -167,7 +167,7 @@ class transcoder():
             encoder = flac(opts['flacopts'])
         elif mode == "test":
             pass  # 'test' is special as it isn't a converter, it is handled below
-        elif mode == "copy":
+        elif mode == "_copy":
             pass  # Ditto
         elif mode[0:2] == "f:":
             encoder = ffmpeg(opts, mode[2:])  # Second argument is the codec
@@ -176,7 +176,7 @@ class transcoder():
         if mode == "test":
             encoder = flac(opts['flacopts'])
             encf = encoder.flactest
-        elif mode == "copy":
+        elif mode == "_copy":
             encf = filecopy
         else:
             encf = encoder.convert
