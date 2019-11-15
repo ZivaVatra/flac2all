@@ -13,7 +13,7 @@ def filecopy(infile, outfile):
         return [
             infile,
             outfile,
-            "copy",
+            "_copy",
             "Error: %d" % str(e),
             -1,
             -1
@@ -21,7 +21,7 @@ def filecopy(infile, outfile):
     return [
         infile,
         outfile,
-        "copy",
+        "_copy",
         "SUCCESS",
         0,
         -1
