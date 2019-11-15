@@ -64,7 +64,7 @@ class opus:
                 cmd.extend([x for x in self.opts.split(' ') if x.strip() != ""])
 
             outfile = "%s.opus" % (outfile)
-            if self.overwrite is False:
+            if self.opts['overwrite'] is False:
                 if os.path.exists(outfile):
                     return [
                         infile,
