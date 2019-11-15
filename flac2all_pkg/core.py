@@ -176,8 +176,6 @@ class transcoder():
             encoder = flac(opts['flacopts'])
             encf = encoder.flactest
         elif mode == "copy":
-            # We need an encoder, so use flac as placeholder
-            encoder = flac(opts['flacopts'])
             encf = filecopy
         else:
             encf = encoder.convert
@@ -313,9 +311,11 @@ class encode_worker(transcoder):
                     result = self.encode(infile, mode, opts)
             except Exception as e:
                 # Perhaps move this to a "cleanup" function, we have repeated the logic above
-                result = ["NACK", infile, "", mode, "ERROR:GLOBAL EXCEPTION:%s" % str(e).encode("utf-8"), -1, -1]
+                # Send NACK, so the job gets sent to another worker (who may be able to do it)
+                csock.send_json(["NACK", infile, mode, opts])
+                # Then send message taking this worker offline
+                result = ["OFFLINE", infile, "", mode, "ERROR:GLOBAL EXCEPTION:%s" % str(e).encode("utf-8"), -1, -1]
                 csock.send_json(result)
-                csock.send_json(["OFFLINE"])
                 csock.close()
                 tsock.close()
                 # Finally, raise exception
