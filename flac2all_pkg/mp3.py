@@ -12,8 +12,7 @@ import subprocess as sp
 
 class lameMp3(object):
     def __init__(self, opts):
-        self.opts = opts["lameopts"]
-        self.overwrite = opts['overwrite']
+        self.opts = opts
 
     def generate_lame_meta(self, metastring):
         tagstring = []
@@ -70,19 +69,6 @@ class lameMp3(object):
         return tagstring
 
     def convert(self, infile, outfile):
-        if self.overwrite is True:
-            if os.path.exists(outfile) is True:
-                os.unlink(outfile)
-        else:
-            return [
-                infile,
-                outfile,
-                "mp3",
-                "Outfile exists, skipping",
-                0,
-                -1
-            ]
-
         pipe = "/tmp/flac2all_%s-%s" % (uuid.uuid4(), uuid.uuid4())
         os.mkfifo(pipe)
         startTime = time()

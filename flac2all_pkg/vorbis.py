@@ -2,14 +2,12 @@
 from config import ipath
 from time import time
 import subprocess as sp
-import os
 
 
 # Class that deals with vorbis
 class vorbis:
     def __init__(self, opts):
-            self.opts = [x for x in opts['oggencopts'].split(' ') if x.strip() != ""]
-            self.overwrite = opts['overwrite']
+        self.opts = [x for x in opts.split(' ') if x.strip() != ""]
 
     def convert(self, infile, outfile):
         # oggenc automatically parses the flac file + metadata, quite wonderful
@@ -27,13 +25,6 @@ class vorbis:
         ]
         if len(self.opts) != 0:
             cmd.extend(self.opts)
-        if self.overwrite is False:
-            if os.path.exists(outfile) is True:
-                # return code is 0 because an existing file is not an error in this case
-                return [infile, outfile, "vorbis", "Outfile exists, skipping", 0, -1]
-        else:
-            if os.path.exists(outfile) is True:
-                os.unlink(outfile)
 
         cmd.append(infile)
         rc = -1

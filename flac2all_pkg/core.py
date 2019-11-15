@@ -154,9 +154,9 @@ class transcoder():
 
     def modeswitch(self, mode, opts):
         if mode == "mp3":
-            encoder = mp3(opts)
+            encoder = mp3(opts['lameopts'])
         elif mode == "ogg" or mode == "vorbis":
-            encoder = vorbis(opts)
+            encoder = vorbis(opts['oggencopts'])
         elif mode == "aacplus":
             encoder = aacplus(opts['aacplusopts'])
         elif mode == "opus":
