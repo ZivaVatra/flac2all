@@ -154,6 +154,7 @@ class ModeException(Exception):
     def __init__(self, msg):
         Exception.__init__(self)
         msg = "ERROR: Not understanding mode '%s' is mode valid?" % msg
+        print(msg)
 
 
 class transcoder():
