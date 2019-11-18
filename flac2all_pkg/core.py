@@ -264,7 +264,7 @@ class encode_worker(transcoder):
         transcoder.__init__(self)
 
         # We need a worker ID
-        self.worker_id = uuid.uuid1()
+        self.worker_id = str(uuid.uuid1())
         # 1. Set up the zmq context to receive tasks
         self.zcontext = zmq.Context()
         signal.signal(signal.SIGINT, signal_handler)
