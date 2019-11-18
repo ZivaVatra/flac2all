@@ -175,7 +175,7 @@ def clustered_encode():
         if line[0].startswith('ONLINE'):
             worker_id = line[0].split('~')[-1]
             # A worker has joined. Add the ID and timestamp of last seen
-            workers.append({worker_id: time.time()})
+            workers.update({worker_id: time.time()})
             log.ok("Got %d worker(s)" % len(workers))
         elif line[0].startswith('EOLACK'):
             worker_id = line[0].split('~')[-1]
