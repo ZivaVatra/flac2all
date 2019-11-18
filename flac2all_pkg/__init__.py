@@ -145,7 +145,7 @@ def clustered_encode():
     log.info("Waiting for at least one worker to join")
     results = []
 
-    while len(workers) != 0:
+    while True:
         if terminate is True:
             # If we want to terminate, clear the entire inlist
             # This will clean up the same as when we end normally
