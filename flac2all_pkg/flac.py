@@ -69,7 +69,7 @@ class flac(object):
 				time() - startTime
 			]
 		else:
-			[
+			return [
 				infile,
 				outfile,
 				"flac",
@@ -79,12 +79,15 @@ class flac(object):
 			]
 
 	def getflacmeta(self, flacfile):
-		flacdata = sp.check_output([
-			"%smetaflac" % ipath.metaflacpath,
-			"--list",
-			"--block-type", "VORBIS_COMMENT",
-			flacfile
-		]).decode('utf-8')
+		try:
+			flacdata = sp.check_output([
+				"%smetaflac" % ipath.metaflacpath,
+				"--list",
+				"--block-type", "VORBIS_COMMENT",
+				flacfile
+			]).decode('utf-8')
+		except sp.CalledProcessError as e:
+			return None
 
 		datalist = []  # init a list for storing all the data in this block
 
