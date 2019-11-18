@@ -204,7 +204,11 @@ def clustered_encode():
 
             worker_id = line[0].split('~')[-1]
             # First we update the "last seen" value in worker list
-            workers.update({worker_id, time.time()})
+            if worker_id in workers:
+                workers[worker_id] = time.time()
+            else:
+                log.warm("Got ready signal from unknown worker. Ignoring")
+                continue
 
             # And now we push a new task to worker
             if len(inlist) == 0:
