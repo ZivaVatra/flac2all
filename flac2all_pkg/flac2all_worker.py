@@ -24,9 +24,9 @@ log = console(stderr=True)
 
 def worker_process(target_host):
 	log.info("Spawned worker process")
-	eworker = core.encode_worker()
+	eworker = core.encode_worker(target_host)
 	# because we are a process, we just exit at the end
-	sys.exit(eworker.run(target_host))
+	sys.exit(eworker.run())
 
 
 try:

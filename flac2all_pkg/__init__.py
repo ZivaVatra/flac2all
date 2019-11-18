@@ -141,11 +141,11 @@ def clustered_encode():
     incount = len(inlist)
     log.info("We have %d tasks" % incount)
     start_time = time.time()
-    workers = 0
+    workers = []
     log.info("Waiting for at least one worker to join")
     results = []
 
-    while workers != -1:
+    while len(workers) != 0:
         if terminate is True:
             # If we want to terminate, clear the entire inlist
             # This will clean up the same as when we end normally
@@ -167,22 +167,28 @@ def clustered_encode():
             else:
                 raise(e)  # re-raise other errnos
 
-        if line[0] == 'ONLINE':
-            # A worker has joined.
-            workers += 1
-            log.ok("Got %d worker(s)" % workers)
-        elif line[0] == 'EOLACK':
-            workers -= 1  # A worker acknowleded end of list and will terminatea
-            log.warn("Worker terminated (%d running)" % workers)
-            if workers <= 0:
+        if line[0].startswith('ONLINE'):
+            worker_id = line[0].split('~')[-1]
+            # A worker has joined. Add the ID and timestamp of last seen
+            workers.append({worker_id: time.time()})
+            log.ok("Got %d worker(s)" % len(workers))
+        elif line[0].startswith('EOLACK'):
+            worker_id = line[0].split('~')[-1]
+            if worker_id in workers:
+                del(workers[worker_id])
+            log.warn("Worker %s terminated (%d running)" % (worker_id, len(workers)))
+            if len(workers) == 0:
                 break
-        elif line[0] == 'OFFLINE':
-            workers -= 1  # Worker is offline
-            log.crit("Worker gone OFF LINE (%d running)" % workers)
-            if workers <= 0:
+        elif line[0].startswith('OFFLINE'):
+            worker_id = line[0].split('~')[-1]
+            if worker_id in workers:
+                del(workers[worker_id])
+
+            log.crit("Worker %s gone OFF LINE (%d running)" % (worker_id, len(workers)))
+            if len(workers) == 0:
                 break
 
-        elif line[0] == "READY":
+        elif line[0].startswith("READY"):
             # A worker is ready for a new task, so push it
             if len(inlist) == 0:
                 # We have reached the end. Send EOL
@@ -191,8 +197,9 @@ def clustered_encode():
             else:
                 # Pop a job off the list and send to worker as task
                 tsock.send_json(inlist.pop())
-        elif line[0] == "NACK":
-            log.warn("Task '%s' refused by worker, rescheduling" % line[2])
+        elif line[0].startswith("NACK"):
+            worker_id = line[0].split('~')[-1]
+            log.warn("Task '%s' refused by worker %s, rescheduling" % (line[2], worker_id))
             # For whatever reason the worker is refusing the task, so
             # put it back onto the inlist for another worker to do
             inlist.append(line[1:])

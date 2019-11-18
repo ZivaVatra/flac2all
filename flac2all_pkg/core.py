@@ -16,6 +16,8 @@ import queue
 import signal
 import time
 
+import uuid
+
 from logging import console
 
 log = console(stderr=True)
@@ -257,36 +259,44 @@ class transcoder():
 
 
 class encode_worker(transcoder):
-    def __init__(self):
+    def __init__(self, host_target):
         assert has_zmq is True, "No ZeroMQ module importable. Cannot use clustered mode"
         transcoder.__init__(self)
+
+        # We need a worker ID
+        self.worker_id = uuid.uuid1()
         # 1. Set up the zmq context to receive tasks
         self.zcontext = zmq.Context()
         signal.signal(signal.SIGINT, signal_handler)
 
-    def run(self, host_target):
-        global terminate
-
         # Task socket, recieves tasks
-        tsock = self.zcontext.socket(zmq.PULL)
-        tsock.connect("tcp://%s:2019" % host_target)
+        self.tsock = self.zcontext.socket(zmq.PULL)
+        self.tsock.connect("tcp://%s:2019" % host_target)
 
         # Comm socket, for communicating with task server
-        csock = self.zcontext.socket(zmq.PUSH)
-        csock.connect("tcp://%s:2020" % host_target)
+        self.csock = self.zcontext.socket(zmq.PUSH)
+        self.csock.connect("tcp://%s:2020" % host_target)
+
+    def send_json(self, message):
+        message[0] = message[0] + '~' + self.worker_id
+        self.csock.send_json(["ONLINE"])
+        pass
+
+    def run(self):
+        global terminate
 
         # Send ONLINE command indicating we are ready
-        csock.send_json(["ONLINE"])
+        self.send_json(["ONLINE"])
 
         # So, this implementation is driven by the workers. They request
         # work when ready, and we sit and wait until they are ready to
         # send tasks
 
         # Process tasks until EOL received
-        csock.send_json(["READY"])
+        self.send_json(["READY"])
         while True:
             try:
-                message = tsock.recv_json(flags=zmq.NOBLOCK)
+                message = self.tsock.recv_json(flags=zmq.NOBLOCK)
                 infile, mode, opts = message
             except zmq.error.Again as e:
                 # If we get nothing in 5 seconds, retry sending READY
@@ -298,9 +308,9 @@ class encode_worker(transcoder):
 
             if infile == "EOL":
                 time.sleep(0.1)
-                csock.send_json(["EOLACK"])
-                tsock.close()
-                csock.close()
+                self.send_json(["EOLACK"])
+                self.tsock.close()
+                self.csock.close()
                 return 0
 
             try:
@@ -314,11 +324,11 @@ class encode_worker(transcoder):
                     # Send the task back, to be done by another
                     # worker
                     result.extend([infile, mode, opts])
-                    csock.send_json(result)
+                    self.send_json(result)
                     # tell flac2all master that this node is offline
-                    csock.send_json(["OFFLINE"])
-                    csock.close()
-                    tsock.close()
+                    self.send_json(["OFFLINE"])
+                    self.csock.close()
+                    self.tsock.close()
                     # Exit
                     raise(SystemExit(0))
                 else:
@@ -326,17 +336,17 @@ class encode_worker(transcoder):
             except Exception as e:
                 # Perhaps move this to a "cleanup" function, we have repeated the logic above
                 # Send NACK, so the job gets sent to another worker (who may be able to do it)
-                csock.send_json(["NACK", infile, mode, opts])
+                self.send_json(["NACK", infile, mode, opts])
                 # Then send message taking this worker offline
                 result = ["OFFLINE", infile, "", mode, "ERROR:GLOBAL EXCEPTION:%s" % str(e).encode("utf-8"), -1, -1]
-                csock.send_json(result)
-                csock.close()
-                tsock.close()
+                self.send_json(result)
+                self.csock.close()
+                self.tsock.close()
                 raise(e)
             # We send the result back up the chain
-            csock.send_json(result)
+            self.send_json(result)
             # If we reach this point, means nothing messed up, and we can send READY command
-            csock.send_json(["READY"])
+            self.send_json(["READY"])
 
 
 class encode_thread(mt.Thread, transcoder):
