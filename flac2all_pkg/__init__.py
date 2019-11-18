@@ -194,7 +194,13 @@ def clustered_encode():
                 break
 
         elif line[0].startswith("READY"):
-            # A worker is ready for a new task, so push it
+            # A worker is ready for a new task
+
+            worker_id = line[0].split('~')[-1]
+            # First we update the "last seen" value in worker list
+            workers.update({worker_id, time.time()})
+
+            # And now we push a new task to worker
             if len(inlist) == 0:
                 # We have reached the end. Send EOL
                 tsock.send_json(["EOL", None, None])
