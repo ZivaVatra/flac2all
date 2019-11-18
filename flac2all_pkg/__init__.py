@@ -146,7 +146,11 @@ def clustered_encode():
     results = []
 
     while True:
-        log.warn("Workers: " + ",".join(workers.keys))
+        try:
+            log.warn("Workers: " + ",".join(workers.keys))
+        except Exception:
+            pass
+
         if terminate is True:
             # If we want to terminate, clear the entire inlist
             # This will clean up the same as when we end normally
