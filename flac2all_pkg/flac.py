@@ -87,7 +87,7 @@ class flac(object):
 				flacfile
 			]).decode('utf-8')
 		except sp.CalledProcessError as e:
-			return []
+			return {}
 
 		datalist = []  # init a list for storing all the data in this block
 
