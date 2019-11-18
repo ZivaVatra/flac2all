@@ -141,7 +141,7 @@ def clustered_encode():
     incount = len(inlist)
     log.info("We have %d tasks" % incount)
     start_time = time.time()
-    workers = []
+    workers = {}
     log.info("Waiting for at least one worker to join")
     results = []
 
