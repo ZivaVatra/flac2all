@@ -279,7 +279,7 @@ class encode_worker(transcoder):
 
     def send_json(self, message):
         message[0] = message[0] + '~' + self.worker_id
-        self.csock.send_json(["ONLINE"])
+        self.csock.send_json(message)
         pass
 
     def run(self):
