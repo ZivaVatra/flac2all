@@ -203,7 +203,7 @@ def clustered_encode():
             if worker_id in workers:
                 workers[worker_id] = time.time()
             else:
-                log.warm("Got ready signal from unknown worker. Ignoring")
+                log.warn("Got ready signal from unknown worker. Ignoring")
                 continue
 
             # And now we push a new task to worker
