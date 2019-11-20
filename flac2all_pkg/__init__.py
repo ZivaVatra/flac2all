@@ -161,7 +161,7 @@ def clustered_encode():
         try:
             line = rsock.recv_json(flags=zmq.NOBLOCK)
         except zmq.error.Again as e:
-            # errno 11 is "Resource temporarily unavailable"
+            # errno 11 is "Resource temporarily unavailable" in Linux
             # We expect this if no data, so we sit in a loop and wait
             if (e.errno == 11):
                 if terminate is True:
@@ -172,6 +172,7 @@ def clustered_encode():
                 time.sleep(0.01)  # wait a little bit and try again
                 continue
             else:
+                print("Error #: %d" % e.errno)
                 raise(e)  # re-raise other errnos
 
         if line[0].startswith('ONLINE'):
