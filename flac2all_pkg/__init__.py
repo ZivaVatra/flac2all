@@ -161,9 +161,11 @@ def clustered_encode():
         try:
             line = rsock.recv_json(flags=zmq.NOBLOCK)
         except zmq.error.Again as e:
-            # errno 11 is "Resource temporarily unavailable" in Linux
+            # "Resource temporarily unavailable" varies by OS
+            #   errno 11 on Linux
+            #   errno 35 on FreeBSD
             # We expect this if no data, so we sit in a loop and wait
-            if (e.errno == 11):
+            if ((e.errno == 11) or (e.errno == 35)):
                 if terminate is True:
                     rsock.close()
                     csock.close()
