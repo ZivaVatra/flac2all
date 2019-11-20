@@ -251,7 +251,7 @@ class transcoder():
                 # If the file exists and overwrite is true, unlink it here
                 os.unlink(test_outfile)
 
-        log.info("Converting: \t %-40s  target: %8s " % (
+        log.info("Processing: \t%-40s  target: %-8s " % (
             infile.split('/')[-1],
             mode
         ))
