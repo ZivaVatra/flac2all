@@ -146,10 +146,10 @@ def clustered_encode():
     results = []
 
     while True:
-        # If the last seen time is more than a minute, we assume worker
+        # If the last seen time is more than 3 minutes, we assume worker
         # is no longer available, and clear it out
         for key in dict(workers):
-            if ((time.time() - workers[key]) > 120):
+            if ((time.time() - workers[key]) > 180):
                 log.warn("Worker %s not responding, clearing from list (%d remaining)" % (key, len(workers)))
                 del(workers[key])
 
@@ -206,7 +206,9 @@ def clustered_encode():
             if worker_id in workers:
                 workers[worker_id] = time.time()
             else:
-                log.warn("Got ready signal from unknown worker. Ignoring")
+                log.warn("Got ready signal from unknown worker. Adding to worker list")
+                workers.update({worker_id: time.time()})
+                log.ok("Added unknown worker %s ( %d workers)" % (worker_id, len(workers)))
                 continue
 
             # And now we push a new task to worker
