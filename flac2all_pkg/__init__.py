@@ -150,7 +150,7 @@ def clustered_encode():
         # is no longer available, and clear it out
         for key in dict(workers):
             if ((time.time() - workers[key]) > 120):
-                log.warn("Worker %s not responding, clearing from list (%d remaining)" % (key, len(workers.keys)))
+                log.warn("Worker %s not responding, clearing from list (%d remaining)" % (key, len(workers)))
                 del(workers[key])
 
         if terminate is True:
