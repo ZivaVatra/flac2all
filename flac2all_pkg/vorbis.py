@@ -28,18 +28,27 @@ class vorbis:
 
         cmd.append(infile)
         rc = -1
-        try:
-            rc = sp.check_call(cmd)
-        except sp.CalledProcessError as e:
-            result = "ERROR:oggenc %s" % str(e)
-        else:
-            result = "SUCCESS"
+        codec = sp.Popen(cmd, stderr=sp.PIPE, stdout.sp.PIPE)
+        stdout, stderr = codec.communicate()
+        errline = stderr.read().decode('utf-8')
+        errline = errline.upper()
+        rc = codec.returncode
+
+        if rc != 0:
+            return [
+                infile,
+                outfile,
+                "vorbis",
+                "ERROR: %s" % errline,
+                -1,
+                time() - startTime
+            ]
 
         return [
             infile,
             outfile,
             "vorbis",
-            result,
+            "SUCCESS",
             rc,
             time() - startTime
         ]
