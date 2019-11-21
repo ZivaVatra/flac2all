@@ -246,7 +246,9 @@ def clustered_encode():
 
     # Now, we confirm that the number of files sent equals the number processed
     log.info("input: %d, output: %d" % (incount, len(results)))
-    assert incount == len(results), "Execution failure. Not all tasks were completed."
+    if (incount != len(results)):
+        log.crit("Error. Not all tasks were completed.")
+        sys.exit(1)
     # log.print(list(set([x[0] for x in inlist]) - set([x[0] for x in results])))
     generate_summary(start_time, end_time, incount, results, opts['outdir'])
 
