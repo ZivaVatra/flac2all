@@ -99,6 +99,7 @@ Dev website: https://github.com/ZivaVatra/flac2all
 
 
 def clustered_encode():
+    global terminate
     sh = shell()
     # Here we do the clustering magic
 
