@@ -233,7 +233,10 @@ def clustered_encode():
             if len(name) > 55:
                 name = name[:55] + "..."
             line = [str(x).strip() for x in line]
-            log.status("n:%-60s\tt:%-10s\ts:%-10s" % (name.encode("utf-8", "backslashreplace").decode(), line[2], line[3]))
+            if "ERROR" in line[3]:
+                log.crit("n:%-60s\tt:%-10s\ts:%-10s" % (name.encode("utf-8", "backslashreplace").decode(), line[2], line[3]))
+            else:
+                log.status("n:%-60s\tt:%-10s\ts:%-10s" % (name.encode("utf-8", "backslashreplace").decode(), line[2], line[3]))
             results.append(line)
         else:
             log.crit("UNKNOWN RESULT!")
