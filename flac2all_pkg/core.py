@@ -14,7 +14,9 @@ import threading as mt
 import os
 import queue
 import signal
+import subprocess
 import time
+
 
 import uuid
 
@@ -255,7 +257,13 @@ class transcoder():
             infile.split('/')[-1],
             mode
         ))
-        return encf(infile, outfile)
+        try:
+            return encf(infile, outfile)
+        except subprocess.CalledProcessError as e:
+            # So it seems subprocess exceptions do not extend the core
+            # Exception class, breaking our "Global Exception" handler.
+            # Therefore we catch it here and raise a python standard Exception
+            raise(Exception("Call process error, Non zero RC"))
 
 
 class encode_worker(transcoder):
