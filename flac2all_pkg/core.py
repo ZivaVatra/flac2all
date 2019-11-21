@@ -329,8 +329,8 @@ class encode_worker(transcoder):
                     self.send_json(["OFFLINE"])
                     self.csock.close()
                     self.tsock.close()
-                    # Exit
-                    raise(SystemExit(0))
+                    # Exit the loop
+                    break
                 else:
                     result = self.encode(infile, mode, opts)
             except Exception as e:
