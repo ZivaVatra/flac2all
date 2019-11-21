@@ -55,7 +55,15 @@ def sig(signal, frame):
 signal.signal(signal.SIGINT, sig)
 
 while True:
-	[x.join(timeout=1) for x in procs]
+	# We wait 30 seconds for a clean exit
+	[x.join(timeout=30) for x in procs]
+	# Force kill stragglers. This usually means
+	# the master won't get the off line message, so
+	# will have to wait for the response time out before
+	# it exits
+	if terminate:
+		log.warn("Processes hung for >30 seconds, force terminating")
+		[x.terminate() for x in procs]
 	if len([x for x in procs if x.is_alive() is True]) == 0:
 		# All worker processes are done, exit
 		sys.exit(0)
