@@ -56,8 +56,8 @@ signal.signal(signal.SIGINT, sig)
 
 while True:
 	[x.join(timeout=1) for x in procs]
-	if terminate:
-		[x.terminate() for x in procs]
+	#if terminate:
+	#	[x.terminate() for x in procs]
 	if len([x for x in procs if x.is_alive() is True]) == 0:
 		# All worker processes are done, exit
 		sys.exit(0)
