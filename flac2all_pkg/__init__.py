@@ -208,10 +208,11 @@ def clustered_encode():
             if worker_id in workers:
                 workers[worker_id] = time.time()
             else:
+                # If we get a ready request from a worker on in our list, we add it
+                # to the list and assign it a job anyway. We assume we can trust the workers
                 log.warn("Got ready signal from unknown worker. Adding to worker list")
                 workers.update({worker_id: time.time()})
                 log.ok("Added unknown worker %s ( %d workers)" % (worker_id, len(workers)))
-                continue
 
             # And now we push a new task to worker
             if len(inlist) == 0:
