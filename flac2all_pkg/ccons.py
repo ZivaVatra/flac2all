@@ -85,16 +85,21 @@ class cursecons:
 
 	def message_box(self, messages):
 		height = self.winheight - 8
-		msg = messages[-height]  # Show the last x messages we can fit
+		msg = messages[-height:]  # Show the last x messages we can fit
 		win = self.window(height, self.winwidth, 8, 0, "Messages", True)
-		for x in range(0, height):
-			win.addstr(x, 1, msg[x])
+		x = 1
+		for line in msg:
+			win.addstr(x, 2, line[1], curses.color_pair(line[0]))
+			x += 1
 		win.refresh()
+		return win
 
-	def main(self):
+	def main(self, *args):
 		# Create the stats window
+		self.stats_window(None, 0, 0, 0)
 
 		# This is the message box
+		self.message_box([["info", "Hello world"]])
 
 		# This is the progress bar
 		for x in range(0, 101):
@@ -105,5 +110,5 @@ class cursecons:
 
 if __name__ == "__main__":
 	c = cursecons()
-	c.main()
+	curses.wrapper(c.main)
 	time.sleep(1)

@@ -26,19 +26,19 @@ class cconsole(cursecons):
 		self.message_box(self.messagelines)
 
 	def status(self, msg):
-		self._msg_display(["status", msg])
+		self._msg_display(0, msg)
 
 	def info(self, msg):
-		self._msg_display(["info", msg])
+		self._msg_display(1, msg)
 
 	def ok(self, msg):
-		self._msg_display(["ok", msg])
+		self._msg_display(2, msg)
 
 	def warn(self, msg):
-		self._msg_display(["warn", msg])
+		self._msg_display(3, msg)
 
 	def crit(self, msg):
-		self._msg_display(["crit", msg])
+		self._msg_display(4, msg)
 
 
 class console():

@@ -44,7 +44,7 @@ import signal
 
 terminate = False
 
-from logging import console, cursecons
+from logging import console, cconsole
 
 log = console(stderr=True)
 
@@ -126,7 +126,7 @@ def clustered_encode():
     files = sh.getfiles(opts['dirpath'])
     inlist = []
 
-    log = cursecons()  # switch to cursecons, if specified as option
+    log = cconsole()  # switch to cconsole, if specified as option
     for infile in files:
         for mode in opts['mode'].split(','):
             if mode.startswith("_"):
@@ -147,7 +147,6 @@ def clustered_encode():
     workers = {}
     log.info("Waiting for at least one worker to join")
     results = []
-
     while True:
         # If the last seen time is more than 3 minutes, we assume worker
         # is no longer available, and clear it out
