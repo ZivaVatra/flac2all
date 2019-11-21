@@ -103,7 +103,7 @@ class cursecons:
 			time.sleep(0.05)
 
 
-c = cursecons()
-
-c.main()
-time.sleep(1)
+if __name__ == "__main__":
+	c = cursecons()
+	c.main()
+	time.sleep(1)

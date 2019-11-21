@@ -44,7 +44,7 @@ import signal
 
 terminate = False
 
-from logging import console
+from logging import console, cursecons
 
 log = console(stderr=True)
 
@@ -125,6 +125,8 @@ def clustered_encode():
     # Gathering file data
     files = sh.getfiles(opts['dirpath'])
     inlist = []
+
+    log = cursecons()  # switch to cursecons, if specified as option
     for infile in files:
         for mode in opts['mode'].split(','):
             if mode.startswith("_"):
