@@ -170,10 +170,8 @@ def clustered_encode():
             # We expect this if no data, so we sit in a loop and wait
             if ((e.errno == 11) or (e.errno == 35)):
                 if terminate is True:
-                    rsock.close()
-                    csock.close()
-                    rsock.close()
-                    sys.exit(0)
+                    log.warn("Terminated")
+                    break  # We exit the loop, the zmq bits are cleaned up post loop
                 time.sleep(0.01)  # wait a little bit and try again
                 continue
             else:
