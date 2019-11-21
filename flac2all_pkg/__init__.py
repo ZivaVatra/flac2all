@@ -152,8 +152,8 @@ def clustered_encode():
             if ((time.time() - workers[key]) > 180):
                 del(workers[key])
                 log.warn("Worker %s not responding, clearing from list (%d remaining)" % (key, len(workers)))
-            if len(workers) == 0:
-                break
+                if len(workers) == 0:
+                    terminate = True
 
         if terminate is True:
             # If we want to terminate, clear the entire inlist
