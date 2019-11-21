@@ -92,7 +92,7 @@ class lameMp3(object):
         cmd.extend(self.opts.split(' '))
         cmd.extend([pipe, "%s.mp3" % outfile])
 
-        rc = sp.check_call(cmd)
+        rc = sp.call(cmd)
         errline = stderr.read().decode('utf-8')
         if os.path.exists(pipe):
             os.unlink(pipe)
