@@ -147,10 +147,10 @@ def clustered_encode():
     results = []
 
     while True:
-        # If the last seen time is more than 3 minutes, we assume worker
+        # If the last seen time is more than 4 minutes, we assume worker
         # is no longer available, and clear it out
         for key in dict(workers):
-            if ((time.time() - workers[key]) > 180):
+            if ((time.time() - workers[key]) > 240):
                 del(workers[key])
                 log.warn("Worker %s not responding, clearing from list (%d remaining)" % (key, len(workers)))
                 if len(workers) == 0:
