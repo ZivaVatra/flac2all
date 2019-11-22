@@ -154,7 +154,11 @@ def clustered_encode():
                 del(workers[key])
                 log.warn("Worker %s not responding, clearing from list (%d remaining)" % (key, len(workers)))
                 if len(workers) == 0:
-                    log.crit("No more workers. Need at least one worker to join")
+                    if inlist == []:
+                        # We have no more to process, just exit
+                        terminate = True
+                    else:
+                        log.crit("No more workers. Need at least one worker to join")
 
         if terminate is True:
             # If we want to terminate, clear the entire inlist
