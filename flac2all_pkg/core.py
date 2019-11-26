@@ -20,10 +20,6 @@ import time
 import uuid
 
 
-# this needs to be replaced with something better
-global log
-
-
 try:
     import zmq
 except ImportError:
@@ -63,7 +59,6 @@ def signal_handler(signal, frame):
 
 
 def generate_summary(start_time, end_time, count, results, outdir):
-    global log
     total = len(results)
     successes = len([x for x in results if int(x[4]) == 0])
     failures = total - successes
