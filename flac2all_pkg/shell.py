@@ -10,7 +10,7 @@ class filecopy:
 	def __init__(self, opts):
 		self.opts = opts
 
-	def copy(self, infile, outfile):
+	def convert(self, infile, outfile):
 		# The outfile will contain "_copy" as a folder, we
 		# use that as a placeholder which we replace with the
 		# current given mode here

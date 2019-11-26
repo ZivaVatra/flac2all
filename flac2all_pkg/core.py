@@ -178,9 +178,7 @@ class transcoder():
         elif mode == "test":
             pass  # 'test' is special as it isn't a converter, it is handled below
         elif mode == "_copy":
-            # Ditto for the copy function, with the addition of it not being public
-            # (hence the '_' prefix)
-            pass
+            encoder = filecopy(opts)
         elif mode[0:2] == "f:":
             encoder = ffmpeg(opts, mode[2:])  # Second argument is the codec
         else:
@@ -189,9 +187,6 @@ class transcoder():
         if mode == "test":
             encoder = flac(opts['flacopts'])
             encf = encoder.flactest
-        elif mode == "_copy":
-            encoder = filecopy(opts)
-            encf = filecopy.copy
         else:
             encf = encoder.convert
         return encf
