@@ -422,6 +422,9 @@ def main():
     else:
         threaded_encode()
 
+    if options.curses is True:
+        log.__del__()  # If we are using the curses interface, clean up properly at the end.
+
 
 if __name__ == "__main__":
     main()

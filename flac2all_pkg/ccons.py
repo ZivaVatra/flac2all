@@ -58,6 +58,7 @@ class cursecons:
 
 	def percent_progress_bar(self, value):
 		# Create the percentage window. Not generic
+		assert value <= 100, "Percent value > 100"
 		width = self.winwidth - 20
 		offset = 6
 		line = 4
