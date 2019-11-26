@@ -133,6 +133,7 @@ def clustered_encode():
                 continue
             if not infile.endswith(".flac"):
                 if opts['copy'] is True:
+                    opts.update({"copymode": mode})
                     line = [infile, "_copy", opts]
                     inlist.append(line)
             else:
