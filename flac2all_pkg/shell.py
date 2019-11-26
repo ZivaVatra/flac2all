@@ -22,7 +22,7 @@ class filecopy:
 				infile,
 				outfile,
 				"_copy",
-				"Error: %d" % str(e),
+				"Error: %s" % str(e),
 				-1,
 				-1
 			]

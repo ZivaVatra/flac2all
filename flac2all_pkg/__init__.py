@@ -381,7 +381,11 @@ def main():
     # In this version, we can convert multiple format at once, so for e.g.
     # mode = mp3,vorbis will create both in parallel
     for mode in opts['mode'].split(','):
-        if mode != "" or mode != "_copy":
+        if mode != "":
+            # When copying, we don't want a _copy dir, but one representing
+            # the mode being copied to, so we check and update mode here
+            if "copymode" in opts:
+                mode = opts['copymode']
             try:
                 os.mkdir(os.path.join(opts['outdir'], mode))
             except OSError as e:
