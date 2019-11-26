@@ -8,13 +8,16 @@ from termcolor import cprint
 
 
 class cconsole(cursecons):
-	def __init__(self):
+	def __init__(self, updatecount=20):
 		cursecons.__init__(self)
 		self.messagelines = []
 		self.workers = None
 		self.complete = 0
 		self.errors = 0
 		self.total = 0
+
+		self.updatecount = updatecount
+		self.updateclock = 0
 
 	def _msg_display(self, status, msg):
 		msg = msg.encode("utf-8", "replace").decode()
@@ -26,6 +29,9 @@ class cconsole(cursecons):
 		self.message_box(self.messagelines)
 
 	def update(self):
+		self.updateclock += 1
+		if not (self.updateclock % self.updatecount) == 0:
+			return
 		self.stats_window(self.workers, self.total, self.complete, self.errors)
 		# Get percentage done from complete and total
 		if self.total != 0:
