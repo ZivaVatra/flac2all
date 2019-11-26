@@ -85,11 +85,11 @@ class cursecons:
 
 	def message_box(self, messages):
 		height = self.winheight - 8
-		msg = messages[-10:]  # Show the last x messages we can fit
+		msg = messages[-(height + 2):]  # Show the last x messages we can fit
 		win = self.window(height, self.winwidth, 8, 0, "Messages", True)
 		x = 1
 		for line in msg:
-			win.addstr(x, 2, line[1], curses.color_pair(int(line[0])))
+			win.addstr(x, 2, line[1][:(self.winwidth - 2)], curses.color_pair(int(line[0])))
 			x += 1
 		win.refresh()
 		return win
