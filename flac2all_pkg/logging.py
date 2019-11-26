@@ -25,6 +25,11 @@ class cconsole(cursecons):
 		self.messagelines.append([status, msg])
 		self.message_box(self.messagelines)
 
+	def update(self):
+		self.stats_window(self.workers, self.tasks. self.complete, self.errors)
+		# Get percentage done from complete and total
+		self.percent_progress_bar((self.complete / self.tasks) * 100)
+
 	def status(self, msg):
 		self._msg_display(0, msg)
 
@@ -39,6 +44,16 @@ class cconsole(cursecons):
 
 	def crit(self, msg):
 		self._msg_display(4, msg)
+
+	def active_workers(self, workers):
+		self.workers = workers
+		self.update()
+
+	def tasks(self, total, success, failures):
+		self.complete = success
+		self.error = failures
+		self.tasks = total
+		self.update()
 
 
 class console():
@@ -72,3 +87,9 @@ class console():
 
 	def crit(self, msg):
 		cprint(self._genmsg(msg), "red", file=self.foutput)
+
+	def tasks(self, incount, success, failures):
+		pass  # We do not implement this in console, too noisy
+
+	def active_workers(self, workers):
+		pass  # We do not implement this in console, too noisy

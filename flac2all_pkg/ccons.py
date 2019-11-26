@@ -89,7 +89,7 @@ class cursecons:
 		win = self.window(height, self.winwidth, 8, 0, "Messages", True)
 		x = 1
 		for line in msg:
-			win.addstr(x, 2, line[1], curses.color_pair(line[0]))
+			win.addstr(x, 2, line[1], curses.color_pair(int(line[0])))
 			x += 1
 		win.refresh()
 		return win
@@ -99,7 +99,7 @@ class cursecons:
 		self.stats_window(None, 0, 0, 0)
 
 		# This is the message box
-		self.message_box([["info", "Hello world"]])
+		self.message_box([[0, "Hello world"]])
 
 		# This is the progress bar
 		for x in range(0, 101):

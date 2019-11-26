@@ -126,6 +126,7 @@ def clustered_encode():
     files = sh.getfiles(opts['dirpath'])
     inlist = []
 
+    # TODO: Make this an option
     log = cconsole()  # switch to cconsole, if specified as option
     for infile in files:
         for mode in opts['mode'].split(','):
@@ -149,6 +150,12 @@ def clustered_encode():
     log.info("Waiting for at least one worker to join")
     results = []
     while True:
+        log.active_workers(len(workers))
+        log.tasks(
+            incount,
+            len([x for x in results if int(x[4]) == 0]),
+            len([x for x in results if int(x[4]) != 0])
+        )
         # If the last seen time is more than 4 minutes, we assume worker
         # is no longer available, and clear it out
         for key in dict(workers):
