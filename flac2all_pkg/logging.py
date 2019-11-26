@@ -26,7 +26,7 @@ class cconsole(cursecons):
 		self.message_box(self.messagelines)
 
 	def update(self):
-		self.stats_window(self.workers, self.tasks. self.complete, self.errors)
+		self.stats_window(self.workers, self.tasks, self.complete, self.errors)
 		# Get percentage done from complete and total
 		self.percent_progress_bar((self.complete / self.tasks) * 100)
 
