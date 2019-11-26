@@ -28,7 +28,10 @@ class cconsole(cursecons):
 	def update(self):
 		self.stats_window(self.workers, self.tasks, self.complete, self.errors)
 		# Get percentage done from complete and total
-		self.percent_progress_bar((self.complete / self.tasks) * 100)
+		if self.tasks != 0:
+			self.percent_progress_bar((self.complete / self.tasks) * 100)
+		else:
+			self.percent_progress_bar(0)
 
 	def status(self, msg):
 		self._msg_display(0, msg)
