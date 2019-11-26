@@ -13,7 +13,7 @@ class cconsole(cursecons):
 		self.messagelines = []
 		self.workers = None
 		self.complete = 0
-		self.error = 0
+		self.errors = 0
 		self.tasks = 0
 
 	def _msg_display(self, status, msg):
@@ -51,7 +51,7 @@ class cconsole(cursecons):
 
 	def tasks(self, total, success, failures):
 		self.complete = success
-		self.error = failures
+		self.errors = failures
 		self.tasks = total
 		self.update()
 
