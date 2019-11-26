@@ -135,6 +135,7 @@ def clustered_encode():
                 continue
             if not infile.endswith(".flac"):
                 if opts['copy'] is True:
+                    opts.update({"copymode": mode})
                     line = [infile, "_copy", opts]
                     inlist.append(line)
             else:
@@ -148,14 +149,18 @@ def clustered_encode():
     log.info("Waiting for at least one worker to join")
     results = []
     while True:
-        # If the last seen time is more than 3 minutes, we assume worker
+        # If the last seen time is more than 4 minutes, we assume worker
         # is no longer available, and clear it out
         for key in dict(workers):
-            if ((time.time() - workers[key]) > 180):
+            if ((time.time() - workers[key]) > 240):
                 del(workers[key])
                 log.warn("Worker %s not responding, clearing from list (%d remaining)" % (key, len(workers)))
                 if len(workers) == 0:
-                    log.crit("No more workers. Need at least one worker to join")
+                    if inlist == []:
+                        # We have no more to process, just exit
+                        terminate = True
+                    else:
+                        log.crit("No more workers. Need at least one worker to join")
 
         if terminate is True:
             # If we want to terminate, clear the entire inlist
@@ -378,6 +383,10 @@ def main():
     # mode = mp3,vorbis will create both in parallel
     for mode in opts['mode'].split(','):
         if mode != "":
+            # When copying, we don't want a _copy dir, but one representing
+            # the mode being copied to, so we check and update mode here
+            if "copymode" in opts:
+                mode = opts['copymode']
             try:
                 os.mkdir(os.path.join(opts['outdir'], mode))
             except OSError as e:
