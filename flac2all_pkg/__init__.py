@@ -126,8 +126,6 @@ def clustered_encode():
     files = sh.getfiles(opts['dirpath'])
     inlist = []
 
-    # TODO: Make this an option
-    log = cconsole()  # switch to cconsole, if specified as option
     for infile in files:
         for mode in opts['mode'].split(','):
             if mode.startswith("_"):
@@ -279,6 +277,12 @@ def build_parser():
         "-c", "--copy", action="store_true", dest="copy",
         default=False, help="Copy non flac files across (default=False)"
     )
+
+    parser.add_option(
+        "-C", "--curses", action="store_true", dest="curses",
+        default=False, help="Use curses UI"
+    )
+
     parser.add_option(
         "", "--ffmpeg-options", dest="ffmpegopts",
         default="-b:a 128k", help="Comma delimited options to pass to ffmpeg. Exact options will vary based on which of the ffmpeg codecs you are using"
@@ -341,6 +345,7 @@ a dash: '-abr'"
 
 
 def main():
+    global log
     options, args = build_parser()
 
     # update the opts dictionary with new values
@@ -375,6 +380,10 @@ def main():
         sys.exit(2)  # quit the program with non-zero status
 
     # end command line checking
+
+    # Commence main logic
+    if options.curses is True:
+        log = cconsole()  # switch to cconsole, if specified as option
 
     if not os.path.exists(opts['outdir']):
         log.info("Creating output directory")
