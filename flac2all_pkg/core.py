@@ -19,6 +19,12 @@ import time
 
 import uuid
 
+from logging import console
+
+
+# Todo, make this something we can pass from __init__
+log = console(stderr=True)
+
 
 try:
     import zmq
