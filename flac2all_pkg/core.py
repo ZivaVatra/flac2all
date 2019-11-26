@@ -19,9 +19,9 @@ import time
 
 import uuid
 
-from logging import console
 
-log = console(stderr=True)
+# this needs to be replaced with something better
+global log
 
 
 try:
@@ -57,12 +57,13 @@ modetable.extend([["f:" + x[0], x[1]] for x in ffmpeg(None, None).codeclist()])
 
 # functions
 def signal_handler(signal, frame):
-    global terminate
+    global terminate, log
     log.info("Caught signal: %s" % signal)
     terminate = True
 
 
 def generate_summary(start_time, end_time, count, results, outdir):
+    global log
     total = len(results)
     successes = len([x for x in results if int(x[4]) == 0])
     failures = total - successes

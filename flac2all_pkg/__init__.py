@@ -186,7 +186,7 @@ def clustered_encode():
                 time.sleep(0.01)  # wait a little bit and try again
                 continue
             else:
-                print("Error #: %d" % e.errno)
+                log.crit("Error #: %d" % e.errno)
                 raise(e)  # re-raise other errnos
 
         if line[0].startswith('ONLINE'):
