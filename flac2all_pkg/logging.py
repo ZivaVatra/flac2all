@@ -14,7 +14,7 @@ class cconsole(cursecons):
 		self.workers = None
 		self.complete = 0
 		self.errors = 0
-		self.tasks = 0
+		self.total = 0
 
 	def _msg_display(self, status, msg):
 		msg = msg.encode("utf-8", "replace").decode()
@@ -26,10 +26,10 @@ class cconsole(cursecons):
 		self.message_box(self.messagelines)
 
 	def update(self):
-		self.stats_window(self.workers, self.tasks, self.complete, self.errors)
+		self.stats_window(self.workers, self.total, self.complete, self.errors)
 		# Get percentage done from complete and total
-		if self.tasks != 0:
-			self.percent_progress_bar((self.complete / self.tasks) * 100)
+		if self.total != 0:
+			self.percent_progress_bar((self.complete / self.total) * 100)
 		else:
 			self.percent_progress_bar(0)
 
@@ -55,7 +55,7 @@ class cconsole(cursecons):
 	def tasks(self, total, success, failures):
 		self.complete = success
 		self.errors = failures
-		self.tasks = total
+		self.total = total
 		self.update()
 
 

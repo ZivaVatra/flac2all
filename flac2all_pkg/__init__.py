@@ -154,7 +154,7 @@ def clustered_encode():
         log.tasks(
             incount,
             len([x for x in results if int(x[4]) == 0]),
-            len([x for x in results if int(x[4]) != 0])
+            len([x for x in results if int(x[4]) != 0]),
         )
         # If the last seen time is more than 4 minutes, we assume worker
         # is no longer available, and clear it out
