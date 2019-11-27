@@ -184,8 +184,13 @@ def clustered_encode():
                     log.warn("Terminated")
                     break  # We exit the loop, the zmq bits are cleaned up post loop
                 time.sleep(0.01)  # wait a little bit and try again
+                # Because we wait for very short here, we increase the update count
+                # to prevent refreshing too fast
+                log.updatecount = 200
                 continue
             else:
+                # Now we return the refresh count to normal
+                log.updatecount = 20
                 log.crit("Error #: %d" % e.errno)
                 raise(e)  # re-raise other errnos
 
