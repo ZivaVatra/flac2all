@@ -104,7 +104,7 @@ Per file conversion:
     return out
 
 
-def generate_summary_stats(start_time, end_time, count, results):
+def generate_summary(start_time, end_time, count, results):
     total = len(results)
     successes = len([x for x in results if int(x[4]) == 0])
     failures = total - successes
