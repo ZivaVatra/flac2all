@@ -44,7 +44,7 @@ import signal
 
 terminate = False
 
-from logging import console
+from logging import console, cconsole
 
 log = console(stderr=True)
 
@@ -125,6 +125,7 @@ def clustered_encode():
     # Gathering file data
     files = sh.getfiles(opts['dirpath'])
     inlist = []
+
     for infile in files:
         for mode in opts['mode'].split(','):
             if mode.startswith("_"):
@@ -146,8 +147,13 @@ def clustered_encode():
     workers = {}
     log.info("Waiting for at least one worker to join")
     results = []
-
     while True:
+        log.active_workers(len(workers))
+        log.tasks(
+            incount,
+            len([x for x in results if int(x[4]) == 0]),
+            len([x for x in results if int(x[4]) != 0]),
+        )
         # If the last seen time is more than 4 minutes, we assume worker
         # is no longer available, and clear it out
         for key in dict(workers):
@@ -178,9 +184,14 @@ def clustered_encode():
                     log.warn("Terminated")
                     break  # We exit the loop, the zmq bits are cleaned up post loop
                 time.sleep(0.01)  # wait a little bit and try again
+                # Because we wait for very short here, we increase the update count
+                # to prevent refreshing too fast
+                log.updatecount = 200
                 continue
             else:
-                print("Error #: %d" % e.errno)
+                # Now we return the refresh count to normal
+                log.updatecount = 20
+                log.crit("Error #: %d" % e.errno)
                 raise(e)  # re-raise other errnos
 
         if line[0].startswith('ONLINE'):
@@ -271,6 +282,12 @@ def build_parser():
         "-c", "--copy", action="store_true", dest="copy",
         default=False, help="Copy non flac files across (default=False)"
     )
+
+    parser.add_option(
+        "-C", "--curses", action="store_true", dest="curses",
+        default=False, help="Use curses UI"
+    )
+
     parser.add_option(
         "", "--ffmpeg-options", dest="ffmpegopts",
         default="-b:a 128k", help="Comma delimited options to pass to ffmpeg. Exact options will vary based on which of the ffmpeg codecs you are using"
@@ -333,6 +350,7 @@ a dash: '-abr'"
 
 
 def main():
+    global log
     options, args = build_parser()
 
     # update the opts dictionary with new values
@@ -367,6 +385,10 @@ def main():
         sys.exit(2)  # quit the program with non-zero status
 
     # end command line checking
+
+    # Commence main logic
+    if options.curses is True:
+        log = cconsole()  # switch to cconsole, if specified as option
 
     if not os.path.exists(opts['outdir']):
         log.info("Creating output directory")
@@ -404,6 +426,9 @@ def main():
         clustered_encode()
     else:
         threaded_encode()
+
+    if options.curses is True:
+        log.__del__()  # If we are using the curses interface, clean up properly at the end.
 
 
 if __name__ == "__main__":

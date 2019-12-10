@@ -21,6 +21,8 @@ import uuid
 
 from logging import console
 
+
+# Todo, make this something we can pass from __init__
 log = console(stderr=True)
 
 
@@ -57,25 +59,17 @@ modetable.extend([["f:" + x[0], x[1]] for x in ffmpeg(None, None).codeclist()])
 
 # functions
 def signal_handler(signal, frame):
-    global terminate
+    global terminate, log
     log.info("Caught signal: %s" % signal)
     terminate = True
 
 
-def generate_summary(start_time, end_time, count, results, outdir):
-    total = len(results)
-    successes = len([x for x in results if int(x[4]) == 0])
-    failures = total - successes
-    if total != 0:
-        percentage_fail = (failures / float(total)) * 100
-    else:
-        percentage_fail = 0
-
-    log.print("\n\n")
-    log.print("=" * 80)
-    log.print("| Summary ")
-    log.print("-" * 80)
-    log.print("""
+def print_summary(count, total, percentage_execution_rate, successes, failures, percentage_fail, modes):
+    out = "\n\n"
+    out += ("=" * 80)
+    out += "| Summary "
+    out += ("-" * 80)
+    out += """
 Total files on input: %d
 Total files actually processed: %d
 --
@@ -85,17 +79,48 @@ Files we failed to convert due to errors: %d
 --
 Conversion error rate: %.2f%%
 """ % (count, total, (
-        (float(total) / count) * 100),
+        percentage_execution_rate,
         successes,
         failures,
         (percentage_fail)
-       ))
+    ))
+    for mode in modes:
+        execT, esum, emean, emedian = modes[mode]
+        log.print("For mode: " + mode)
+        etime = ""
+        if esum < 600:
+            etime += "%.4f seconds" % esum
+        elif esum > 600 < 3600:
+            etime += "%.4f minutes" % (esum / 60)
+        else:
+            etime += "%.4f hours" % (esum / 60 / 60)
+        out += "\tTotal execution time: %s" % etime
+    out += """
+Per file conversion:
+\tMean execution time: %.4f seconds
+\tMedian execution time: %.4f seconds
+""" % (emean, emedian)
+
+    return out
+
+
+def generate_summary(start_time, end_time, count, results):
+    total = len(results)
+    successes = len([x for x in results if int(x[4]) == 0])
+    failures = total - successes
+    if total != 0:
+        percentage_fail = (failures / float(total)) * 100
+    else:
+        percentage_fail = 0
+
+    percentage_execution_rate = (float(total) / count) * 100
 
     # Each result provides the mode, so we can build a set of modes
     # from this
     modes = set([x[2] for x in results])
+    moderesult = {}
 
-    for mode in modes:
+    for mode in list(modes):
         # 1. find all the logs corresponding to a particular mode
         x = [x for x in results if x[2] == mode]
         # 2. Get the execution time for all relevant logs.
@@ -106,9 +131,8 @@ Conversion error rate: %.2f%%
             esum = sum(execT)
             emean = sum(execT) / len(execT)
         else:
-            # Empty set, just continue
-            log.warn(("For mode %s:\nNo data (no files converted)\n" % mode))
-            continue
+            esum = 0
+            emean = 0
         execT.sort()
         if len(execT) % 2 != 0:
             # Odd number, so median is middle
@@ -118,24 +142,21 @@ Conversion error rate: %.2f%%
             num1 = execT[int((len(execT) - 1) / 2) - 1]
             num2 = execT[int(((len(execT) - 1) / 2))]
             emedian = (sum([num1, num2]) / 2.0)
+        moderesult.update({mode: [execT, esum, emean, emedian]})
 
-        etime = "Total execution time: "
-        if esum < 600:
-            etime += "%.4f seconds" % esum
-        elif esum > 600 < 3600:
-            etime += "%.4f minutes" % (esum / 60)
-        else:
-            etime += "%.4f hours" % (esum / 60 / 60)
+    total_execution_time = (end_time - start_time)
+    return (
+        total,
+        successes,
+        failures,
+        moderesult,
+        percentage_fail,
+        total_execution_time,
+        percentage_execution_rate
+    )
 
-        log.print("""
-For mode: %s
-%s
-Per file conversion:
-\tMean execution time: %.4f seconds
-\tMedian execution time: %.4f seconds
-""" % (mode, etime, emean, emedian))
 
-    log.print("Total execution time: %.2f seconds" % (end_time - start_time))
+def write_logfile(outdir, results):
     errout_file = outdir + "/conversion_results.log"
     log.info("Writing log file (%s)" % errout_file)
     fd = open(errout_file, "w")
@@ -148,7 +169,6 @@ Per file conversion:
         fd.write("%s\n" % line.encode("utf-8", "backslashreplace"))
     fd.close()
     log.print("Done!")
-    return failures
 
 
 # Classes
