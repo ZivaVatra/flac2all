@@ -2,7 +2,7 @@
 
 In clustered mode flac2all works a bit differently. There is a "master" program, which generates the conversion list, delegates tasks to workers and collates the results into one place. It does no encoding of its own.
 
-Then there are the "worker" programs. They launch one worker per CPU, and all connect to the master via ZeroMQ sockets. These workers can be on the same computer as the master progam, or they can be on another computer. Using an IP network the workers are agnostic to the physical machine the master is on.
+Then there are the "worker" programs. They launch one worker per CPU, and all connect to the master via ZeroMQ sockets. These workers can be on the same computer as the master program, or they can be on another computer. Using an IP network the workers are agnostic to the physical machine the master is on.
 
 This means you can attach multiple multi-core computers to a single master program, and they will all work together as a cluster to convert your files.
 
