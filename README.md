@@ -10,7 +10,7 @@ Version5 is the new release of flac2all. The decision to bump up a version numbe
 
 Following on from my tradition of adding at least one major feature in major version upgrades. Version5 has the following new features:
 * Support for ~72 new codecs via ffmpeg. Actual number of codecs subject to change based on what version of ffmpeg you have installed, and what options it is compiled with
-* support for network distributed transcoding via ZeroMQ. This allows you to launch a single flac2all "master" on a machine, and then have flac2all "workers" running on other machines connect to it over a TCP connection. In other words, you can delegrate encoding tasks to multiple computers, each with multiple cores. For more details see the [Clustering readme](README-CLUSTERED.md).
+* support for network distributed transcoding via ZeroMQ. This allows you to launch a single flac2all "master" on a machine, and then have flac2all "workers" running on other machines connect to it over a TCP connection. In other words, you can delegrate encoding tasks to multiple computers, each with multiple cores. For more details see the [Usage->Clustered](#clustered) section.
 * An optional curses frontend when in clustered mode (selected with '-C' on command line), showing percentage complete, workers running and some other stats. Example can be seen here: ![Curses example](/resources/curses_example.png?raw=true "Curses Example").
 
 Note that the clustering function is optional, and flac2all will still work in the original way if ZeroMQ (and its python bindings) are not installed. As such we have not placed a hard dependency on ZeroMQ. This may change in future (e.g. if we decide to abandon the old logic and make everything ZeroMQ based internally).
@@ -50,7 +50,7 @@ Full information, including options and all current available conversion modes, 
 
 Please see [USAGE.md](USAGE.md)
 
-### Clustered ###
+### <a name="clustered"> Clustered ###
 
 Please see [README-CLUSTERED.md](USAGE-CLUSTERED.md)
 
