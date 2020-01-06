@@ -29,19 +29,17 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-from shell import shell
-
 import multiprocessing as mp
 from shutil import copy as copytarget
-from config import opts
-from core import encode_thread, generate_summary
-
 import sys
 import os
 import time
 import queue
 
-from logging import console
+from .config import opts
+from .core import encode_thread, generate_summary
+from .shell import shell
+from .logging import console
 
 log = console(stderr=True)
 

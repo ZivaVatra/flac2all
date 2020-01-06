@@ -27,24 +27,22 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-
-from shell import shell
-
-import multiprocessing as mp
-from optparse import OptionParser
-from config import opts
-from core import modetable, generate_summary, write_logfile
-from multiprocess_encode import encode as threaded_encode
-
 import sys
 import os
 import time
 import signal
+from optparse import OptionParser
+import multiprocessing as mp
+
+from .shell import shell
+from .config import opts
+from .core import modetable, generate_summary, write_logfile
+from .multiprocess_encode import encode as threaded_encode
+from .logging import console, cconsole
+
 
 terminate = False
 
-from logging import console, cconsole
 
 log = console(stderr=True)
 

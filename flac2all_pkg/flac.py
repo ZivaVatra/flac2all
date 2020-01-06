@@ -2,11 +2,11 @@
 # vim: ts=4 noexpandtab si
 
 import os
-from config import ipath, opts
-from shell import shell
 from time import time
 import subprocess as sp
 
+from .config import ipath, opts
+from .shell import shell
 
 # This class is called by every other conversion function, to return a "decode"
 # object

@@ -1,10 +1,10 @@
 # vim: ts=4 autoindent expandtab
-from config import ipath
 from time import time
 import subprocess as sp
 import re
 import os
 
+from .config import ipath
 
 # Class that deals with ffmpeg
 class ffmpeg:

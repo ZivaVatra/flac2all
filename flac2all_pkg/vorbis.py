@@ -1,8 +1,8 @@
 # vim: ts=4 autoindent expandtab
-from config import ipath
 from time import time
 import subprocess as sp
 
+from .config import ipath
 
 # Class that deals with vorbis
 class vorbis:

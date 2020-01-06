@@ -2,11 +2,11 @@
 
 import os
 import re
-
 from time import time
-from config import ipath
 import subprocess as sp
 
+
+from .config import ipath
 # Class that deals with the opus codec
 
 

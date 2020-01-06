@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 ai expandtab
 
-from aac import aacplus
-from vorbis import vorbis
-from flac import flac
-from mp3 import lameMp3 as mp3
-from opus import opus
-from ffmpeg import ffmpeg
-from shell import filecopy
+from .aac import aacplus
+from .vorbis import vorbis
+from .flac import flac
+from .mp3 import lameMp3 as mp3
+from .opus import opus
+from .ffmpeg import ffmpeg
+from .shell import filecopy
+from .logging import console
 
 import threading as mt
 
@@ -18,9 +19,6 @@ import time
 
 
 import uuid
-
-from logging import console
-
 
 # Todo, make this something we can pass from __init__
 log = console(stderr=True)

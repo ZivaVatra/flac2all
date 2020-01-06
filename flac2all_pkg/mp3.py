@@ -2,14 +2,13 @@
 # vim: ts=4 expandtab si
 
 import os
-
-from config import ipath
-from flac import flac, flacdecode
 from time import time
 import uuid
 import subprocess as sp
 
-from logging import console
+from .logging import console
+from .flac import flac, flacdecode
+from .config import ipath
 
 log = console(stderr=True)
 

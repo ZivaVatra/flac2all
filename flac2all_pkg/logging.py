@@ -2,9 +2,9 @@
 
 import datetime
 import sys
-from ccons import cursecons
 
-from termcolor import cprint
+from .ccons import cursecons
+from .termcolor import cprint
 
 
 class cconsole(cursecons):
