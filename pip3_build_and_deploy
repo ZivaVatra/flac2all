@@ -17,7 +17,7 @@ if ($test =~ m/test/i) {
 }
 my $repo_extra = " --verbose ";
 
-# Add the test repo url if we are in test most
+# Add the test repo url if we are in test mode
 if ($test == 1) {
 	$repo_extra = "--repository-url https://test.pypi.org/legacy/";
 }
@@ -52,6 +52,6 @@ die("Could not create git tag\n") unless (0 == system("git tag -a $new_version -
 # And we remove the build and dist folder, to make sure fresh files are used
 system("rm -rf ./build ./dist");
 # Now run the code to push to pip
-die("Could not build and deploy to pypi\n") unless (0 == system("python ./setup.py sdist bdist_wheel && twine upload $repo_extra dist/*"));
+die("Could not build and deploy to pypi\n") unless (0 == system("python3 ./setup.py sdist bdist_wheel && twine upload $repo_extra dist/*"));
 # Finally, we push the tag to git
 system("git push origin $new_version");

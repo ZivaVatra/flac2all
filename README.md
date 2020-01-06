@@ -1,8 +1,14 @@
 ## News / Changes
-Please see CHANGES.md
+
+### 06/01/2020
+
+Happy new year everyone! With the new year comes some big changes. Python2 was officially retired, and python3 is now the default for the forseeable future. With that, flac2all has been ported to Python3 (along with some new features/codecs). For details of what is new, please see "Details" below. The program has been tested over the last few months by me and seems good, but if come across any problems please raise a bug report.
+
+### Older News/Changes
+For older news/changes, please see [CHANGES.md](CHANGES.md)
 
 ## What is it
-Started in 2003 as a simple flac to ogg vorbis script, flac2all has grown into a clustered parallel processing program that will convert your collection of FLAC files into various other formats (70+ formats if you meet all dependencies), complete with any tags that the source file had. Designed to be extended with new formats easily as time goes on, it is a utility for people with with large FLAC collections who also want a way to convert multiple files in parallel.
+Started in 2003 as a simple flac to ogg vorbis script (written in bash), flac2all has grown into a python based, clustered parallel processing program that will convert your collection of FLAC files into various other formats (70+ formats if you meet all dependencies), complete with any tags that the source file had. Designed to be extended with new formats easily as time goes on, it is a utility for people with with large FLAC collections who also want a way to convert multiple files in parallel.
 
 ## Details
 
@@ -26,19 +32,20 @@ Note that the clustering function is optional, and flac2all will still work in t
 * Vorbis-tools: for ogg support
 * aac-enc for AAC support
 * ffmpeg for supporting all the audio encoders it supports
+* python-curses for the curses interface
 
 ## Packages for Distros
 
 ### Stable:
 
-* ![logo](http://www.monitorix.org/imgs/archlinux.png "arch logo") For users of Arch Linux, flac2all is in the [AUR](https://aur.archlinux.org/packages/flac2all). Big Thanks to [Graysky](https://github.com/graysky2) for the AUR effort over the years! 
+* ![logo](http://www.monitorix.org/imgs/archlinux.png "arch logo") For users of Arch Linux, flac2all is in the [AUR](https://aur.archlinux.org/packages/flac2all). Big Thanks to [Graysky](https://github.com/graysky2) for the AUR effort over the years!
 
-* For the rest of you, there is a pip package available. You can install flac2all by running `pip install flac2all` as root, or `pip install flac2all --user` for a non root local install.
+* For the rest of you, there is a pip3 package available. You can install flac2all by running `pip3 install flac2all` as root, or `pip3 install flac2all --user` for a non root local install.
 To upgrade to a new release you run the same commands as installation, but with `--upgrade` option set.
 
 * If anyone has packaged flac2all for their OS/distro, feel free to get in touch and we can add it here
 
-### Dev 
+### Dev
 
 * At the moment there are no packages for the development branch. If you want the bleeding edge, follow the instructions under [Development](#development)
 
@@ -95,7 +102,7 @@ There are some branches that are considered "fixed". This means that they tend t
 
 * master: Main branch, where final merges and tests are done prior to tagging and deployment. From here we generate the releases.
 * version5: The current development branch, where changes are made, pulls merged and tested, prior to merge with master for release.
-* version4: The current stable branch. No active development, but general maintenance and bugfixes are being handled.
+* version4: The old stable branch. No active development, but kept for historic/archival purposes.
 * version3: The old stable branch. No active development, but kept for historic/archival purposes.
 * version2: The old stable branch. No active development, but kept for historic/archival purposes.
 
@@ -115,9 +122,8 @@ If you wish to contribute to flac2all, I ask that you keep to the following guid
 
 ## Known bugs/issues and TODOs
 
-* using "ctrl-c" to terminate does not exit cleanly. Plus you have to hit ctrl-c multiple times to terminate flac2all.
+- None so far.
 
-* following on from above, when terminated the script leaves a bunch of tmpfiles. We need to clean up properly.
 
 ## Raising a bug report
 
