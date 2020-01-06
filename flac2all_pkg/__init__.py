@@ -34,7 +34,7 @@ from shell import shell
 import multiprocessing as mp
 from optparse import OptionParser
 from config import opts
-from core import modetable, generate_summary
+from core import modetable, generate_summary, write_logfile
 from multiprocess_encode import encode as threaded_encode
 
 import sys
@@ -269,7 +269,8 @@ def clustered_encode():
         log.crit("Error. Not all tasks were completed.")
         sys.exit(1)
     # log.print(list(set([x[0] for x in inlist]) - set([x[0] for x in results])))
-    generate_summary(start_time, end_time, incount, results, opts['outdir'])
+    results = generate_summary(start_time, end_time, incount, results)
+    write_logfile(opts['outdir'], results)
 
 
 def build_parser():
