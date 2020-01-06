@@ -34,7 +34,11 @@ foreach (reverse(@tags)) {
 }
 my @tmp;
 @tmp = split(/$base\./, $version);
-$tmp[1] = int($tmp[1]) + 1;
+if ($test == 0) {
+	$tmp[1] = int($tmp[1]) + 1;
+} else {
+	$tmp[1] .= "-test"
+}
 my $new_version = "$base.$tmp[1]";
 print "Last tag is $version. Proposed new tag is $new_version. Proceed? (y/n): ";
 my $answer = <STDIN>;
