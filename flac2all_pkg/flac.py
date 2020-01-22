@@ -5,8 +5,12 @@ import os
 from time import time
 import subprocess as sp
 
-from .config import ipath, opts
-from .shell import shell
+if __name__ == '__main__' and __package__ is None:
+	from os import path
+	sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))  
+
+from config import ipath, opts
+from shell import shell
 
 # This class is called by every other conversion function, to return a "decode"
 # object

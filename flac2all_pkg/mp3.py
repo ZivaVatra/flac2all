@@ -6,9 +6,13 @@ from time import time
 import uuid
 import subprocess as sp
 
-from .logging import console
-from .flac import flac, flacdecode
-from .config import ipath
+if __name__ == '__main__' and __package__ is None:
+    from os import path, sys
+    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+
+from logging import console
+from flac import flac, flacdecode
+from config import ipath
 
 log = console(stderr=True)
 

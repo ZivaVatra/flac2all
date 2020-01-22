@@ -36,10 +36,14 @@ import os
 import time
 import queue
 
-from .config import opts
-from .core import encode_thread, generate_summary
-from .shell import shell
-from .logging import console
+if __name__ == '__main__' and __package__ is None:
+    from os import path
+    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+
+from config import opts
+from core import encode_thread, generate_summary
+from shell import shell
+from logging import console
 
 log = console(stderr=True)
 

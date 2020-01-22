@@ -4,7 +4,11 @@ import subprocess as sp
 import re
 import os
 
-from .config import ipath
+if __name__ == '__main__' and __package__ is None:
+    from os import path
+    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+
+from config import ipath
 
 # Class that deals with ffmpeg
 class ffmpeg:
