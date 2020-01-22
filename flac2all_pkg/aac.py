@@ -2,13 +2,19 @@
 # Class that deals with AAC+
 import os
 import sys
-from .shell import shell
-from .flac import flac, flacdecode
-from .config import ipath
 from time import time
-
 import subprocess as sp
 import uuid
+
+try:
+	from .shell import shell
+	from .flac import flac, flacdecode
+	from .config import ipath
+except (SystemError, ImportError):
+	from shell import shell
+	from flac import flac, flacdecode
+	from config import ipath
+
 
 # This is for the open source implementation. In this case we went for the
 # Open Source Fraunhofer AAC Encoder (fdk-aac)

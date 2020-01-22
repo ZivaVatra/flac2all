@@ -12,14 +12,18 @@
 __VERSION__ = (0, 0, 1)
 
 import multiprocessing as mp
-import core
 import sys
-
 import signal
 
+import core
 from logging import console
 
 log = console(stderr=True)
+
+
+def sig(signal, frame):
+	global terminate
+	terminate = True
 
 
 def worker_process(target_host):
@@ -29,41 +33,40 @@ def worker_process(target_host):
 	sys.exit(eworker.run())
 
 
-try:
-	hostname = sys.argv[1]
-except IndexError:
-	log.print("Usage: %s $master_hostname" % sys.argv[0])
-	sys.exit(1)
+def main():
+	try:
+		hostname = sys.argv[1]
+	except IndexError:
+		log.print("Usage: %s $master_hostname" % sys.argv[0])
+		sys.exit(1)
 
-procs = []
-while len(procs) != mp.cpu_count():
-	procs.append(mp.Process(target=worker_process, args=(hostname,)))
-	# Here we filter out any dead processes.
-	# procs = [x for x in procs if x.is_alive() is True]
+	procs = []
+	while len(procs) != mp.cpu_count():
+		procs.append(mp.Process(target=worker_process, args=(hostname,)))
+		# Here we filter out any dead processes.
+		# procs = [x for x in procs if x.is_alive() is True]
 
-[x.start() for x in procs]
-# And now wait
+	[x.start() for x in procs]
+	# And now wait
 
-terminate = False
+	terminate = False
+
+	signal.signal(signal.SIGINT, sig)
+
+	while True:
+		# We wait 30 seconds for a clean exit
+		[x.join(timeout=30) for x in procs]
+		# Force kill stragglers. This usually means
+		# the master won't get the off line message, so
+		# will have to wait for the response time out before
+		# it exits
+		if terminate:
+			log.warn("Processes hung for >30 seconds, force terminating")
+			[x.terminate() for x in procs]
+		if len([x for x in procs if x.is_alive() is True]) == 0:
+			# All worker processes are done, exit
+			sys.exit(0)
 
 
-def sig(signal, frame):
-	global terminate
-	terminate = True
-
-
-signal.signal(signal.SIGINT, sig)
-
-while True:
-	# We wait 30 seconds for a clean exit
-	[x.join(timeout=30) for x in procs]
-	# Force kill stragglers. This usually means
-	# the master won't get the off line message, so
-	# will have to wait for the response time out before
-	# it exits
-	if terminate:
-		log.warn("Processes hung for >30 seconds, force terminating")
-		[x.terminate() for x in procs]
-	if len([x for x in procs if x.is_alive() is True]) == 0:
-		# All worker processes are done, exit
-		sys.exit(0)
+if __name__ == "__main__":
+	main()
