@@ -16,7 +16,8 @@ here = path.abspath(path.dirname(__file__))
 
 with open("./flac2all_pkg/version", 'r') as fd:
     vers = fd.read()
-    vers = vers.strip()
+    vers = str(vers.strip())
+    vers = vers.replace("test.", "")  # Remove test marker for publishing to test repo
 
 setup(
     name="flac2all",
