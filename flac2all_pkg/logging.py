@@ -7,8 +7,14 @@ if __name__ == '__main__' and __package__ is None:
 	from os import path
 	sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
-from ccons import cursecons
-from termcolor import cprint
+try:
+	from ccons import cursecons
+	from termcolor import cprint
+except ImportError:
+	from .ccons import cursecons
+	from .termcolor import cprint
+
+
 
 
 class cconsole(cursecons):
