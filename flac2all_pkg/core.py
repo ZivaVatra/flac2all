@@ -5,15 +5,24 @@ if __name__ == '__main__' and __package__ is None:
     from os import sys, path
     sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
-from aac import aacplus
-from vorbis import vorbis
-from flac import flac
-from mp3 import lameMp3 as mp3
-from opus import opus
-from ffmpeg import ffmpeg
-from shell import filecopy
-from logging import console
-
+try:
+	from aac import aacplus
+	from vorbis import vorbis
+	from flac import flac
+	from mp3 import lameMp3 as mp3
+	from opus import opus
+	from ffmpeg import ffmpeg
+	from shell import filecopy
+	from logging import console
+except ImportError:
+	from .aac import aacplus
+	from .vorbis import vorbis
+	from .flac import flac
+	from .mp3 import lameMp3 as mp3
+	from .opus import opus
+	from .ffmpeg import ffmpeg
+	from .shell import filecopy
+	from .logging import console
 
 import threading as mt
 

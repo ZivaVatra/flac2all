@@ -9,7 +9,11 @@ if __name__ == '__main__' and __package__ is None:
     from os import path, sys
     sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
-from config import ipath
+try:
+	from config import ipath
+except ImportError:
+	from .config import ipath
+
 # Class that deals with the opus codec
 
 

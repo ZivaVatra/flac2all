@@ -10,9 +10,16 @@ if __name__ == '__main__' and __package__ is None:
 	from os import path
 	sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
-from shell import shell
-from flac import flac, flacdecode
-from config import ipath
+try:
+	from shell import shell
+	from flac import flac, flacdecode
+	from config import ipath
+except ImportError:
+	from .shell import shell
+	from .flac import flac, flacdecode
+	from .config import ipath
+
+
 
 
 # This is for the open source implementation. In this case we went for the

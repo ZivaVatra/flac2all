@@ -15,8 +15,16 @@ import multiprocessing as mp
 import sys
 import signal
 
-import core
-from logging import console
+if __name__ == '__main__' and __package__ is None:
+    from os import path
+    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+
+try:
+	from core import encode_worker
+	from logging import console
+except ImportError:
+	from .logging import console
+	from .core import encode_worker
 
 log = console(stderr=True)
 
@@ -28,7 +36,7 @@ def sig(signal, frame):
 
 def worker_process(target_host):
 	log.info("Spawned worker process")
-	eworker = core.encode_worker(target_host)
+	eworker = encode_worker(target_host)
 	# because we are a process, we just exit at the end
 	sys.exit(eworker.run())
 
