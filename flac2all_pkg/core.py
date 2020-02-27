@@ -183,14 +183,15 @@ def generate_summary(start_time, end_time, count, results):
 def write_logfile(outdir, results):
     errout_file = os.path.join(outdir, "conversion_results.log")
     log.info("Writing log file (%s)" % errout_file)
-    fd = open(errout_file, "w")
+    fd = open(errout_file, "wb")
     fd.write(
-        "infile,outfile,format,conversion_status,return_code,execution_time\n"
+        "infile,outfile,format,conversion_status,return_code,execution_time\n".encode("utf-8")
     )
     for item in results:
-        item = [str(x, "utf-8") for x in item]
+        item = [str(x) for x in item]
         line = ','.join(item)
-        fd.write("%s\n" % line.encode("utf-8", "backslashreplace"))
+        line += "\n"
+        fd.write(line.encode("utf-8", "backslashreplace"))
     fd.close()
     log.print("Done!")
 
