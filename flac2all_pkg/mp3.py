@@ -11,13 +11,13 @@ if __name__ == '__main__' and __package__ is None:
     sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 try:
-	from logging import console
-	from flac import flac, flacdecode
-	from config import ipath
+    from logging import console
+    from flac import flac, flacdecode
+    from config import ipath
 except ImportError:
-	from .logging import console
-	from .flac import flac, flacdecode
-	from .config import ipath
+    from .logging import console
+    from .flac import flac, flacdecode
+    from .config import ipath
 
 
 log = console(stderr=True)

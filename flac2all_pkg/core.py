@@ -188,7 +188,7 @@ def write_logfile(outdir, results):
         "infile,outfile,format,conversion_status,return_code,execution_time\n"
     )
     for item in results:
-        item = [str(x) for x in item]
+        item = [str(x, "utf-8") for x in item]
         line = ','.join(item)
         fd.write("%s\n" % line.encode("utf-8", "backslashreplace"))
     fd.close()

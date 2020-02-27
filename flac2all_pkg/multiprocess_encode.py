@@ -110,7 +110,7 @@ def encode():
         cc = opts['threads']
 
         while int(cc) > (len(ap)):
-            log.info("Spawning execution process")
+            # Spawning execution process here
             proc = encode_thread(int(cc), "Thread %d" % int(cc), pQ, opts, lQ)
             proc.start()
             ap.append(proc)
@@ -124,10 +124,8 @@ def encode():
         try:
             pQ.put(pQ.get(timeout=10))
         except mp.TimeoutError as e:
-            log.ok("Process queue finished.")
             sflags[0] = 1
         except queue.Empty as e:
-            log.ok("Process queue finished.")
             sflags[0] = 1
         else:
             sflags[0] = 0
