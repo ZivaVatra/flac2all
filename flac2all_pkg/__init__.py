@@ -36,23 +36,20 @@ import multiprocessing as mp
 
 if __name__ == '__main__' and __package__ is None:
     from os import path
-    sys.path.append(path.dirname(path.dirname(path.abspath(__file__)))) 
+    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 try:
-	from shell import shell
-	from config import opts
-	from core import modetable, generate_summary, write_logfile
-	from multiprocess_encode import encode as threaded_encode
-	from logging import console, cconsole
+    from shell import shell
+    from config import opts
+    from core import modetable, write_logfile
+    from multiprocess_encode import encode as threaded_encode
+    from logging import console, cconsole
 except ImportError:
-	from .shell import shell
-	from .config import opts
-	from .core import modetable, generate_summary, write_logfile
-	from .multiprocess_encode import encode as threaded_encode
-	from .logging import console, cconsole
-
-
-
+    from .shell import shell
+    from .config import opts
+    from .core import modetable, write_logfile
+    from .multiprocess_encode import encode as threaded_encode
+    from .logging import console, cconsole
 
 terminate = False
 
@@ -154,7 +151,7 @@ def clustered_encode():
 
     incount = len(inlist)
     log.info("We have %d tasks" % incount)
-    start_time = time.time()
+    # start_time = time.time()
     workers = {}
     log.info("Waiting for at least one worker to join")
     results = []
@@ -269,7 +266,7 @@ def clustered_encode():
             log.crit("UNKNOWN RESULT!")
             log.crit(results)
 
-    end_time = time.time()
+    # end_time = time.time()
     rsock.close()
     csock.close()
     rsock.close()
@@ -280,7 +277,7 @@ def clustered_encode():
         log.crit("Error. Not all tasks were completed.")
         sys.exit(1)
     # log.print(list(set([x[0] for x in inlist]) - set([x[0] for x in results])))
-    results = generate_summary(start_time, end_time, incount, results)
+    # generate_summary(start_time, end_time, incount, results)
     write_logfile(opts['outdir'], results)
 
 

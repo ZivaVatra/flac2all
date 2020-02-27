@@ -81,9 +81,8 @@ def print_summary(count, total, successes, failures, modes, percentage_fail, tot
     percentage_execution_rate = float(percentage_execution_rate)
 
     out = "\n\n"
-    out += ("=" * 80)
     out += "| Summary "
-    out += ("-" * 80)
+    out += ("=" * (80 - len(out)))
     out += """
 Total files on input: %d
 Total files actually processed: %d
