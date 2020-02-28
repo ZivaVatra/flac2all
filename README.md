@@ -1,5 +1,10 @@
 ## News / Changes
 
+### 28/02/2020 - v5.2 released
+
+* Fixed issue #44
+* Fixed issue #45
+
 ### 23/01/2020 - v5.1 released
 
 * Fixed issues caused by Python3 altering how it handles relative/absolute imports.
