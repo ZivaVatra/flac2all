@@ -42,12 +42,12 @@ if __name__ == '__main__' and __package__ is None:
 try:
     from config import opts
     from core import encode_thread, generate_summary, print_summary, write_logfile
-    from shell import shell
+    from shell import shell, filecopy
     from logging import console
 except ImportError:
     from .config import opts
     from .core import encode_thread, generate_summary
-    from .shell import shell
+    from .shell import shell, filecopy
     from .logging import console
 
 
@@ -87,6 +87,8 @@ def encode():
                 pQ.put([infile, opts['dirpath'], opts['outdir'], mode])
                 count += 1
             else:
+                # If we want to copy, then any non-flac file gets added
+                # with the target mode, so we know what to copy
                 if opts['copy']:
                     cQ.put([infile, opts['dirpath'], opts['outdir'], mode])
 
@@ -134,7 +136,10 @@ def encode():
             command = cQ.get(timeout=10)
             srcfile, srcroot, dest, encformat = command
             outdir = sh.generateoutdir(srcfile, os.path.join(dest, encformat), srcroot)
+            filename = srcfile.rsplit('/', 1)[-1]
+            outdir = os.path.join(outdir, filename)
             log.info(("%s => %s" % (srcfile, outdir)))
+            results = filecopy({"copymode": "_legacy_"}).convert(srcfile, outdir)
         except mp.TimeoutError as e:
             sflags[1] = 1
         except queue.Empty as e:
