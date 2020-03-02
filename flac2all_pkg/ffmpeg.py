@@ -62,7 +62,7 @@ class ffmpeg:
             "libshine": "mp3",
             "opus": "opus",
             "libopus": "opus",
-            "libfdk_aac": "aac",
+            "libfdk_aac": "m4a",
             "aac": "aac",
         }
         if self.audio_codec in codectable:
