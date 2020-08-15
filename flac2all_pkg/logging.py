@@ -46,7 +46,9 @@ class cconsole(cursecons):
 		self.stats_window(self.workers, self.total, self.complete, self.errors)
 		# Get percentage done from complete and total
 		if self.total != 0:
-			self.percent_progress_bar((self.complete / self.total) * 100)
+			self.percent_progress_bar(
+				((self.complete / self.total) * 100) % 100
+			)
 		else:
 			self.percent_progress_bar(0)
 
