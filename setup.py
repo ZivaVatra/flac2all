@@ -16,7 +16,8 @@ here = path.abspath(path.dirname(__file__))
 
 with open("./flac2all_pkg/version", 'r') as fd:
     vers = fd.read()
-    vers = vers.strip()
+    vers = str(vers.strip())
+    vers = vers.replace("test.", "")  # Remove test marker for publishing to test repo
 
 setup(
     name="flac2all",
@@ -52,6 +53,7 @@ opus, aac, lame, music, audio, ffmpeg',
     entry_points={
         'console_scripts': [
             'flac2all = flac2all_pkg.__init__:main',
+            'flac2all_worker = flac2all_pkg.flac2all_worker:main'
         ],
     }
 )

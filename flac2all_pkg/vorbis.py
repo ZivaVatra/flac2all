@@ -1,7 +1,15 @@
 # vim: ts=4 autoindent expandtab
-from config import ipath
 from time import time
 import subprocess as sp
+
+if __name__ == '__main__' and __package__ is None:
+    from os import path, sys
+    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+
+try:
+	from config import ipath
+except ImportError:
+	from .config import ipath
 
 
 # Class that deals with vorbis

@@ -1,13 +1,28 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 ai expandtab
 
-from aac import aacplus
-from vorbis import vorbis
-from flac import flac
-from mp3 import lameMp3 as mp3
-from opus import opus
-from ffmpeg import ffmpeg
-from shell import filecopy
+if __name__ == '__main__' and __package__ is None:
+    from os import sys, path
+    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+
+try:
+    from aac import aacplus
+    from vorbis import vorbis
+    from flac import flac
+    from mp3 import lameMp3 as mp3
+    from opus import opus
+    from ffmpeg import ffmpeg
+    from shell import filecopy
+    from logging import console
+except ImportError:
+    from .aac import aacplus
+    from .vorbis import vorbis
+    from .flac import flac
+    from .mp3 import lameMp3 as mp3
+    from .opus import opus
+    from .ffmpeg import ffmpeg
+    from .shell import filecopy
+    from .logging import console
 
 import threading as mt
 
@@ -19,8 +34,7 @@ import time
 
 import uuid
 
-from logging import console
-
+# Todo, make this something we can pass from __init__
 log = console(stderr=True)
 
 
@@ -57,12 +71,56 @@ modetable.extend([["f:" + x[0], x[1]] for x in ffmpeg(None, None).codeclist()])
 
 # functions
 def signal_handler(signal, frame):
-    global terminate
+    global terminate, log
     log.info("Caught signal: %s" % signal)
     terminate = True
 
 
-def generate_summary(start_time, end_time, count, results, outdir):
+def print_summary(count, total, successes, failures, modes, percentage_fail, total_execution_time, percentage_execution_rate):
+    percentage_fail = float(percentage_fail)
+    percentage_execution_rate = float(percentage_execution_rate)
+
+    out = "\n\n"
+    out += "| Summary "
+    out += ("=" * (80 - len(out)))
+    out += """
+Total files on input: %d
+Total files actually processed: %d
+--
+Execution rate: %.2f%%
+Files we managed to convert successfully: %d
+Files we failed to convert due to errors: %d
+--
+Conversion error rate: %s%%
+""" % (
+        count,
+        total,
+        percentage_execution_rate,
+        successes,
+        failures,
+        percentage_fail
+    )
+    for mode in modes:
+        execT, esum, emean, emedian = modes[mode]
+        log.print("For mode: " + mode)
+        etime = ""
+        if esum < 600:
+            etime += "%.4f seconds" % esum
+        elif esum > 600 < 3600:
+            etime += "%.4f minutes" % (esum / 60)
+        else:
+            etime += "%.4f hours" % (esum / 60 / 60)
+        out += "\tTotal execution time: %s" % etime
+        out += """
+Per file conversion:
+\tMean execution time: %.4f seconds
+\tMedian execution time: %.4f seconds
+""" % (emean, emedian)
+
+    print(out)
+
+
+def generate_summary(start_time, end_time, count, results):
     total = len(results)
     successes = len([x for x in results if int(x[4]) == 0])
     failures = total - successes
@@ -71,33 +129,19 @@ def generate_summary(start_time, end_time, count, results, outdir):
     else:
         percentage_fail = 0
 
-    log.print("\n\n")
-    log.print("=" * 80)
-    log.print("| Summary ")
-    log.print("-" * 80)
-    log.print("""
-Total files on input: %d
-Total files actually processed: %d
---
-Execution rate: %.2f%%
-Files we managed to convert successfully: %d
-Files we failed to convert due to errors: %d
---
-Conversion error rate: %.2f%%
-""" % (count, total, (
-        (float(total) / count) * 100),
-        successes,
-        failures,
-        (percentage_fail)
-       ))
+    percentage_execution_rate = (float(total) / count) * 100
 
     # Each result provides the mode, so we can build a set of modes
     # from this
     modes = set([x[2] for x in results])
+    moderesult = {}
 
-    for mode in modes:
+    for mode in list(modes):
         # 1. find all the logs corresponding to a particular mode
         x = [x for x in results if x[2] == mode]
+        # 1.1  If no results, just continue
+        if len(x) == 0:
+            continue
         # 2. Get the execution time for all relevant logs.
         #    -1 times are events which were no-ops (either due to errors or
         #    file already existing when overwrite == false), and are filtered out
@@ -106,10 +150,12 @@ Conversion error rate: %.2f%%
             esum = sum(execT)
             emean = sum(execT) / len(execT)
         else:
-            # Empty set, just continue
-            log.warn(("For mode %s:\nNo data (no files converted)\n" % mode))
-            continue
+            esum = 0
+            emean = 0
         execT.sort()
+        # If we have no execution times that are valid, skip
+        if len(execT) == 0:
+            continue
         if len(execT) % 2 != 0:
             # Odd number, so median is middle
             emedian = execT[int((len(execT) - 1) / 2)]
@@ -118,37 +164,35 @@ Conversion error rate: %.2f%%
             num1 = execT[int((len(execT) - 1) / 2) - 1]
             num2 = execT[int(((len(execT) - 1) / 2))]
             emedian = (sum([num1, num2]) / 2.0)
+        moderesult.update({mode: [execT, esum, emean, emedian]})
 
-        etime = "Total execution time: "
-        if esum < 600:
-            etime += "%.4f seconds" % esum
-        elif esum > 600 < 3600:
-            etime += "%.4f minutes" % (esum / 60)
-        else:
-            etime += "%.4f hours" % (esum / 60 / 60)
+    total_execution_time = (end_time - start_time)
+    return (
+        count,
+        total,
+        successes,
+        failures,
+        moderesult,
+        percentage_fail,
+        total_execution_time,
+        percentage_execution_rate
+    )
 
-        log.print("""
-For mode: %s
-%s
-Per file conversion:
-\tMean execution time: %.4f seconds
-\tMedian execution time: %.4f seconds
-""" % (mode, etime, emean, emedian))
 
-    log.print("Total execution time: %.2f seconds" % (end_time - start_time))
-    errout_file = outdir + "/conversion_results.log"
+def write_logfile(outdir, results):
+    errout_file = os.path.join(outdir, "conversion_results.log")
     log.info("Writing log file (%s)" % errout_file)
-    fd = open(errout_file, "w")
+    fd = open(errout_file, "wb")
     fd.write(
-        "infile,outfile,format,conversion_status,return_code,execution_time\n"
+        "infile,outfile,format,conversion_status,return_code,execution_time\n".encode("utf-8")
     )
     for item in results:
         item = [str(x) for x in item]
         line = ','.join(item)
-        fd.write("%s\n" % line.encode("utf-8", "backslashreplace"))
+        line += "\n"
+        fd.write(line.encode("utf-8", "backslashreplace"))
     fd.close()
     log.print("Done!")
-    return failures
 
 
 # Classes
@@ -178,9 +222,7 @@ class transcoder():
         elif mode == "test":
             pass  # 'test' is special as it isn't a converter, it is handled below
         elif mode == "_copy":
-            # Ditto for the copy function, with the addition of it not being public
-            # (hence the '_' prefix)
-            pass
+            encoder = filecopy(opts)
         elif mode[0:2] == "f:":
             encoder = ffmpeg(opts, mode[2:])  # Second argument is the codec
         else:
@@ -189,8 +231,6 @@ class transcoder():
         if mode == "test":
             encoder = flac(opts['flacopts'])
             encf = encoder.flactest
-        elif mode == "_copy":
-            encf = filecopy
         else:
             encf = encoder.convert
         return encf

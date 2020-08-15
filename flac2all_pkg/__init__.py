@@ -27,24 +27,32 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-
-from shell import shell
-
-import multiprocessing as mp
-from optparse import OptionParser
-from config import opts
-from core import modetable, generate_summary
-from multiprocess_encode import encode as threaded_encode
-
 import sys
 import os
 import time
 import signal
+from optparse import OptionParser
+import multiprocessing as mp
+
+if __name__ == '__main__' and __package__ is None:
+    from os import path
+    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+
+try:
+    from shell import shell
+    from config import opts
+    from core import modetable, write_logfile
+    from multiprocess_encode import encode as threaded_encode
+    from logging import console, cconsole
+except ImportError:
+    from .shell import shell
+    from .config import opts
+    from .core import modetable, write_logfile
+    from .multiprocess_encode import encode as threaded_encode
+    from .logging import console, cconsole
 
 terminate = False
 
-from logging import console
 
 log = console(stderr=True)
 
@@ -125,6 +133,7 @@ def clustered_encode():
     # Gathering file data
     files = sh.getfiles(opts['dirpath'])
     inlist = []
+
     for infile in files:
         for mode in opts['mode'].split(','):
             if mode.startswith("_"):
@@ -133,6 +142,7 @@ def clustered_encode():
                 continue
             if not infile.endswith(".flac"):
                 if opts['copy'] is True:
+                    opts.update({"copymode": mode})
                     line = [infile, "_copy", opts]
                     inlist.append(line)
             else:
@@ -141,20 +151,29 @@ def clustered_encode():
 
     incount = len(inlist)
     log.info("We have %d tasks" % incount)
-    start_time = time.time()
+    # start_time = time.time()
     workers = {}
     log.info("Waiting for at least one worker to join")
     results = []
-
     while True:
-        # If the last seen time is more than 3 minutes, we assume worker
+        log.active_workers(len(workers))
+        log.tasks(
+            incount,
+            len([x for x in results if int(x[4]) == 0]),
+            len([x for x in results if int(x[4]) != 0]),
+        )
+        # If the last seen time is more than 4 minutes, we assume worker
         # is no longer available, and clear it out
         for key in dict(workers):
-            if ((time.time() - workers[key]) > 180):
+            if ((time.time() - workers[key]) > 240):
                 del(workers[key])
                 log.warn("Worker %s not responding, clearing from list (%d remaining)" % (key, len(workers)))
                 if len(workers) == 0:
-                    terminate = True
+                    if inlist == []:
+                        # We have no more to process, just exit
+                        terminate = True
+                    else:
+                        log.crit("No more workers. Need at least one worker to join")
 
         if terminate is True:
             # If we want to terminate, clear the entire inlist
@@ -173,9 +192,14 @@ def clustered_encode():
                     log.warn("Terminated")
                     break  # We exit the loop, the zmq bits are cleaned up post loop
                 time.sleep(0.01)  # wait a little bit and try again
+                # Because we wait for very short here, we increase the update count
+                # to prevent refreshing too fast
+                log.updatecount = 200
                 continue
             else:
-                print("Error #: %d" % e.errno)
+                # Now we return the refresh count to normal
+                log.updatecount = 20
+                log.crit("Error #: %d" % e.errno)
                 raise(e)  # re-raise other errnos
 
         if line[0].startswith('ONLINE'):
@@ -233,13 +257,16 @@ def clustered_encode():
             if len(name) > 55:
                 name = name[:55] + "..."
             line = [str(x).strip() for x in line]
-            log.status("n:%-60s\tt:%-10s\ts:%-10s" % (name.encode("utf-8", "backslashreplace").decode(), line[2], line[3]))
+            if "ERROR" in line[3]:
+                log.crit("n:%-60s\tt:%-10s\ts:%-10s" % (name.encode("utf-8", "backslashreplace").decode(), line[2], line[3]))
+            else:
+                log.status("n:%-60s\tt:%-10s\ts:%-10s" % (name.encode("utf-8", "backslashreplace").decode(), line[2], line[3]))
             results.append(line)
         else:
             log.crit("UNKNOWN RESULT!")
             log.crit(results)
 
-    end_time = time.time()
+    # end_time = time.time()
     rsock.close()
     csock.close()
     rsock.close()
@@ -250,7 +277,8 @@ def clustered_encode():
         log.crit("Error. Not all tasks were completed.")
         sys.exit(1)
     # log.print(list(set([x[0] for x in inlist]) - set([x[0] for x in results])))
-    generate_summary(start_time, end_time, incount, results, opts['outdir'])
+    # generate_summary(start_time, end_time, incount, results)
+    write_logfile(opts['outdir'], results)
 
 
 def build_parser():
@@ -263,6 +291,12 @@ def build_parser():
         "-c", "--copy", action="store_true", dest="copy",
         default=False, help="Copy non flac files across (default=False)"
     )
+
+    parser.add_option(
+        "-C", "--curses", action="store_true", dest="curses",
+        default=False, help="Use curses UI"
+    )
+
     parser.add_option(
         "", "--ffmpeg-options", dest="ffmpegopts",
         default="-b:a 128k", help="Comma delimited options to pass to ffmpeg. Exact options will vary based on which of the ffmpeg codecs you are using"
@@ -325,6 +359,7 @@ a dash: '-abr'"
 
 
 def main():
+    global log
     options, args = build_parser()
 
     # update the opts dictionary with new values
@@ -360,6 +395,10 @@ def main():
 
     # end command line checking
 
+    # Commence main logic
+    if options.curses is True:
+        log = cconsole()  # switch to cconsole, if specified as option
+
     if not os.path.exists(opts['outdir']):
         log.info("Creating output directory")
         os.mkdir(opts['outdir'])
@@ -374,6 +413,10 @@ def main():
     # mode = mp3,vorbis will create both in parallel
     for mode in opts['mode'].split(','):
         if mode != "":
+            # When copying, we don't want a _copy dir, but one representing
+            # the mode being copied to, so we check and update mode here
+            if "copymode" in opts:
+                mode = opts['copymode']
             try:
                 os.mkdir(os.path.join(opts['outdir'], mode))
             except OSError as e:
@@ -392,6 +435,9 @@ def main():
         clustered_encode()
     else:
         threaded_encode()
+
+    if options.curses is True:
+        log.__del__()  # If we are using the curses interface, clean up properly at the end.
 
 
 if __name__ == "__main__":

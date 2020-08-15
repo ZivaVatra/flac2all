@@ -2,14 +2,23 @@
 # vim: ts=4 expandtab si
 
 import os
-
-from config import ipath
-from flac import flac, flacdecode
 from time import time
 import uuid
 import subprocess as sp
 
-from logging import console
+if __name__ == '__main__' and __package__ is None:
+    from os import path, sys
+    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+
+try:
+    from logging import console
+    from flac import flac, flacdecode
+    from config import ipath
+except ImportError:
+    from .logging import console
+    from .flac import flac, flacdecode
+    from .config import ipath
+
 
 log = console(stderr=True)
 
