@@ -404,30 +404,6 @@ def main():
     if opts['mode'] == "all":
         opts['mode'] = ','.join([x[0] for x in core.modetable if not x[0].startswith("_")])
 
-    # In this version, we can convert multiple format at once, so for e.g.
-    # mode = mp3,vorbis will create both in parallel
-    for mode in opts['mode'].split(','):
-        if mode != "":
-            # When copying, we don't want a _copy dir, but one representing
-            # the mode being copied to, so we check and update mode here
-            if "copymode" in opts:
-                mode = opts['copymode']
-                # As the copy folder is created in the shell module, we
-                # do not have to do anything else here
-                continue
-            try:
-                os.mkdir(os.path.join(opts['outdir'], mode))
-            except OSError as e:
-                if e.errno == 17:
-                    log.info("Folder %s already exists, reusing..." % mode)
-                elif e.errno == 2:
-                    log.info("Parent path %s does not exist! quitting..." % (
-                        opts['outdir']
-                    ))
-                else:
-                    # everything else, raise error
-                    raise e
-
     # Magic goes here :)
     if opts['master_enable']:
         clustered_encode()
