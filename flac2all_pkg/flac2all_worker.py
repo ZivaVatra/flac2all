@@ -39,7 +39,7 @@ def sig(signal, frame):
 
 def worker_process(target_host):
 	log.info("Spawned worker process")
-	eworker = encode_worker(target_host)
+	eworker = encode_worker(target_host, log)
 	# because we are a process, we just exit at the end
 	sys.exit(eworker.run())
 
