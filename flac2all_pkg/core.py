@@ -13,7 +13,6 @@ try:
     from opus import opus
     from ffmpeg import ffmpeg
     from shell import filecopy
-    from logging import cnull
 except ImportError:
     from .aac import aacplus
     from .vorbis import vorbis
@@ -22,7 +21,6 @@ except ImportError:
     from .opus import opus
     from .ffmpeg import ffmpeg
     from .shell import filecopy
-    from logging import cnull
 
 import threading as mt
 
@@ -35,7 +33,7 @@ import time
 import uuid
 
 # Todo, make this something we can pass from __init__
-log = cnull()  # Temporary, to prevent breakage
+global log
 
 
 try:
