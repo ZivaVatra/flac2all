@@ -40,6 +40,7 @@ class cconsole(cursecons):
 		self.updateclock += 1
 		if not (self.updateclock % self.updatecount) == 0:
 			return
+		self.clear()
 		self.stats_window(self.workers, self.total, self.complete, self.errors)
 		# Get percentage done from complete and total
 		if self.total != 0:
@@ -49,7 +50,7 @@ class cconsole(cursecons):
 
 	def print(self, msg):
 		self._msg_display(1, msg)
-		
+
 	def status(self, msg):
 		self._msg_display(0, msg)
 
