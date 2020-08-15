@@ -398,10 +398,6 @@ def main():
     else:
         log = console(stderr=True)
 
-    if not os.path.exists(opts['outdir']):
-        log.info("Creating output directory")
-        os.mkdir(opts['outdir'])
-
     # Check if we have the special mode "all", which really brings flac2all into
     # perspective. We convert to every single format supported. This is mainly added for
     # testing reasons.
