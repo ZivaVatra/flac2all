@@ -239,6 +239,7 @@ class transcoder():
 		return encf
 
 	def encode(self, infile, mode, opts):
+		global log
 		# Return format:
 		# [¬
 		#   $infile,¬
@@ -295,7 +296,8 @@ class transcoder():
 				# If the file exists and overwrite is true, unlink it here
 				os.unlink(test_outfile)
 
-		self.log.info("Processing: \t%-40s  target: %-8s " % (
+		baseI = base(log)
+		baseI.log.info("Processing: \t%-40s  target: %-8s " % (
 			infile.split('/')[-1],
 			mode
 		))
