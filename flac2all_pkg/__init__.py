@@ -274,6 +274,8 @@ def clustered_encode(localworkers=False):
     # We have reached the end, terminate the local worker
     if localworkers is True:
         local_worker.terminate()
+        log.info("Waiting for local worker to terminate")
+        local_worker.join()  # Wait for worker to die
 
     # end_time = time.time()
     rsock.close()
