@@ -54,10 +54,6 @@ except ImportError:
 terminate = False
 
 
-log = console(stderr=True)
-core.log = log
-
-
 def signal_handler(signal, frame):
     global terminate
     log.info("Caught signal: %s" % signal)
@@ -411,7 +407,9 @@ def main():
     # Commence main logic
     if options.curses is True:
         log = cconsole()  # switch to cconsole, if specified as option
-        core.log = log
+    else:
+        log = console(stderr=True)
+    core.log = log  # Pass pointer to core to log to same location
 
     if not os.path.exists(opts['outdir']):
         log.info("Creating output directory")
