@@ -47,6 +47,9 @@ class cconsole(cursecons):
 		else:
 			self.percent_progress_bar(0)
 
+	def print(self, msg):
+		self._msg_display(1, msg)
+		
 	def status(self, msg):
 		self._msg_display(0, msg)
 
