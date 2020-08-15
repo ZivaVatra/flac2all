@@ -15,6 +15,7 @@ class filecopy:
 		# current given mode here
 		print("DEBUG>>", outfile)
 		outfile = outfile.replace("_copy", self.opts['copymode'])
+		print("DEBUG_OUT>>", outfile)
 		try:
 			# First we check if the directory exists, and if it doesn't
 			# Create it
