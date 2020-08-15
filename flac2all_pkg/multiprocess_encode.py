@@ -30,7 +30,6 @@
 
 
 import multiprocessing as mp
-from shutil import copy as copytarget
 import sys
 import os
 import time
@@ -41,16 +40,15 @@ if __name__ == '__main__' and __package__ is None:
     sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 try:
-	from config import opts
-	from core import encode_thread, generate_summary
-	from shell import shell
-	from logging import console
+    from config import opts
+    from core import encode_thread, generate_summary, print_summary, write_logfile
+    from shell import shell, filecopy
+    from logging import console
 except ImportError:
-	from .config import opts
-	from .core import encode_thread, generate_summary
-	from .shell import shell
-	from .logging import console
-
+    from .config import opts
+    from .core import encode_thread, generate_summary, print_summary, write_logfile
+    from .shell import shell, filecopy
+    from .logging import console
 
 
 log = console(stderr=True)
@@ -89,6 +87,8 @@ def encode():
                 pQ.put([infile, opts['dirpath'], opts['outdir'], mode])
                 count += 1
             else:
+                # If we want to copy, then any non-flac file gets added
+                # with the target mode, so we know what to copy
                 if opts['copy']:
                     cQ.put([infile, opts['dirpath'], opts['outdir'], mode])
 
@@ -112,7 +112,7 @@ def encode():
         cc = opts['threads']
 
         while int(cc) > (len(ap)):
-            log.info("Spawning execution process")
+            # Spawning execution process here
             proc = encode_thread(int(cc), "Thread %d" % int(cc), pQ, opts, lQ)
             proc.start()
             ap.append(proc)
@@ -126,10 +126,8 @@ def encode():
         try:
             pQ.put(pQ.get(timeout=10))
         except mp.TimeoutError as e:
-            log.ok("Process queue finished.")
             sflags[0] = 1
         except queue.Empty as e:
-            log.ok("Process queue finished.")
             sflags[0] = 1
         else:
             sflags[0] = 0
@@ -138,8 +136,10 @@ def encode():
             command = cQ.get(timeout=10)
             srcfile, srcroot, dest, encformat = command
             outdir = sh.generateoutdir(srcfile, os.path.join(dest, encformat), srcroot)
-            copytarget(srcfile, outdir)
+            filename = srcfile.rsplit('/', 1)[-1]
+            outdir = os.path.join(outdir, filename)
             log.info(("%s => %s" % (srcfile, outdir)))
+            results = filecopy({"copymode": "_legacy_"}).convert(srcfile, outdir)
         except mp.TimeoutError as e:
             sflags[1] = 1
         except queue.Empty as e:
@@ -185,9 +185,11 @@ def encode():
     while not lQ.empty():
         result_log.append(lQ.get(timeout=2))
 
-    failures = generate_summary(start_time, end_time, len(files), result_log, opts['outdir'])
+    results = generate_summary(start_time, end_time, len(files), result_log)
+    print_summary(*results)
+    write_logfile(opts['outdir'], result_log)
 
-    if failures != 0:
+    if results[3] != 0:
         log.crit("We had some failures in encoding :-(")
         log.crit("Check conversion log file for info.")
         log.crit("Done! Returning non-zero exit status! ")

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # vim ts=4 expandtab si
 import os
-import string
 
 from shutil import copyfile
 
@@ -42,7 +41,7 @@ class shell:
 		# it with the new output path. (so that we don't get
 		# /mnt/convertedfromflac/mnt/flac/[file].mp3, in this case
 		# "/mnt/" exist in both)
-		if (string.find(os.path.split(indir)[0], dirpath) != -1):
+		if (str.find(os.path.split(indir)[0], dirpath) != -1):
 			return os.path.split(indir)[0].replace(dirpath, outdir)
 		else:
 			# if we do not find an instance of dir path in output

@@ -1,5 +1,14 @@
 ## News / Changes
 
+### 28/02/2020 - v5.2 released
+
+* Fixed issue #44
+* Fixed issue #45
+
+### 23/01/2020 - v5.1 released
+
+* Fixed issues caused by Python3 altering how it handles relative/absolute imports.
+
 ### 06/01/2020
 
 Happy new year everyone! With the new year comes some big changes. Python2 was officially retired, and python3 is now the default for the forseeable future. With that, flac2all has been ported to Python3 (along with some new features/codecs). For details of what is new, please see "Details" below. The program has been tested over the last few months by me and seems good, but if come across any problems please raise a bug report.

@@ -6,23 +6,23 @@ if __name__ == '__main__' and __package__ is None:
     sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 try:
-	from aac import aacplus
-	from vorbis import vorbis
-	from flac import flac
-	from mp3 import lameMp3 as mp3
-	from opus import opus
-	from ffmpeg import ffmpeg
-	from shell import filecopy
-	from logging import console
+    from aac import aacplus
+    from vorbis import vorbis
+    from flac import flac
+    from mp3 import lameMp3 as mp3
+    from opus import opus
+    from ffmpeg import ffmpeg
+    from shell import filecopy
+    from logging import console
 except ImportError:
-	from .aac import aacplus
-	from .vorbis import vorbis
-	from .flac import flac
-	from .mp3 import lameMp3 as mp3
-	from .opus import opus
-	from .ffmpeg import ffmpeg
-	from .shell import filecopy
-	from .logging import console
+    from .aac import aacplus
+    from .vorbis import vorbis
+    from .flac import flac
+    from .mp3 import lameMp3 as mp3
+    from .opus import opus
+    from .ffmpeg import ffmpeg
+    from .shell import filecopy
+    from .logging import console
 
 import threading as mt
 
@@ -76,11 +76,13 @@ def signal_handler(signal, frame):
     terminate = True
 
 
-def print_summary(count, total, percentage_execution_rate, successes, failures, percentage_fail, modes):
+def print_summary(count, total, successes, failures, modes, percentage_fail, total_execution_time, percentage_execution_rate):
+    percentage_fail = float(percentage_fail)
+    percentage_execution_rate = float(percentage_execution_rate)
+
     out = "\n\n"
-    out += ("=" * 80)
     out += "| Summary "
-    out += ("-" * 80)
+    out += ("=" * (80 - len(out)))
     out += """
 Total files on input: %d
 Total files actually processed: %d
@@ -89,13 +91,15 @@ Execution rate: %.2f%%
 Files we managed to convert successfully: %d
 Files we failed to convert due to errors: %d
 --
-Conversion error rate: %.2f%%
-""" % (count, total, (
+Conversion error rate: %s%%
+""" % (
+        count,
+        total,
         percentage_execution_rate,
         successes,
         failures,
-        (percentage_fail)
-    ))
+        percentage_fail
+    )
     for mode in modes:
         execT, esum, emean, emedian = modes[mode]
         log.print("For mode: " + mode)
@@ -107,13 +111,13 @@ Conversion error rate: %.2f%%
         else:
             etime += "%.4f hours" % (esum / 60 / 60)
         out += "\tTotal execution time: %s" % etime
-    out += """
+        out += """
 Per file conversion:
 \tMean execution time: %.4f seconds
 \tMedian execution time: %.4f seconds
 """ % (emean, emedian)
 
-    return out
+    print(out)
 
 
 def generate_summary(start_time, end_time, count, results):
@@ -135,6 +139,9 @@ def generate_summary(start_time, end_time, count, results):
     for mode in list(modes):
         # 1. find all the logs corresponding to a particular mode
         x = [x for x in results if x[2] == mode]
+        # 1.1  If no results, just continue
+        if len(x) == 0:
+            continue
         # 2. Get the execution time for all relevant logs.
         #    -1 times are events which were no-ops (either due to errors or
         #    file already existing when overwrite == false), and are filtered out
@@ -146,6 +153,9 @@ def generate_summary(start_time, end_time, count, results):
             esum = 0
             emean = 0
         execT.sort()
+        # If we have no execution times that are valid, skip
+        if len(execT) == 0:
+            continue
         if len(execT) % 2 != 0:
             # Odd number, so median is middle
             emedian = execT[int((len(execT) - 1) / 2)]
@@ -158,6 +168,7 @@ def generate_summary(start_time, end_time, count, results):
 
     total_execution_time = (end_time - start_time)
     return (
+        count,
         total,
         successes,
         failures,
@@ -169,16 +180,17 @@ def generate_summary(start_time, end_time, count, results):
 
 
 def write_logfile(outdir, results):
-    errout_file = outdir + "/conversion_results.log"
+    errout_file = os.path.join(outdir, "conversion_results.log")
     log.info("Writing log file (%s)" % errout_file)
-    fd = open(errout_file, "w")
+    fd = open(errout_file, "wb")
     fd.write(
-        "infile,outfile,format,conversion_status,return_code,execution_time\n"
+        "infile,outfile,format,conversion_status,return_code,execution_time\n".encode("utf-8")
     )
     for item in results:
         item = [str(x) for x in item]
         line = ','.join(item)
-        fd.write("%s\n" % line.encode("utf-8", "backslashreplace"))
+        line += "\n"
+        fd.write(line.encode("utf-8", "backslashreplace"))
     fd.close()
     log.print("Done!")
 
