@@ -251,16 +251,17 @@ class transcoder():
         # ]
         outfile = infile.replace(opts['dirpath'], os.path.join(opts['outdir'], mode))
         outpath = os.path.dirname(outfile)
-        try:
-            if not os.path.exists(outpath):
-                os.makedirs(outpath)
-        except OSError as e:
-            # Error 17 means folder exists already. We can reach this
-            # despite the check above, due to a race condition when a
-            # bunch of spawned processes all try to mkdir at once.
-            # So if Error 17, continue, otherwise re-raise the exception
-            if e.errno != 17:
-                raise(e)
+        if mode != "_copy":
+            try:
+                if not os.path.exists(outpath):
+                    os.makedirs(outpath)
+            except OSError as e:
+                # Error 17 means folder exists already. We can reach this
+                # despite the check above, due to a race condition when a
+                # bunch of spawned processes all try to mkdir at once.
+                # So if Error 17, continue, otherwise re-raise the exception
+                if e.errno != 17:
+                    raise(e)
 
         encf = self.modeswitch(mode, opts)
         if encf is None:
