@@ -118,6 +118,9 @@ def clustered_encode(localworkers=False):
                 # a private mode publicly, but just in case
                 continue
             if not infile.endswith(".flac"):
+                # For each file and mode, if copy is true, we insert an extra
+                # item in the list, with private _copy function and target mode
+                # as an extra option
                 if opts['copy'] is True:
                     opts.update({"copymode": mode})
                     line = [infile, "_copy", opts]
