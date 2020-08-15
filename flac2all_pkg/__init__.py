@@ -53,6 +53,7 @@ except ImportError:
 terminate = False
 
 
+global log
 log = console(stderr=True)
 
 
