@@ -339,7 +339,7 @@ class encode_worker(transcoder):
             try:
                 message = self.tsock.recv_json(flags=zmq.NOBLOCK)
                 infile, mode, opts = message
-            except zmq.error.Again as e:
+            except zmq.error.Again:
                 # If we get nothing in 5 seconds, retry sending READY
                 time.sleep(5)
                 continue

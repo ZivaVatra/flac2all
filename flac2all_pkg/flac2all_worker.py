@@ -16,8 +16,8 @@ import sys
 import signal
 
 if __name__ == '__main__' and __package__ is None:
-    from os import path
-    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+	from os import path
+	sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 try:
 	from core import encode_worker
@@ -41,12 +41,7 @@ def worker_process(target_host):
 	sys.exit(eworker.run())
 
 
-def main():
-	try:
-		hostname = sys.argv[1]
-	except IndexError:
-		log.print("Usage: %s $master_hostname" % sys.argv[0])
-		sys.exit(1)
+def main(hostname):
 
 	procs = []
 	while len(procs) != mp.cpu_count():
@@ -77,4 +72,10 @@ def main():
 
 
 if __name__ == "__main__":
-	main()
+	import sys
+	try:
+		hostname = sys.argv[1]
+	except IndexError:
+		log.print("Usage: %s $master_hostname" % sys.argv[0])
+		sys.exit(1)
+	main(hostname)

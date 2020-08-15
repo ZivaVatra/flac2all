@@ -31,6 +31,7 @@ import sys
 import os
 import time
 import signal
+import zmq
 from optparse import OptionParser
 import multiprocessing as mp
 
@@ -42,13 +43,11 @@ try:
     from shell import shell
     from config import opts
     from core import modetable, write_logfile
-    from multiprocess_encode import encode as threaded_encode
     from logging import console, cconsole
 except ImportError:
     from .shell import shell
     from .config import opts
     from .core import modetable, write_logfile
-    from .multiprocess_encode import encode as threaded_encode
     from .logging import console, cconsole
 
 terminate = False
@@ -106,15 +105,10 @@ Dev website: https://github.com/ZivaVatra/flac2all
 """ % (version, sys.argv[0], "\n\t\t".join([x[0] for x in modetable if not x[0].startswith("_")]))
 
 
-def clustered_encode():
+def clustered_encode(localworkers=False):
     global terminate
     sh = shell()
     # Here we do the clustering magic
-
-    # This is here rather than at the top as is usual so that flac2all can work
-    # even if ZeroMQ is not installed. Perhaps in future zmq will become a hard
-    # dependency, and then we can move it.
-    import zmq
 
     zcontext = zmq.Context()
 
@@ -152,10 +146,21 @@ def clustered_encode():
     incount = len(inlist)
     log.info("We have %d tasks" % incount)
     # start_time = time.time()
+
+    if localworkers is True:
+        # So, if we are just doing local processing, we launch the worker ourselves
+        import flac2all_worker
+        local_worker = mp.Process(target=flac2all_worker.main, args=("localhost",))
+        local_worker.start()
+
+    # Otherwise we wait
     workers = {}
     log.info("Waiting for at least one worker to join")
     results = []
     while True:
+        # If the local worker has died, re-start it
+        # TODO
+
         log.active_workers(len(workers))
         log.tasks(
             incount,
@@ -265,6 +270,10 @@ def clustered_encode():
         else:
             log.crit("UNKNOWN RESULT!")
             log.crit(results)
+
+    # We have reached the end, terminate the local worker
+    if localworkers is True:
+        local_worker.terminate()
 
     # end_time = time.time()
     rsock.close()
@@ -434,7 +443,7 @@ def main():
     if opts['master_enable']:
         clustered_encode()
     else:
-        threaded_encode()
+        clustered_encode(localworkers=True)
 
     if options.curses is True:
         log.__del__()  # If we are using the curses interface, clean up properly at the end.
