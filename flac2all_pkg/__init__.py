@@ -1,18 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 # vim: ts=4 ai expandtab
-#    flac2all: Multi process flac converter
-#       - Homepage: http://flac2all.witheredfire.com/
-#       - Devpage: https://github.com/ZivaVatra/flac2all/
-#
-#    If you like the software, donations are appreciated:
-#       BTC: 3QNErPVkkrn2R9R7uop9stfhzqUr8wecX6
-#       BCH: bitcoincash:qpy377yuntryz4zmlt5zukn82rxmuphr5q0y895nwp
-#       XMR: 45piRzk4fJxTNXdtLEoZ8QbQk2MQk6dAeGbHjaAWVtLEbR8tQUp7wo82EYGwD9AtJyFEfvitnvvJtfCftdetfgQASdJbdpH
-#
-#    All donations go to the ZV caffination fund, to keep me going through hacking sessions :-)
-#
-# LEGAL BIT:
 #
 #    Copyright (C) 2003 Z.V (info@ziva-vatra.com)
 #
@@ -27,6 +15,17 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#    flac2all: Multi process flac converter
+#       - Homepage: http://flac2all.witheredfire.com/
+#       - Devpage: https://github.com/ZivaVatra/flac2all/
+#
+#    If you like the software, donations are appreciated:
+#       BTC: 3QNErPVkkrn2R9R7uop9stfhzqUr8wecX6
+#       XMR: 45piRzk4fJxTNXdtLEoZ8QbQk2MQk6dAeGbHjaAWVtLEbR8tQUp7wo82EYGwD9AtJyFEfvitnvvJtfCftdetfgQASdJbdpH
+#
+#    All donations go to the ZV caffination fund, to keep me going through hacking sessions :-)
+
 import sys
 import os
 import time
@@ -72,19 +71,6 @@ else:
 modeError = Exception("Error understanding mode. Is mode valid?")
 
 
-def flatten(iterable):
-    try:
-        iterator = iter(iterable)
-    except TypeError:
-        yield iterable
-    else:
-        for element in iterator:
-            if type(element) is str:
-                yield element
-            else:
-                yield from flatten(element)
-
-
 def prog_usage():
     return """
 Flac2all python script, %s. Copyright 2003 ziva-vatra
@@ -103,6 +89,7 @@ Dev website: https://github.com/ZivaVatra/flac2all
 
 def clustered_encode(localworkers=False):
     global terminate
+    baseI = core.base(log)  # Pass pointer to core to log to same location
     sh = shell()
     # Here we do the clustering magic
 
@@ -285,7 +272,7 @@ def clustered_encode(localworkers=False):
         sys.exit(1)
     # log.print(list(set([x[0] for x in inlist]) - set([x[0] for x in results])))
     # generate_summary(start_time, end_time, incount, results)
-    core.write_logfile(opts['outdir'], results)
+    baseI.write_logfile(opts['outdir'], results)
 
 
 def build_parser():
@@ -384,7 +371,7 @@ def main():
     # ffmpeg uses colons as delimiters, just like flac2all (of course), so we had to
     # switch to commas for this one
     opts['ffmpegopts'] = opts['ffmpegopts'].split(',')
-    opts['ffmpegopts'] = list(flatten([x.split(' ') for x in opts['ffmpegopts']]))
+    opts['ffmpegopts'] = list(core.flatten([x.split(' ') for x in opts['ffmpegopts']]))
 
     try:
         opts['mode'] = args[0]
@@ -407,7 +394,6 @@ def main():
         log = cconsole()  # switch to cconsole, if specified as option
     else:
         log = console(stderr=True)
-    core.log = log  # Pass pointer to core to log to same location
 
     if not os.path.exists(opts['outdir']):
         log.info("Creating output directory")
