@@ -278,7 +278,7 @@ def clustered_encode(localworkers=False):
     # end_time = time.time()
     rsock.close()
     csock.close()
-    rsock.close()
+    tsock.close()
 
     # Now, we confirm that the number of files sent equals the number processed
     log.info("input: %d, output: %d" % (incount, len(results)))
