@@ -346,8 +346,8 @@ class encode_worker(transcoder):
                 message = self.tsock.recv_json(flags=zmq.NOBLOCK)
                 infile, mode, opts = message
             except zmq.error.Again:
-                # If we get nothing in 5 seconds, retry sending READY
-                time.sleep(5)
+                # If we get nothing after a set period , retry sending READY
+                time.sleep(0.01)
                 continue
             except ValueError as e:
                 self.log.crit("ERROR, Discarding invalid message: %s (%s)" % (message, e))
