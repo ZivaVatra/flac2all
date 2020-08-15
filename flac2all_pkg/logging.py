@@ -40,7 +40,9 @@ class cconsole(cursecons):
 		self.updateclock += 1
 		if not (self.updateclock % self.updatecount) == 0:
 			return
-		self.clear()
+
+		if not (self.updateclock % 5) == 0:
+			self.clear()  # Every 5 cycles clear the screen of mess (TODO: Find out why we have mess in the first place)
 		self.stats_window(self.workers, self.total, self.complete, self.errors)
 		# Get percentage done from complete and total
 		if self.total != 0:
