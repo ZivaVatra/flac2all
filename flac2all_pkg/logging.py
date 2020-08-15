@@ -15,8 +15,6 @@ except ImportError:
 	from .termcolor import cprint
 
 
-
-
 class cconsole(cursecons):
 	def __init__(self, updatecount=20):
 		cursecons.__init__(self)
@@ -112,3 +110,30 @@ class console():
 
 	def active_workers(self, workers):
 		pass  # We do not implement this in console, too noisy
+
+
+# Null console, when we want it to be fully silent
+class cnull():
+	def print(self, msg):
+		pass
+
+	def status(self, msg):
+		pass
+
+	def info(self, msg):
+		pass
+
+	def ok(self, msg):
+		pass
+
+	def warn(self, msg):
+		pass
+
+	def crit(self, msg):
+		pass
+
+	def tasks(self, incount, success, failures):
+		pass
+
+	def active_workers(self, workers):
+		pass
