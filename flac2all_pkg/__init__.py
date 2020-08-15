@@ -411,6 +411,7 @@ def main():
     # Commence main logic
     if options.curses is True:
         log = cconsole()  # switch to cconsole, if specified as option
+        core.log = log
 
     if not os.path.exists(opts['outdir']):
         log.info("Creating output directory")
