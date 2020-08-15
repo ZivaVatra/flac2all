@@ -412,6 +412,9 @@ def main():
             # the mode being copied to, so we check and update mode here
             if "copymode" in opts:
                 mode = opts['copymode']
+                # As the copy folder is created in the shell module, we
+                # do not have to do anything else here
+                continue
             try:
                 os.mkdir(os.path.join(opts['outdir'], mode))
             except OSError as e:
