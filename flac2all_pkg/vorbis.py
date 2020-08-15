@@ -38,7 +38,7 @@ class vorbis:
 		rc = -1
 		codec = sp.Popen(cmd, stderr=sp.PIPE, stdout=sp.PIPE)
 		stdout, stderr = codec.communicate()
-		errline = stderr.read().decode('utf-8')
+		errline = stderr.decode('utf-8')
 		errline = errline.upper()
 		rc = codec.returncode
 
