@@ -3,6 +3,7 @@ from time import time
 import subprocess as sp
 import re
 import os
+import sys
 
 if __name__ == '__main__' and __package__ is None:
     from os import path
@@ -12,6 +13,7 @@ try:
     from config import ipath
 except ImportError:
     from .config import ipath
+
 
 # Class that deals with ffmpeg
 class ffmpeg:
@@ -46,9 +48,9 @@ class ffmpeg:
         # make things really simple (like with vorbis)
 
         # However it also makes some things really complex. Namely it does not automatically
-        # append the extension to the codec you are encoding to. Also, if you don't specify
+        # append the extension to the codec you are encoding to. Also, if you don't specify a
         # valid extension, it fails, because ffmpeg uses the extension to decide which
-        # container you want to mux to. So we have to keep a manual list of self.audio_codecs and
+        # container you want to mux to. So we have to keep a manual list of audio_codecs and
         # what extensions are used for it. That is what the codectable below does.
         # If a codec is not in the table, we attempt to mux it to the matroska audio container
         # (which is designed to mux pretty much all audio formats)
