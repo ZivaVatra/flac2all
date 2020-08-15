@@ -32,9 +32,6 @@ import time
 
 import uuid
 
-# Todo, make this something we can pass from __init__
-global log
-
 
 try:
     import zmq
@@ -75,6 +72,7 @@ def signal_handler(signal, frame):
 
 
 def print_summary(count, total, successes, failures, modes, percentage_fail, total_execution_time, percentage_execution_rate):
+    global log
     percentage_fail = float(percentage_fail)
     percentage_execution_rate = float(percentage_execution_rate)
 
@@ -178,6 +176,7 @@ def generate_summary(start_time, end_time, count, results):
 
 
 def write_logfile(outdir, results):
+    global log
     errout_file = os.path.join(outdir, "conversion_results.log")
     log.info("Writing log file (%s)" % errout_file)
     fd = open(errout_file, "wb")
@@ -234,6 +233,7 @@ class transcoder():
         return encf
 
     def encode(self, infile, mode, opts):
+        global log
         # Return format:
         # [¬
         #   $infile,¬
@@ -322,7 +322,7 @@ class encode_worker(transcoder):
         pass
 
     def run(self):
-        global terminate
+        global terminate, log
 
         # Send ONLINE command indicating we are ready
         self.send_json(["ONLINE"])
