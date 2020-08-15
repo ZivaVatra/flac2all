@@ -251,6 +251,7 @@ class transcoder():
         # ]
         outfile = infile.replace(opts['dirpath'], os.path.join(opts['outdir'], mode))
         outpath = os.path.dirname(outfile)
+        # Copy is a private function, and special as it does not have its own outdir
         if mode != "_copy":
             try:
                 if not os.path.exists(outpath):
