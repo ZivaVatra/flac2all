@@ -42,6 +42,7 @@ if __name__ == '__main__' and __package__ is None:
 try:
     from shell import shell
     from config import opts
+    import core
     from core import modetable, write_logfile
     from logging import console, cconsole
 except ImportError:
@@ -53,8 +54,8 @@ except ImportError:
 terminate = False
 
 
-global log
 log = console(stderr=True)
+core.log = log
 
 
 def signal_handler(signal, frame):
