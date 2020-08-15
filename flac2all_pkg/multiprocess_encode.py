@@ -46,7 +46,7 @@ try:
     from logging import console
 except ImportError:
     from .config import opts
-    from .core import encode_thread, generate_summary
+    from .core import encode_thread, generate_summary, print_summary, write_logfile
     from .shell import shell, filecopy
     from .logging import console
 
