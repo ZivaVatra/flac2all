@@ -114,6 +114,9 @@ class console():
 
 # Null console, when we want it to be fully silent
 class cnull():
+	def __init__(self, args*):
+		pass
+
 	def print(self, msg):
 		pass
 
