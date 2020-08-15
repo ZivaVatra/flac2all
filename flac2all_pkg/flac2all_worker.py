@@ -21,12 +21,15 @@ if __name__ == '__main__' and __package__ is None:
 
 try:
 	from core import encode_worker
-	from logging import console
+	from logging import console, cconsole
 except ImportError:
-	from .logging import console
+	from .logging import console, cconsole
 	from .core import encode_worker
 
-log = console(stderr=True)
+if __name__ == "__main__":
+	log = console(stderr=True)
+else:
+	log = cconsole()
 
 
 def sig(signal, frame):
