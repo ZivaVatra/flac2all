@@ -33,6 +33,7 @@ import time
 import uuid
 
 # Todo, make this something we can pass from __init__
+log = None
 
 
 try:

@@ -43,12 +43,10 @@ try:
     from shell import shell
     from config import opts
     import core
-    from core import modetable, write_logfile
     from logging import console, cconsole
 except ImportError:
     from .shell import shell
     from .config import opts
-    from .core import modetable, write_logfile
     from .logging import console, cconsole
 
 terminate = False
@@ -100,7 +98,7 @@ Dev website: https://github.com/ZivaVatra/flac2all
 \tValid encode types are as follows:\n\t\t%s
 \tYou can specify multiple encode targets with a comma seperated list.
 
-""" % (version, sys.argv[0], "\n\t\t".join([x[0] for x in modetable if not x[0].startswith("_")]))
+""" % (version, sys.argv[0], "\n\t\t".join([x[0] for x in core.modetable if not x[0].startswith("_")]))
 
 
 def clustered_encode(localworkers=False):
@@ -287,7 +285,7 @@ def clustered_encode(localworkers=False):
         sys.exit(1)
     # log.print(list(set([x[0] for x in inlist]) - set([x[0] for x in results])))
     # generate_summary(start_time, end_time, incount, results)
-    write_logfile(opts['outdir'], results)
+    core.write_logfile(opts['outdir'], results)
 
 
 def build_parser():
@@ -419,7 +417,7 @@ def main():
     # perspective. We convert to every single format supported. This is mainly added for
     # testing reasons.
     if opts['mode'] == "all":
-        opts['mode'] = ','.join([x[0] for x in modetable if not x[0].startswith("_")])
+        opts['mode'] = ','.join([x[0] for x in core.modetable if not x[0].startswith("_")])
 
     # In this version, we can convert multiple format at once, so for e.g.
     # mode = mp3,vorbis will create both in parallel
