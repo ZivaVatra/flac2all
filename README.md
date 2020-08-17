@@ -1,9 +1,11 @@
 ## News / Changes
 
-### 15/08/2020
+### 17/08/2020
 
-* Removed non ZMQ multiprocessing. Flac2all is now depedendent on ZMQ to work in clustered or not clustered mode. I discovered keeping two complete multiprocessing systems was causing more problems than it was solving, and a lot of bugs being raised by people were already fixed by virtue of the new structure.
-
+* Removed non ZMQ multiprocessing. Flac2all is now depedendent on ZMQ to work in clustered or not clustered mode. I discovered keeping two complete multiprocessing systems was causing more problems than it was solving, and a lot of bugs being raised by people were already fixed by virtue of the new structure. (issue #45)
+* Multi-process copying now much faster (issue #45)
+* "-n" (nodirs) option fixed (issue #50)
+* Fixed multiple bugs (issue #45)
 
 ### 28/02/2020 - v5.2 released
 
@@ -38,9 +40,9 @@ Note that the clustering function is optional, and flac2all will still work in t
 ## Dependencies
 * Python >= 3.6
 * Flac
+* ZeroMQ
 
 ## Optional dependencies
-* ZeroMQ (for clustering)
 * Lame: for mp3 support
 * Opus-tools: for opus support
 * Vorbis-tools: for ogg support
