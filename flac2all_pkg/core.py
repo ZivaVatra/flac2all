@@ -254,7 +254,7 @@ class transcoder():
             # We don't want any directories, put everything in one place
             # 1. Get file name from infile
             outfile = infile.rsplit('/', 1)[-1]
-            outfile = os.path.join(opts['dirpath'], outfile)  # This removes the mode folders as well
+            outfile = os.path.join(opts['outdir'], outfile)  # This removes the mode folders as well
         else:
             outfile = infile.replace(opts['dirpath'], os.path.join(opts['outdir'], mode))
 
