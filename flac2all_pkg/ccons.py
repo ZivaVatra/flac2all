@@ -95,6 +95,9 @@ class cursecons:
 		win.refresh()
 		return win
 
+	def clear(self):
+		self.screen.clear()
+
 	def main(self, *args):
 		# Create the stats window
 		self.stats_window(None, 0, 0, 0)

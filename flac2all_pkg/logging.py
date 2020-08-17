@@ -15,8 +15,6 @@ except ImportError:
 	from .termcolor import cprint
 
 
-
-
 class cconsole(cursecons):
 	def __init__(self, updatecount=20):
 		cursecons.__init__(self)
@@ -42,12 +40,20 @@ class cconsole(cursecons):
 		self.updateclock += 1
 		if not (self.updateclock % self.updatecount) == 0:
 			return
+
 		self.stats_window(self.workers, self.total, self.complete, self.errors)
 		# Get percentage done from complete and total
 		if self.total != 0:
-			self.percent_progress_bar((self.complete / self.total) * 100)
+			pct = (self.complete / self.total) * 100
+			# Ceiling to 100%
+			if pct > 100:
+				pct = 100
+			self.percent_progress_bar(pct)
 		else:
 			self.percent_progress_bar(0)
+
+	def print(self, msg):
+		self._msg_display(1, msg)
 
 	def status(self, msg):
 		self._msg_display(0, msg)
@@ -112,3 +118,33 @@ class console():
 
 	def active_workers(self, workers):
 		pass  # We do not implement this in console, too noisy
+
+
+# Null console, when we want it to be fully silent
+class cnull():
+	def __init__(self, *args):
+		pass
+
+	def print(self, msg):
+		pass
+
+	def status(self, msg):
+		pass
+
+	def info(self, msg):
+		pass
+
+	def ok(self, msg):
+		pass
+
+	def warn(self, msg):
+		pass
+
+	def crit(self, msg):
+		pass
+
+	def tasks(self, incount, success, failures):
+		pass
+
+	def active_workers(self, workers):
+		pass

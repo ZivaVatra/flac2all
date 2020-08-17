@@ -1,18 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 # vim: ts=4 ai expandtab
-#    flac2all: Multi process flac converter
-#       - Homepage: http://flac2all.witheredfire.com/
-#       - Devpage: https://github.com/ZivaVatra/flac2all/
-#
-#    If you like the software, donations are appreciated:
-#       BTC: 3QNErPVkkrn2R9R7uop9stfhzqUr8wecX6
-#       BCH: bitcoincash:qpy377yuntryz4zmlt5zukn82rxmuphr5q0y895nwp
-#       XMR: 45piRzk4fJxTNXdtLEoZ8QbQk2MQk6dAeGbHjaAWVtLEbR8tQUp7wo82EYGwD9AtJyFEfvitnvvJtfCftdetfgQASdJbdpH
-#
-#    All donations go to the ZV caffination fund, to keep me going through hacking sessions :-)
-#
-# LEGAL BIT:
 #
 #    Copyright (C) 2003 Z.V (info@ziva-vatra.com)
 #
@@ -27,10 +15,22 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#    flac2all: Multi process flac converter
+#       - Homepage: http://flac2all.witheredfire.com/
+#       - Devpage: https://github.com/ZivaVatra/flac2all/
+#
+#    If you like the software, donations are appreciated:
+#       BTC: 3QNErPVkkrn2R9R7uop9stfhzqUr8wecX6
+#       XMR: 45piRzk4fJxTNXdtLEoZ8QbQk2MQk6dAeGbHjaAWVtLEbR8tQUp7wo82EYGwD9AtJyFEfvitnvvJtfCftdetfgQASdJbdpH
+#
+#    All donations go to the ZV caffination fund, to keep me going through hacking sessions :-)
+
 import sys
 import os
 import time
 import signal
+import zmq
 from optparse import OptionParser
 import multiprocessing as mp
 
@@ -41,20 +41,14 @@ if __name__ == '__main__' and __package__ is None:
 try:
     from shell import shell
     from config import opts
-    from core import modetable, write_logfile
-    from multiprocess_encode import encode as threaded_encode
+    import core
     from logging import console, cconsole
 except ImportError:
     from .shell import shell
     from .config import opts
-    from .core import modetable, write_logfile
-    from .multiprocess_encode import encode as threaded_encode
     from .logging import console, cconsole
 
 terminate = False
-
-
-log = console(stderr=True)
 
 
 def signal_handler(signal, frame):
@@ -77,19 +71,6 @@ else:
 modeError = Exception("Error understanding mode. Is mode valid?")
 
 
-def flatten(iterable):
-    try:
-        iterator = iter(iterable)
-    except TypeError:
-        yield iterable
-    else:
-        for element in iterator:
-            if type(element) is str:
-                yield element
-            else:
-                yield from flatten(element)
-
-
 def prog_usage():
     return """
 Flac2all python script, %s. Copyright 2003 ziva-vatra
@@ -103,18 +84,14 @@ Dev website: https://github.com/ZivaVatra/flac2all
 \tValid encode types are as follows:\n\t\t%s
 \tYou can specify multiple encode targets with a comma seperated list.
 
-""" % (version, sys.argv[0], "\n\t\t".join([x[0] for x in modetable if not x[0].startswith("_")]))
+""" % (version, sys.argv[0], "\n\t\t".join([x[0] for x in core.modetable if not x[0].startswith("_")]))
 
 
-def clustered_encode():
+def clustered_encode(localworkers=False):
     global terminate
+    baseI = core.base(log)  # Pass pointer to core to log to same location
     sh = shell()
     # Here we do the clustering magic
-
-    # This is here rather than at the top as is usual so that flac2all can work
-    # even if ZeroMQ is not installed. Perhaps in future zmq will become a hard
-    # dependency, and then we can move it.
-    import zmq
 
     zcontext = zmq.Context()
 
@@ -141,6 +118,9 @@ def clustered_encode():
                 # a private mode publicly, but just in case
                 continue
             if not infile.endswith(".flac"):
+                # For each file and mode, if copy is true, we insert an extra
+                # item in the list, with private _copy function and target mode
+                # as an extra option
                 if opts['copy'] is True:
                     opts.update({"copymode": mode})
                     line = [infile, "_copy", opts]
@@ -152,20 +132,31 @@ def clustered_encode():
     incount = len(inlist)
     log.info("We have %d tasks" % incount)
     # start_time = time.time()
+
+    if localworkers is True:
+        # So, if we are just doing local processing, we launch the worker ourselves
+        import flac2all_worker
+        local_worker = mp.Process(target=flac2all_worker.main, args=("localhost",))
+        local_worker.start()
+
+    # Otherwise we wait
     workers = {}
     log.info("Waiting for at least one worker to join")
     results = []
     while True:
+        # If the local worker has died, re-start it
+        # TODO
+
         log.active_workers(len(workers))
         log.tasks(
             incount,
             len([x for x in results if int(x[4]) == 0]),
             len([x for x in results if int(x[4]) != 0]),
         )
-        # If the last seen time is more than 4 minutes, we assume worker
+        # If the last seen time is more than 10 minutes, we assume worker
         # is no longer available, and clear it out
         for key in dict(workers):
-            if ((time.time() - workers[key]) > 240):
+            if ((time.time() - workers[key]) > 600):
                 del(workers[key])
                 log.warn("Worker %s not responding, clearing from list (%d remaining)" % (key, len(workers)))
                 if len(workers) == 0:
@@ -266,10 +257,16 @@ def clustered_encode():
             log.crit("UNKNOWN RESULT!")
             log.crit(results)
 
+    # We have reached the end, terminate the local worker
+    if localworkers is True:
+        local_worker.terminate()
+        log.info("Waiting for local worker to terminate")
+        local_worker.join()  # Wait for worker to die
+
     # end_time = time.time()
     rsock.close()
     csock.close()
-    rsock.close()
+    tsock.close()
 
     # Now, we confirm that the number of files sent equals the number processed
     log.info("input: %d, output: %d" % (incount, len(results)))
@@ -278,7 +275,7 @@ def clustered_encode():
         sys.exit(1)
     # log.print(list(set([x[0] for x in inlist]) - set([x[0] for x in results])))
     # generate_summary(start_time, end_time, incount, results)
-    write_logfile(opts['outdir'], results)
+    baseI.write_logfile(opts['outdir'], results)
 
 
 def build_parser():
@@ -377,7 +374,7 @@ def main():
     # ffmpeg uses colons as delimiters, just like flac2all (of course), so we had to
     # switch to commas for this one
     opts['ffmpegopts'] = opts['ffmpegopts'].split(',')
-    opts['ffmpegopts'] = list(flatten([x.split(' ') for x in opts['ffmpegopts']]))
+    opts['ffmpegopts'] = list(core.flatten([x.split(' ') for x in opts['ffmpegopts']]))
 
     try:
         opts['mode'] = args[0]
@@ -398,16 +395,14 @@ def main():
     # Commence main logic
     if options.curses is True:
         log = cconsole()  # switch to cconsole, if specified as option
-
-    if not os.path.exists(opts['outdir']):
-        log.info("Creating output directory")
-        os.mkdir(opts['outdir'])
+    else:
+        log = console(stderr=True)
 
     # Check if we have the special mode "all", which really brings flac2all into
     # perspective. We convert to every single format supported. This is mainly added for
     # testing reasons.
     if opts['mode'] == "all":
-        opts['mode'] = ','.join([x[0] for x in modetable if not x[0].startswith("_")])
+        opts['mode'] = ','.join([x[0] for x in core.modetable if not x[0].startswith("_")])
 
     # In this version, we can convert multiple format at once, so for e.g.
     # mode = mp3,vorbis will create both in parallel
@@ -417,6 +412,9 @@ def main():
             # the mode being copied to, so we check and update mode here
             if "copymode" in opts:
                 mode = opts['copymode']
+                # As the copy folder is created in the shell module, we
+                # do not have to do anything else here
+                continue
             try:
                 os.mkdir(os.path.join(opts['outdir'], mode))
             except OSError as e:
@@ -434,7 +432,7 @@ def main():
     if opts['master_enable']:
         clustered_encode()
     else:
-        threaded_encode()
+        clustered_encode(localworkers=True)
 
     if options.curses is True:
         log.__del__()  # If we are using the curses interface, clean up properly at the end.

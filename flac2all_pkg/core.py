@@ -13,7 +13,6 @@ try:
     from opus import opus
     from ffmpeg import ffmpeg
     from shell import filecopy
-    from logging import console
 except ImportError:
     from .aac import aacplus
     from .vorbis import vorbis
@@ -22,20 +21,15 @@ except ImportError:
     from .opus import opus
     from .ffmpeg import ffmpeg
     from .shell import filecopy
-    from .logging import console
 
 import threading as mt
 
 import os
 import queue
-import signal
 import time
 
 
 import uuid
-
-# Todo, make this something we can pass from __init__
-log = console(stderr=True)
 
 
 try:
@@ -69,144 +63,153 @@ modetable = [
 modetable.extend([["f:" + x[0], x[1]] for x in ffmpeg(None, None).codeclist()])
 
 
-# functions
-def signal_handler(signal, frame):
-    global terminate, log
-    log.info("Caught signal: %s" % signal)
-    terminate = True
-
-
-def print_summary(count, total, successes, failures, modes, percentage_fail, total_execution_time, percentage_execution_rate):
-    percentage_fail = float(percentage_fail)
-    percentage_execution_rate = float(percentage_execution_rate)
-
-    out = "\n\n"
-    out += "| Summary "
-    out += ("=" * (80 - len(out)))
-    out += """
-Total files on input: %d
-Total files actually processed: %d
---
-Execution rate: %.2f%%
-Files we managed to convert successfully: %d
-Files we failed to convert due to errors: %d
---
-Conversion error rate: %s%%
-""" % (
-        count,
-        total,
-        percentage_execution_rate,
-        successes,
-        failures,
-        percentage_fail
-    )
-    for mode in modes:
-        execT, esum, emean, emedian = modes[mode]
-        log.print("For mode: " + mode)
-        etime = ""
-        if esum < 600:
-            etime += "%.4f seconds" % esum
-        elif esum > 600 < 3600:
-            etime += "%.4f minutes" % (esum / 60)
-        else:
-            etime += "%.4f hours" % (esum / 60 / 60)
-        out += "\tTotal execution time: %s" % etime
-        out += """
-Per file conversion:
-\tMean execution time: %.4f seconds
-\tMedian execution time: %.4f seconds
-""" % (emean, emedian)
-
-    print(out)
-
-
-def generate_summary(start_time, end_time, count, results):
-    total = len(results)
-    successes = len([x for x in results if int(x[4]) == 0])
-    failures = total - successes
-    if total != 0:
-        percentage_fail = (failures / float(total)) * 100
+# plain functions
+def flatten(iterable):
+    try:
+        iterator = iter(iterable)
+    except TypeError:
+        yield iterable
     else:
-        percentage_fail = 0
-
-    percentage_execution_rate = (float(total) / count) * 100
-
-    # Each result provides the mode, so we can build a set of modes
-    # from this
-    modes = set([x[2] for x in results])
-    moderesult = {}
-
-    for mode in list(modes):
-        # 1. find all the logs corresponding to a particular mode
-        x = [x for x in results if x[2] == mode]
-        # 1.1  If no results, just continue
-        if len(x) == 0:
-            continue
-        # 2. Get the execution time for all relevant logs.
-        #    -1 times are events which were no-ops (either due to errors or
-        #    file already existing when overwrite == false), and are filtered out
-        execT = [float(y[5]) for y in x if float(y[5]) != -1]
-        if len(execT) != 0:
-            esum = sum(execT)
-            emean = sum(execT) / len(execT)
-        else:
-            esum = 0
-            emean = 0
-        execT.sort()
-        # If we have no execution times that are valid, skip
-        if len(execT) == 0:
-            continue
-        if len(execT) % 2 != 0:
-            # Odd number, so median is middle
-            emedian = execT[int((len(execT) - 1) / 2)]
-        else:
-            # Even set. So median is average of two middle numbers
-            num1 = execT[int((len(execT) - 1) / 2) - 1]
-            num2 = execT[int(((len(execT) - 1) / 2))]
-            emedian = (sum([num1, num2]) / 2.0)
-        moderesult.update({mode: [execT, esum, emean, emedian]})
-
-    total_execution_time = (end_time - start_time)
-    return (
-        count,
-        total,
-        successes,
-        failures,
-        moderesult,
-        percentage_fail,
-        total_execution_time,
-        percentage_execution_rate
-    )
-
-
-def write_logfile(outdir, results):
-    errout_file = os.path.join(outdir, "conversion_results.log")
-    log.info("Writing log file (%s)" % errout_file)
-    fd = open(errout_file, "wb")
-    fd.write(
-        "infile,outfile,format,conversion_status,return_code,execution_time\n".encode("utf-8")
-    )
-    for item in results:
-        item = [str(x) for x in item]
-        line = ','.join(item)
-        line += "\n"
-        fd.write(line.encode("utf-8", "backslashreplace"))
-    fd.close()
-    log.print("Done!")
+        for element in iterator:
+            if type(element) is str:
+                yield element
+            else:
+                yield from flatten(element)
 
 
 # Classes
+
+class base():
+        def __init__(self, log):
+            self.log = log
+
+        def print_summary(self, count, total, successes, failures, modes, percentage_fail, total_execution_time, percentage_execution_rate):
+            percentage_fail = float(percentage_fail)
+            percentage_execution_rate = float(percentage_execution_rate)
+
+            out = "\n\n"
+            out += "| Summary "
+            out += ("=" * (80 - len(out)))
+            out += """
+        Total files on input: %d
+        Total files actually processed: %d
+        --
+        Execution rate: %.2f%%
+        Files we managed to convert successfully: %d
+        Files we failed to convert due to errors: %d
+        --
+        Conversion error rate: %s%%
+        """ % (
+                count,
+                total,
+                percentage_execution_rate,
+                successes,
+                failures,
+                percentage_fail
+            )
+            for mode in modes:
+                execT, esum, emean, emedian = modes[mode]
+                self.log.print("For mode: " + mode)
+                etime = ""
+                if esum < 600:
+                    etime += "%.4f seconds" % esum
+                elif esum > 600 < 3600:
+                    etime += "%.4f minutes" % (esum / 60)
+                else:
+                    etime += "%.4f hours" % (esum / 60 / 60)
+                out += "\tTotal execution time: %s" % etime
+                out += """
+        Per file conversion:
+        \tMean execution time: %.4f seconds
+        \tMedian execution time: %.4f seconds
+        """ % (emean, emedian)
+
+            print(out)
+
+        def generate_summary(start_time, end_time, count, results):
+            total = len(results)
+            successes = len([x for x in results if int(x[4]) == 0])
+            failures = total - successes
+            if total != 0:
+                percentage_fail = (failures / float(total)) * 100
+            else:
+                percentage_fail = 0
+
+            percentage_execution_rate = (float(total) / count) * 100
+
+            # Each result provides the mode, so we can build a set of modes
+            # from this
+            modes = set([x[2] for x in results])
+            moderesult = {}
+
+            for mode in list(modes):
+                # 1. find all the logs corresponding to a particular mode
+                x = [x for x in results if x[2] == mode]
+                # 1.1  If no results, just continue
+                if len(x) == 0:
+                    continue
+                # 2. Get the execution time for all relevant logs.
+                #     -1 times are events which were no-ops (either due to errors or
+                #     file already existing when overwrite == false), and are filtered out
+                execT = [float(y[5]) for y in x if float(y[5]) != -1]
+                if len(execT) != 0:
+                    esum = sum(execT)
+                    emean = sum(execT) / len(execT)
+                else:
+                    esum = 0
+                    emean = 0
+                execT.sort()
+                # If we have no execution times that are valid, skip
+                if len(execT) == 0:
+                    continue
+                if len(execT) % 2 != 0:
+                    # Odd number, so median is middle
+                    emedian = execT[int((len(execT) - 1) / 2)]
+                else:
+                    # Even set. So median is average of two middle numbers
+                    num1 = execT[int((len(execT) - 1) / 2) - 1]
+                    num2 = execT[int(((len(execT) - 1) / 2))]
+                    emedian = (sum([num1, num2]) / 2.0)
+                moderesult.update({mode: [execT, esum, emean, emedian]})
+
+            total_execution_time = (end_time - start_time)
+            return (
+                count,
+                total,
+                successes,
+                failures,
+                moderesult,
+                percentage_fail,
+                total_execution_time,
+                percentage_execution_rate
+            )
+
+        def write_logfile(self, outdir, results):
+            errout_file = os.path.join(outdir, "conversion_results.log")
+            self.log.info("Writing log file (%s)" % errout_file)
+            fd = open(errout_file, "wb")
+            fd.write(
+                "infile,outfile,format,conversion_status,return_code,execution_time\n".encode("utf-8")
+            )
+            for item in results:
+                item = [str(x) for x in item]
+                line = ','.join(item)
+                line += "\n"
+                fd.write(line.encode("utf-8", "backslashreplace"))
+            fd.close()
+            self.log.print("Done!")
+
 
 class ModeException(Exception):
     def __init__(self, msg):
         Exception.__init__(self)
         msg = "ERROR: Not understanding mode '%s' is mode valid?" % msg
-        print(msg)
+        self.log.error(msg)
 
 
 class transcoder():
-    def __init__(self):
-        pass
+    def __init__(self, log):
+        self.log = log
 
     def modeswitch(self, mode, opts):
         if mode == "mp3":
@@ -236,6 +239,7 @@ class transcoder():
         return encf
 
     def encode(self, infile, mode, opts):
+        global log
         # Return format:
         # [¬
         #   $infile,¬
@@ -247,16 +251,18 @@ class transcoder():
         # ]
         outfile = infile.replace(opts['dirpath'], os.path.join(opts['outdir'], mode))
         outpath = os.path.dirname(outfile)
-        try:
-            if not os.path.exists(outpath):
-                os.makedirs(outpath)
-        except OSError as e:
-            # Error 17 means folder exists already. We can reach this
-            # despite the check above, due to a race condition when a
-            # bunch of spawned processes all try to mkdir at once.
-            # So if Error 17, continue, otherwise re-raise the exception
-            if e.errno != 17:
-                raise(e)
+        # Copy is a private function, and special as it does not have its own outdir
+        if mode != "_copy":
+            try:
+                if not os.path.exists(outpath):
+                    os.makedirs(outpath)
+            except OSError as e:
+                # Error 17 means folder exists already. We can reach this
+                # despite the check above, due to a race condition when a
+                # bunch of spawned processes all try to mkdir at once.
+                # So if Error 17, continue, otherwise re-raise the exception
+                if e.errno != 17:
+                    raise(e)
 
         encf = self.modeswitch(mode, opts)
         if encf is None:
@@ -292,7 +298,7 @@ class transcoder():
                 # If the file exists and overwrite is true, unlink it here
                 os.unlink(test_outfile)
 
-        log.info("Processing: \t%-40s  target: %-8s " % (
+        self.log.info("Processing: \t%-40s  target: %-8s " % (
             infile.split('/')[-1],
             mode
         ))
@@ -300,15 +306,15 @@ class transcoder():
 
 
 class encode_worker(transcoder):
-    def __init__(self, host_target):
+    def __init__(self, host_target, log):
         assert has_zmq is True, "No ZeroMQ module importable. Cannot use clustered mode"
-        transcoder.__init__(self)
+        self.log = log
+        transcoder.__init__(self, log)
 
         # We need a worker ID
         self.worker_id = str(uuid.uuid4())
         # 1. Set up the zmq context to receive tasks
         self.zcontext = zmq.Context()
-        signal.signal(signal.SIGINT, signal_handler)
 
         # Task socket, recieves tasks
         self.tsock = self.zcontext.socket(zmq.PULL)
@@ -339,12 +345,12 @@ class encode_worker(transcoder):
             try:
                 message = self.tsock.recv_json(flags=zmq.NOBLOCK)
                 infile, mode, opts = message
-            except zmq.error.Again as e:
-                # If we get nothing in 5 seconds, retry sending READY
-                time.sleep(5)
+            except zmq.error.Again:
+                # If we get nothing after a set period , retry sending READY
+                time.sleep(0.01)
                 continue
             except ValueError as e:
-                log.crit("ERROR, Discarding invalid message: %s (%s)" % (message, e))
+                self.log.crit("ERROR, Discarding invalid message: %s (%s)" % (message, e))
                 continue
 
             if infile == "EOL":

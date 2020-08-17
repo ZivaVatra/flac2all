@@ -23,6 +23,7 @@ setup(
     name="flac2all",
     version=vers,
     packages=["flac2all_pkg"],
+    install_requires=["pyzmq"],
     # metadata for upload to PyPI
     author="ZivaVatra",
     author_email="info@ziva-vatra.com",

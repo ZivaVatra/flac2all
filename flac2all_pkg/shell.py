@@ -15,6 +15,11 @@ class filecopy:
 		# current given mode here
 		outfile = outfile.replace("_copy", self.opts['copymode'])
 		try:
+			# First we check if the directory exists, and if it doesn't
+			# Create it
+			copydir = outfile.rsplit('/', 1)[0]
+			if not os.path.exists(copydir):
+				os.makedirs(copydir)
 			copyfile(infile, outfile)
 		except Exception as e:
 			return [

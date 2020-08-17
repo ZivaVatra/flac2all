@@ -1,5 +1,10 @@
 ## News / Changes
 
+### 15/08/2020
+
+* Removed non ZMQ multiprocessing. Flac2all is now depedendent on ZMQ to work in clustered or not clustered mode. I discovered keeping two complete multiprocessing systems was causing more problems than it was solving, and a lot of bugs being raised by people were already fixed by virtue of the new structure.
+
+
 ### 28/02/2020 - v5.2 released
 
 * Fixed issue #44
