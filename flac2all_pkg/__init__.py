@@ -342,7 +342,7 @@ a dash: '-abr'"
     )
 
     parser.add_option(
-        "-n", "--nodirs", dest="nodirs", choices=["n", "d"], nargs=1,
+        "-n", "--nodirs", dest="nodirs", choices=["m", "d"], nargs=1,
         default=False, help="Don't create Directories, if \"-n d\" put everything together, if \"-n m\" don't create mode dirs"
     )
 
