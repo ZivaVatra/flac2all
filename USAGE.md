@@ -11,12 +11,27 @@ flac2all vorbis,mp3,test --vorbis-options='quality=2' -o ./fromFlac/ /path/to/fl
 ```
 
 will create the following structure:
+```
+./fromFlac/vorbis/.../file.ogg
+./fromFlac/mp3/.../file.mp3
+./fromFlac/test/.../file.ana
+```
+
+If you specify "-n d", it will create the following output:
+```
+./fromFlac/file.ogg
+./fromFlac/file.mp3
+./fromFlac/file.ana
 
 ```
-./fromFlac/vorbis
-./fromFlac/mp3
-./fromFlac/test
+
+And if you specify "-n m", it will create the following output:
 ```
+./fromFlac/.../file.ogg
+./fromFlac/.../file.mp3
+./fromFlac/.../file.ana
+```
+
 This example will encode both to ogg vorbis and mp3 formats, while generating per file test logs, simultaniously.
 
 In addition, a summary conversion log is created. This is printed to stdout after a run. An example (with partial failures) looks like this:

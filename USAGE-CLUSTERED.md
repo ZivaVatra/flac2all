@@ -109,10 +109,27 @@ In the example above, we specified multiple codecs at once "vorbis,mp3,test", wh
 
 The output structure would create a subfolder for each codec. In the case of our example, it would look like this:
 ```
-./fromFlac/vorbis
-./fromFlac/mp3
-./fromFlac/test
+./fromFlac/vorbis/.../file.ogg
+./fromFlac/mp3/.../file.mp3
+./fromFlac/test/.../file.ana
 ```
+
+If you specify "-n d", it will create the following output:
+```
+./fromFlac/file.ogg
+./fromFlac/file.mp3
+./fromFlac/file.ana
+
+```
+
+And if you specify "-n m", it will create the following output:
+```
+./fromFlac/.../file.ogg
+./fromFlac/.../file.mp3
+./fromFlac/.../file.ana
+
+```
+
 In addition, a summary conversion log is created. This is printed to stdout after a run. An example (with partial failures) looks like this:
 
 ```

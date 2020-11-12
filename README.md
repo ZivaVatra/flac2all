@@ -2,11 +2,10 @@
 
 ### 17/08/2020 - v5.3 released
 
-* Removed non ZMQ multiprocessing. Flac2all is now depedendent on ZMQ to work in clustered or not clustered mode. I discovered keeping two complete multiprocessing systems was causing more problems than it was solving, and a lot of bugs being raised by people were already fixed by virtue of the new structure. (issue #45)
+* Removed non ZMQ multiprocessing. Flac2all is now depedendent on ZMQ to work in clustered or non clustered mode. I discovered keeping two complete multiprocessing systems was causing more problems than it was solving, and a lot of bugs being raised by people were already fixed by virtue of the new structure. (issue #45)
 * Multi-process copying now much faster (issue #45)
-* "-n" (nodirs) option fixed (issue #50)
 * Fixed multiple bugs (issue #45)
-* Added two different modes for modified directories (issue #50)
+* As part of the work on issue #50, I've added two different modes for modified directories ("m", and "d"). "d" works exactly as before (puts all files in the output dir, no dir structure at all), while "m" does not create the mode dirs after the codec name. So you get the full dir structure, with a mix of codecs in each folder.
 
 ### 28/02/2020 - v5.2 released
 
@@ -35,8 +34,6 @@ Following on from my tradition of adding at least one major feature in major ver
 * Support for ~72 new codecs via ffmpeg. Actual number of codecs subject to change based on what version of ffmpeg you have installed, and what options it is compiled with
 * support for network distributed transcoding via ZeroMQ. This allows you to launch a single flac2all "master" on a machine, and then have flac2all "workers" running on other machines connect to it over a TCP connection. In other words, you can delegrate encoding tasks to multiple computers, each with multiple cores. For more details see the [Usage->Clustered](#clustered) section.
 * An optional curses frontend when in clustered mode (selected with '-C' on command line), showing percentage complete, workers running and some other stats. Example can be seen here: ![Curses example](/resources/curses_example.png?raw=true "Curses Example").
-
-Note that the clustering function is optional, and flac2all will still work in the original way if ZeroMQ (and its python bindings) are not installed. As such we have not placed a hard dependency on ZeroMQ. This may change in future (e.g. if we decide to abandon the old logic and make everything ZeroMQ based internally).
 
 ## Dependencies
 * Python >= 3.6
