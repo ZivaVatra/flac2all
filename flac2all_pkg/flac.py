@@ -16,8 +16,6 @@ except ImportError:
 	from .config import ipath, opts
 	from .shell import shell
 
-	
-
 
 # This class is called by every other conversion function, to return a "decode"
 # object
