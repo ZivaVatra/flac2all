@@ -380,14 +380,14 @@ def main():
         opts['mode'] = args[0]
 
     except(IndexError):  # if no arguments specified
-        log.print("No mode specified! Run with '-h' for help")
+        print("No mode specified! Run with '-h' for help")
         sys.exit(1)  # quit the program with non-zero status
 
     try:
         opts['dirpath'] = os.path.abspath(args[1])
 
     except(IndexError):
-        log.print("No directory specified! Run with '-h' for help")
+        print("No directory specified! Run with '-h' for help")
         sys.exit(2)  # quit the program with non-zero status
 
     # end command line checking
