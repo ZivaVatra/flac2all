@@ -41,11 +41,12 @@ if __name__ == '__main__' and __package__ is None:
 try:
     from shell import shell
     from config import opts
-    import core
+    from core import modetable, base, flatten
     from logging import console, cconsole
 except ImportError:
     from .shell import shell
     from .config import opts
+    from .core import modetable, base, flatten
     from .logging import console, cconsole
 
 terminate = False
@@ -84,12 +85,12 @@ Dev website: https://github.com/ZivaVatra/flac2all
 \tValid encode types are as follows:\n\t\t%s
 \tYou can specify multiple encode targets with a comma seperated list.
 
-""" % (version, sys.argv[0], "\n\t\t".join([x[0] for x in core.modetable if not x[0].startswith("_")]))
+""" % (version, sys.argv[0], "\n\t\t".join([x[0] for x in modetable if not x[0].startswith("_")]))
 
 
 def clustered_encode(localworkers=False):
     global terminate
-    baseI = core.base(log)  # Pass pointer to core to log to same location
+    baseI = base(log)  # Pass pointer to core to log to same location
     sh = shell()
     # Here we do the clustering magic
 
@@ -135,8 +136,11 @@ def clustered_encode(localworkers=False):
 
     if localworkers is True:
         # So, if we are just doing local processing, we launch the worker ourselves
-        import flac2all_worker
-        local_worker = mp.Process(target=flac2all_worker.main, args=("localhost",))
+        try:
+            from flac2all_worker import main as worker
+        except ImportError:
+            from .flac2all_worker import main as worker
+        local_worker = mp.Process(target=worker, args=("localhost",))
         local_worker.start()
 
     # Otherwise we wait
@@ -374,7 +378,7 @@ def main():
     # ffmpeg uses colons as delimiters, just like flac2all (of course), so we had to
     # switch to commas for this one
     opts['ffmpegopts'] = opts['ffmpegopts'].split(',')
-    opts['ffmpegopts'] = list(core.flatten([x.split(' ') for x in opts['ffmpegopts']]))
+    opts['ffmpegopts'] = list(flatten([x.split(' ') for x in opts['ffmpegopts']]))
 
     try:
         opts['mode'] = args[0]
@@ -402,7 +406,7 @@ def main():
     # perspective. We convert to every single format supported. This is mainly added for
     # testing reasons.
     if opts['mode'] == "all":
-        opts['mode'] = ','.join([x[0] for x in core.modetable if not x[0].startswith("_")])
+        opts['mode'] = ','.join([x[0] for x in modetable if not x[0].startswith("_")])
 
     # In this version, we can convert multiple format at once, so for e.g.
     # mode = mp3,vorbis will create both in parallel
