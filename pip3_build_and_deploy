@@ -60,3 +60,5 @@ system("rm -rf ./build ./dist");
 die("Could not build and deploy to pypi\n") unless (0 == system("python3 ./setup.py sdist bdist_wheel && twine upload $repo_extra dist/*"));
 # Finally, we push the tag to git
 system("git push origin $new_version");
+
+print("Complete! To do a test upgrade, run \"pip install -U --index-url https://test.pypi.org/simple/ flac2all\"");
