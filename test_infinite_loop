@@ -1,0 +1,12 @@
+#!/bin/bash
+
+RUN=0
+while true; do
+	echo "Run $RUN";
+	python3 ./__init__.py vorbis -c  -n m  -o ../testoutput/ ../testinput/
+	if [[ $? != 0 ]]; then
+		echo "Failed";
+		break;
+	fi
+	RUN=$(( $RUN + 1 ))
+done
