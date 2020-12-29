@@ -1,12 +1,13 @@
 #!/bin/bash
-
+pushd ./flac2all_pkg
 RUN=0
 while true; do
 	echo "Run $RUN";
 	python3 ./__init__.py vorbis -c  -n m  -o ../testoutput/ ../testinput/
 	if [[ $? != 0 ]]; then
-		echo "Failed";
+		echo "Failed on Run $RUN";
 		break;
 	fi
 	RUN=$(( $RUN + 1 ))
 done
+popd
