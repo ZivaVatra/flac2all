@@ -1,11 +1,11 @@
 ## News / Changes
 
-### 17/08/2020 - v5.3 released
+### 29/12/2020 - v5.3 released
 
 * Removed non ZMQ multiprocessing. Flac2all is now depedendent on ZMQ to work in clustered or non clustered mode. I discovered keeping two complete multiprocessing systems was causing more problems than it was solving, and a lot of bugs being raised by people were already fixed by virtue of the new structure. (issue #45)
 * Multi-process copying now much faster (issue #45)
 * Fixed multiple bugs (issue #45)
-* As part of the work on issue #50, I've added two different modes for modified directories ("m", and "d"). "d" works exactly as before (puts all files in the output dir, no dir structure at all), while "m" does not create the mode dirs after the codec name. So you get the full dir structure, with a mix of codecs in each folder.
+* As part of the work on issue #50, I've added two different modes for modified directories ("m", and "d"). "d" works exactly as before (puts all files in the output dir, no dir structure at all), while "m" does not create the mode dirs after the codec name. So you get the full dir structure, with a mix of codecs in each folder. Please note that this does change existing behaviour (If you just specify "-n" as before, you will get an error).
 
 ### 28/02/2020 - v5.2 released
 
