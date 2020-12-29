@@ -8,6 +8,6 @@ python3 ./flac2all_pkg/__init__.py mp3,vorbis,test,f:alac -c -o ./testoutput ./t
 python3 ./flac2all_pkg/__init__.py mp3,vorbis,test,f:alac -n d -o ./testoutput ./testinput
 python3 ./flac2all_pkg/__init__.py mp3,vorbis,test,f:alac -n m -o ./testoutput ./testinput
 python3 ./flac2all_pkg/__init__.py all -m -o ./testoutput ./testinput &
-t ./flac2all_pkg/flac2all_worker.py localhost
+python3 ./flac2all_pkg/flac2all_worker.py localhost
 
 
