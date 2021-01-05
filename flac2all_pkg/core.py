@@ -22,13 +22,8 @@ except ImportError:
     from .ffmpeg import ffmpeg
     from .shell import filecopy
 
-import threading as mt
-
 import os
-import queue
 import time
-
-
 import uuid
 
 
@@ -406,27 +401,3 @@ class encode_worker(transcoder):
             self.send_json(result)
             # If we reach this point, means nothing messed up, and we can send READY command
             self.send_json(["READY"])
-
-
-class encode_thread(mt.Thread, transcoder):
-    def __init__(self, threadID, name, taskq, opts, logq):
-        mt.Thread.__init__(self)
-        transcoder.__init__(self)
-        self.threadID = threadID
-        self.name = name
-        self.taskq = taskq
-        self.opts = opts
-        self.logq = logq
-
-    def run(self):
-        while not self.taskq.empty():
-            try:
-                # Get the task, with one minute timeout
-                task = self.taskq.get(timeout=60)
-            except queue.Empty:
-                # No more tasks after 60 seconds, we can quit
-                return True
-
-            infile = task[0]
-            mode = task[3].lower()
-            self.logq.put(self.encode(infile, mode, self.opts), timeout=10)
