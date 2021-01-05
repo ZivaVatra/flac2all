@@ -95,7 +95,7 @@ class flac(object):
 				"--block-type", "VORBIS_COMMENT",
 				flacfile
 			]).decode('utf-8')
-		except sp.CalledProcessError as e:
+		except sp.CalledProcessError:
 			return {}
 
 		datalist = []  # init a list for storing all the data in this block
@@ -117,7 +117,13 @@ class flac(object):
 			# split according to [NAME]=[VALUE] structure
 			comment = data[1].split('=')
 			comment[0] = comment[0].strip()
-			comment[1] = comment[1].strip()
+
+			# Fix for issue-53, some taggers incorrectly write the tag, causing
+			# a variable with no data, so we test and replace string here
+			if len(comment) > 1:
+				comment[1] = comment[1].strip()
+			else:
+				comment.append("NODATA")
 
 			# convert to upper case
 			# we want the key values to always be the same case, we decided on
