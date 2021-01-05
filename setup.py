@@ -29,7 +29,7 @@ setup(
     author_email="info@ziva-vatra.com",
     description="Multi process, clustered, FLAC to multi codec audio converter with tagging support",
     long_description='''
-Started in 2003 as a flac to ogg vorbis converter, flac2All has grown into a multiprocess, network clustered program that will convert your collection of FLAC files into mp3,ogg vorbis,opus,flac,aac and another 60+ ffmpeg supported audio formats, complete with any tags that the source file had. Designed to be extended with new formats easily as time goes on, it is a utility for people with with large FLAC collections who want a way to convert multiple files in parallel.
+Started in 2003 as a flac to ogg vorbis converter, flac2all has grown into a multiprocess, network clustered program that will convert your collection of FLAC files into mp3,ogg vorbis,opus,flac,aac and another 60+ ffmpeg supported audio formats, complete with any tags that the source file had. Designed to be extended with new formats easily as time goes on, it is a utility for people with with large FLAC collections who want a way to convert multiple files in parallel.
 
 Tested on Linux and FreeBSD, let me know how it works on other Unix OS'es.
 ''',
@@ -49,7 +49,7 @@ Tested on Linux and FreeBSD, let me know how it works on other Unix OS'es.
         'Topic :: Multimedia :: Sound/Audio :: Conversion',
     ],
     keywords='multithread, multiprocess, batch, flac, converter, mp3, vorbis,\
-opus, aac, lame, music, audio, ffmpeg',
+opus, aac, lame, music, audio, ffmpeg, cluster',
 
     entry_points={
         'console_scripts': [
