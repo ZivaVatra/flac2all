@@ -1,7 +1,13 @@
 ## News / Changes
 
-### 29/12/2020 - v5.3 released
+### 05/01/2020 - v5.3 released
 
+Happy new year everyone! I found out flac2all works on Apple Mac's as well, which was a nice development :-)
+
+Changes in this version:
+
+* Fixed issue 53
+* Fixed issue 54
 * Removed non ZMQ multiprocessing. Flac2all is now depedendent on ZMQ to work in clustered or non clustered mode. I discovered keeping two complete multiprocessing systems was causing more problems than it was solving, and a lot of bugs being raised by people were already fixed by virtue of the new structure. (issue #45)
 * Multi-process copying now much faster (issue #45)
 * Fixed multiple bugs (issue #45)
