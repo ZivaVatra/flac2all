@@ -67,7 +67,11 @@ To upgrade to a new release you run the same commands as installation, but with 
 
 ### Dev
 
-* At the moment there are no packages for the development branch. If you want the bleeding edge, follow the instructions under [Development](#development)
+At the moment there are no packages for the development branch.
+
+There are however testing packages that I deploy to to the "test" pypi. These package versions have "test" prepended to their version number, and don't track the official version numbers. These versions may or may not work, as they are beta. You can install the test package to your home directory using `pip install -U --index-url https://test.pypi.org/simple/ flac2all`
+
+If you want the bleeding edge, including to test different branches, follow the instructions under [Development](#development)
 
 ## Usage
 
