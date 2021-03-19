@@ -26,6 +26,7 @@ ipath = paths()
 opts = {
 	"outdir": "./",  # the directory we output to, defaults to current directory
 	"overwrite": False,  # do we overwrite existing files
+	"overwrite_if_changed": False,  # do we overwrite existing files if the source file is newer than the destination file
 	"nodirs": "d",  # do not create directories (dump all files into single dir)
 	"copy": False,  # Copy non flac files (default is to ignore)
 	"lameopts": "--preset standard -q 0",  # your mp3 encoding settings
