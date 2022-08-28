@@ -266,6 +266,16 @@ def clustered_encode(localworkers=False):
         local_worker.terminate()
         log.info("Waiting for local worker to terminate")
         local_worker.join()  # Wait for worker to die
+        # Infinite loop, we sit here and wait for every child to finish
+        while 1:
+            try:
+                os.wait()
+            except ChildProcessError as e:
+                if e.errno == 10:
+                    break  # error 10 means no more children
+                else:
+                    # any other error is unhandled, re-raise
+                    raise(e)
 
     # end_time = time.time()
     rsock.close()
