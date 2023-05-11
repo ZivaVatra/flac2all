@@ -21,6 +21,7 @@ class opus:
     def __init__(self, opusencopts):
         # Work out what version of opus we have
         self.version = None  # Undefined by default
+        self.opts = opusencopts
 
         # Opus is really all over the place, each version has different
         # switches. I guess that is what happens with new stuff
@@ -33,13 +34,17 @@ class opus:
                 os.path.join(ipath.opusencpath, "opusenc"), "-v"
             ]).decode("utf-8")
 
-        # Opus has stabalised, on versioning, and most distros have the stable
-        # version, so we got rid of the logic that deals wit opeus version testing.
+        # Opus has stabilised on versioning, and most distros have the stable
+        # version, so we got rid of the logic that deals with opus version testing.
 
-        data = re.search("\d+\.\d+\.\d+", data).group(0)
+        match = re.search("\d+\.\d+\.\d+?", data)
+        if match:
+            data = match.group(0)
+        else:
+            return
+
         (release, major, minor) = map(lambda x: int(x), data.split('.'))
         self.version = (release, major, minor)
-        self.opts = opusencopts
 
     def convert(self, infile, outfile):
         # As the new versions of opus support flac natively, I think that the
