@@ -35,20 +35,10 @@ class opus:
 
         # Opus has stabalised, on versioning, and most distros have the stable
         # version, so we got rid of the logic that deals wit opeus version testing.
-        match = re.search(r"libopus (\d+)\.(\d+)(?:\.(\d+))?", data)
-        if match is None:
-            match = re.search(r"\d+\.\d+\.\d+", data)
-            if match is None:
-                self.version = None
-            else:
-                self.version = tuple(map(int, match.group(0).split(".")))
-        else:
-            self.version = (
-                int(match.group(1)),
-                int(match.group(2)),
-                int(match.group(3) or 0),
-            )
 
+        data = re.search("\d+\.\d+\.\d+", data).group(0)
+        (release, major, minor) = map(lambda x: int(x), data.split('.'))
+        self.version = (release, major, minor)
         self.opts = opusencopts
 
     def convert(self, infile, outfile):
