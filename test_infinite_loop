@@ -1,13 +1,19 @@
-#!/bin/bash
-pushd ./flac2all_pkg
-RUN=0
-while true; do
-	echo "Run $RUN";
-	python3 ./__init__.py vorbis -c  -n m  -o ../testoutput/ ../testinput/
-	if [[ $? != 0 ]]; then
-		echo "Failed on Run $RUN";
-		break;
-	fi
-	RUN=$(( $RUN + 1 ))
-done
-popd
+#!/usr/bin/env perl
+chdir("./flac2all_pkg");
+$run=0;
+while(1) {
+	print "Run $run\n";
+	# Every 50 runs, delete the testout to reconvert
+	system("rm","-rf","../testoutput") if (($run % 50) == 0);
+	die("Failed on run $run\n") if system(
+		"python3",
+		"./__init__.py",
+		"vorbis",
+		"-c",
+		"-n", "m",
+		"-o", "../testoutput/",
+		"../testinput/"
+	);
+	sleep(0.5);
+	$run++;
+}
