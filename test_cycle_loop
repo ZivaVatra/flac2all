@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 chdir("./flac2all_pkg");
 $run=0;
-while(1) {
+while($run != 22000) {
 	print "Run $run\n";
 	# Every 250 runs, delete the testout to reconvert
 	system("rm","-rf","../testoutput") if (($run % 250) == 0);
@@ -14,6 +14,6 @@ while(1) {
 		"-o", "../testoutput/",
 		"../testinput/"
 	);
-	sleep(0.5);
+	sleep(0.8);
 	$run++;
 }
