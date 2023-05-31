@@ -22,6 +22,7 @@ class ffmpeg:
             self.opts = opts['ffmpegopts']
             self.audio_codec = codec
             self.overwrite = opts['overwrite']
+            self.overwrite_if_changed = opts['overwrite_if_changed']
 
     def codeclist(self):
         """ Returns list of Audio codecs supported by ffmpeg """
@@ -72,13 +73,22 @@ class ffmpeg:
         else:
             extension = "mka"  # The matroska audio container should be able to mux just about anything, in theory.
         outfile = outfile.strip() + "." + extension
-        if self.overwrite is False:
-            if os.path.exists(outfile):
+        if os.path.exists(outfile):
+            if self.overwrite is False and self.overwrite_if_changed is False:
                 return [
                     infile,
                     outfile,
                     "ffmpeg:" + self.audio_codec,
                     "Outfile exists, skipping",
+                    0,
+                    -1
+                ]
+            if self.overwrite_if_changed is True and os.stat(outfile).st_mtime >= os.stat(infile).st_mtime:
+                return [
+                    infile,
+                    outfile,
+                    "ffmpeg:" + self.audio_codec,
+                    "Outfile exists and Infile hasn't changed, skipping",
                     0,
                     -1
                 ]
@@ -92,7 +102,7 @@ class ffmpeg:
             self.audio_codec,
         ]
         cmd.extend(self.opts)
-        if self.overwrite is True:
+        if self.overwrite is True or self.overwrite_if_changed is True:
             cmd.append("-y")
         else:
             cmd.append("-n")

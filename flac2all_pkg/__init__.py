@@ -350,6 +350,12 @@ a dash: '-abr'"
     )
 
     parser.add_option(
+        "--force-if-changed", dest="overwrite_if_changed", action="store_true",
+        help="Force overwrite of existing files if the source file is newer than the destination file (by default we skip)",
+        default=False
+    )
+
+    parser.add_option(
         "-t", "--threads", dest="threads", default=mp.cpu_count(),
         help="How many threads to run in parallel (default: autodetect\
     [found %d cpu(s)] )" % mp.cpu_count()

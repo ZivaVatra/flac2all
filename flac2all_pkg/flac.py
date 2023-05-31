@@ -44,10 +44,22 @@ class flac(object):
 		# recompression natively. Which is nice. This is now very
 		# simple to implement, hence removed the old code
 		startTime = time()
-		if opts['overwrite']:
-			self.opts += " -f "
-		else:
-			if os.path.exists(outfile):
+		if os.path.exists(outfile):
+			if opts['overwrite']:
+				self.opts += " -f "
+			elif opts['overwrite_if_changed']:
+				if os.stat(outfile).st_mtime >= os.stat(infile).st_mtime:
+					return [ 
+						infile,
+						outfile,
+						"flac",
+						"SUCCESS:skipped due to existing file that is newer or the same age as the source file",
+						0,
+						time() - startTime
+					]
+				else:
+					self.opts += " -f "
+			else:
 				return [
 					infile,
 					outfile,

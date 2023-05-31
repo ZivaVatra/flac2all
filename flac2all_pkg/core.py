@@ -298,9 +298,12 @@ class transcoder():
         test_outfile = outfile + "." + extension.lower()
 
         if os.path.exists(test_outfile):
-            if opts['overwrite'] is False:
+            if opts['overwrite'] is False and opts['overwrite_if_changed'] is False:
                 # return code is 0 because an existing file is not an error
                 return [infile, outfile, mode, "Outfile exists, skipping", 0, -1]
+            elif opts['overwrite_if_changed'] is True and os.stat(test_outfile).st_mtime >= os.stat(infile).st_mtime:
+                # return code is 0 because an existing file that's the same or newer than the source file is not an error
+                return [infile, outfile, mode, "Outfile exists and Infile hasn't changed, skipping", 0, -1]
             else:
                 # If the file exists and overwrite is true, unlink it here
                 os.unlink(test_outfile)
