@@ -1,4 +1,7 @@
 #!/usr/bin/env perl
+# This test runs flac2all in a loop, in order to check if there are
+# any bugs with launching/terminating workers (symptoms include
+# hanging runs, or unexpected termination)
 chdir("./flac2all_pkg");
 $run=0;
 while($run != 22000) {
@@ -14,6 +17,8 @@ while($run != 22000) {
 		"-o", "../testoutput/",
 		"../testinput/"
 	);
-	sleep(0.8);
+	# To prevent race conditions when we launch too fast (in the real
+	# world, nobody will restart flac2all in such a tight loop).
+	sleep(1);
 	$run++;
 }
