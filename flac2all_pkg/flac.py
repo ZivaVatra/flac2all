@@ -21,6 +21,15 @@ except ImportError:
 # object
 class flacdecode(object):
 	def __init__(self, infile, pipefile):
+		# Check if flac binary is available and works
+		# Simplest way is to execute flac and see what happens
+		try:
+			with os.popen("flac", "-v") as fd:
+				print("Flac version: %s" % fd.read().strip())
+		except Exception as e:
+			print("Error opening flac binary! %s" % e.message())
+			sys.exit(1)
+
 		self.infile = infile
 		self.pipe = pipefile
 
