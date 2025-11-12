@@ -20,8 +20,6 @@ except ImportError:
 	from .config import ipath
 
 
-
-
 # This is for the open source implementation. In this case we went for the
 # Open Source Fraunhofer AAC Encoder (fdk-aac)
 
@@ -154,7 +152,7 @@ class aacplusNero(object):
 		tagcmd = "%sneroAacTag " % ipath.neropath
 		try:
 			metastring = self.generateNeroTags(inmetadata)
-		except(UnboundLocalError):
+		except (UnboundLocalError):
 			metastring = ""
 
 		decoder = flacdecode(infile)()

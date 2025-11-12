@@ -21,6 +21,12 @@ except ImportError:
 class lameMp3(object):
     def __init__(self, opts):
         self.opts = opts
+        try:
+            with os.popen("lame --version") as fd:
+                print(fd.readline().strip())
+        except Exception as e:
+            print("Error opening flac binary! %s" % e.message())
+            sys.exit(1)
 
     def generate_lame_meta(self, metastring):
         tagstring = []
@@ -58,16 +64,16 @@ class lameMp3(object):
                 comment_tag += "  || CDDB:%s" % (
                     metastring['CDDB']
                 )
-            except(KeyError):
+            except (KeyError):
                 pass
 
-        except(KeyError):
+        except (KeyError):
             # this is for if we have a CDDB value
             try:
                 comment_tag += "CDDB:%s" % (
                     metastring['CDDB']
                 )
-            except(KeyError):
+            except (KeyError):
                 pass
         comment_tag += " || Converted with flac2all (http://flac2all.witheredfire.com/)"
 
@@ -84,7 +90,7 @@ class lameMp3(object):
 
         try:
             metastring = self.generate_lame_meta(inmetadata)
-        except(UnboundLocalError):
+        except (UnboundLocalError):
             metastring = []  # If we do not get meta information. leave blank
 
         stderr = flacdecode(infile, pipe)()

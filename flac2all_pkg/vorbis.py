@@ -3,7 +3,7 @@ from time import time
 import subprocess as sp
 
 if __name__ == '__main__' and __package__ is None:
-	from os import path, sys
+	from os import path, sys, popen
 	sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 try:
@@ -16,6 +16,12 @@ except ImportError:
 class vorbis:
 	def __init__(self, opts):
 		self.opts = [x for x in opts.split(' ') if x.strip() != ""]
+		try:
+			with popen("oggenc --version") as fd:
+				print(fd.readline().strip())
+		except Exception as e:
+			print("Error opening oggenc binary! %s" % e.message())
+			sys.exit(1)
 
 	def convert(self, infile, outfile):
 		# oggenc automatically parses the flac file + metadata, quite wonderful

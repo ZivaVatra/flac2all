@@ -24,7 +24,7 @@ class flacdecode(object):
 		# Check if flac binary is available and works
 		# Simplest way is to execute flac and see what happens
 		try:
-			with os.popen("flac", "-v") as fd:
+			with os.popen("flac -v") as fd:
 				print("Flac version: %s" % fd.read().strip())
 		except Exception as e:
 			print("Error opening flac binary! %s" % e.message())
@@ -58,7 +58,7 @@ class flac(object):
 				self.opts += " -f "
 			elif opts['overwrite_if_changed']:
 				if os.stat(outfile).st_mtime >= os.stat(infile).st_mtime:
-					return [ 
+					return [
 						infile,
 						outfile,
 						"flac",
@@ -131,7 +131,7 @@ class flac(object):
 
 			# check if the tag is a comment field (shown by the first 7 chars
 			# spelling out "comment")
-			if(data[:8] == "comment["):
+			if (data[:8] == "comment["):
 				datalist.append(data.split(':'))
 
 		for data in datalist:

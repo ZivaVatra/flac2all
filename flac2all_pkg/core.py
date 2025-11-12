@@ -245,12 +245,12 @@ class transcoder():
         #   $execution_time¬
         # ]
 
-        if opts['nodirs'] is "d":
+        if opts['nodirs'] == "d":
             # We don't want any directories, put everything in one place
             # 1. Get file name from infile
             outfile = infile.rsplit('/', 1)[-1]
             outfile = os.path.join(opts['outdir'], outfile)  # This removes the mode folders as well
-        elif opts['nodirs'] is "m":
+        elif opts['nodirs'] == "m":
             # We want to keep directory structure, but not output "per mode" folders. This puts all difference encodings
             # In the same folders
             outfile = infile.replace(opts['dirpath'], os.path.join(opts['outdir']))
@@ -269,11 +269,11 @@ class transcoder():
                 # bunch of spawned processes all try to mkdir at once.
                 # So if Error 17, continue, otherwise re-raise the exception
                 if e.errno != 17:
-                    raise(e)
+                    raise (e)
 
         encf = self.modeswitch(mode, opts)
         if encf is None:
-            raise(ModeException(mode))
+            raise (ModeException(mode))
 #            return [
 #                infile,
 #                outfile,
@@ -399,6 +399,6 @@ class encode_worker(transcoder):
                 self.send_json(result)
                 self.csock.close()
                 self.tsock.close()
-                raise(e)
+                raise (e)
             # We send the result back up the chain
             self.send_json(result)

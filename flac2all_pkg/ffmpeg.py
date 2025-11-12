@@ -18,6 +18,14 @@ except ImportError:
 # Class that deals with ffmpeg
 class ffmpeg:
     def __init__(self, opts, codec):
+        # Simplest way is to execute flac and see what happens
+        try:
+            with os.popen("ffmpeg -version") as fd:
+                print(fd.readline().strip())
+        except Exception as e:
+            print("Error opening ffmpeg binary! %s" % e.message())
+            sys.exit(1)
+
         if opts is not None:
             self.opts = opts['ffmpegopts']
             self.audio_codec = codec

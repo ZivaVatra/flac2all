@@ -33,8 +33,8 @@ class opus:
                 os.path.join(ipath.opusencpath, "opusenc"), "-v"
             ]).decode("utf-8")
 
-        # Opus has stabalised, on versioning, and most distros have the stable
-        # version, so we got rid of the logic that deals wit opeus version testing.
+        # Opus has stabilised, on versioning, and most distros have the stable
+        # version, so we got rid of the logic that deals wit opus version testing.
         match = re.search(r"libopus (\d+)\.(\d+)(?:\.(\d+))?", data)
         if match is None:
             match = re.search(r"\d+\.\d+\.\d+", data)
@@ -69,7 +69,7 @@ class opus:
         # newer versions.
         result = None
         if (version[0] == 0) and (version[1] <= 1) and (version[2] <= 6):
-            raise(NotImplementedError("Opus versions <= 0.1.7 no longer supported"))
+            raise (NotImplementedError("Opus versions <= 0.1.7 no longer supported"))
         else:
             # Later versions support direct conversion from flac->opus, so no
             # need for anything fancy
