@@ -289,7 +289,9 @@ def clustered_encode(localworkers=False):
         sys.exit(1)
     # log.print(list(set([x[0] for x in inlist]) - set([x[0] for x in results])))
     # generate_summary(start_time, end_time, incount, results)
-    baseI.write_logfile(opts['outdir'], results)
+    # Write logfile unless disabled by user
+    if not opts.get('nolog', False):
+        baseI.write_logfile(opts['outdir'], results)
 
 
 def build_parser():
@@ -364,6 +366,11 @@ a dash: '-abr'"
     parser.add_option(
         "-n", "--nodirs", dest="nodirs", choices=["m", "d"], nargs=1,
         default=False, help="Don't create Directories, if \"-n d\" put everything together, if \"-n m\" don't create mode dirs"
+    )
+
+    parser.add_option(
+        "--nolog", dest="nolog", action="store_true",
+        default=False, help="Do not write conversion_results.log at the end"
     )
 
     parser.add_option(
