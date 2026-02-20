@@ -245,12 +245,12 @@ class transcoder():
         #   $execution_time¬
         # ]
 
-        if opts['nodirs'] is "d":
+        if opts['nodirs'] == "d":
             # We don't want any directories, put everything in one place
             # 1. Get file name from infile
             outfile = infile.rsplit('/', 1)[-1]
             outfile = os.path.join(opts['outdir'], outfile)  # This removes the mode folders as well
-        elif opts['nodirs'] is "m":
+        elif opts['nodirs'] == "m":
             # We want to keep directory structure, but not output "per mode" folders. This puts all difference encodings
             # In the same folders
             outfile = infile.replace(opts['dirpath'], os.path.join(opts['outdir']))

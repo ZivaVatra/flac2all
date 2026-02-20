@@ -435,6 +435,12 @@ def main():
                 # As the copy folder is created in the shell module, we
                 # do not have to do anything else here
                 continue
+
+            # Only create per-mode directories if the user did not request
+            # "-n m" (i.e. don't create mode directories)
+            if opts['nodirs'] == "m":
+                continue
+
             try:
                 os.mkdir(os.path.join(opts['outdir'], mode))
             except OSError as e:
