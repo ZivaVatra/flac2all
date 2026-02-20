@@ -34,4 +34,5 @@ opts = {
 	"flacopts": "",  # your flac encoder settings
 	"aacplusopts": "-a 1 -t 29",
 	"opusencopts": "vbr",
+	"nolog": False, # do not write conversion_results.log at the end
 }

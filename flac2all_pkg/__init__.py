@@ -289,7 +289,9 @@ def clustered_encode(localworkers=False):
         sys.exit(1)
     # log.print(list(set([x[0] for x in inlist]) - set([x[0] for x in results])))
     # generate_summary(start_time, end_time, incount, results)
-    baseI.write_logfile(opts['outdir'], results)
+    # Write logfile unless disabled by user
+    if not opts.get('nolog', False):
+        baseI.write_logfile(opts['outdir'], results)
 
 
 def build_parser():
@@ -367,6 +369,11 @@ a dash: '-abr'"
     )
 
     parser.add_option(
+        "--nolog", dest="nolog", action="store_true",
+        default=False, help="Do not write conversion_results.log at the end"
+    )
+
+    parser.add_option(
         "-m", "--master", dest="master_enable", action="store_true",
         default=False, help="Start flac2all in master mode (for clustering)."
     )
@@ -435,6 +442,12 @@ def main():
                 # As the copy folder is created in the shell module, we
                 # do not have to do anything else here
                 continue
+
+            # Only create per-mode directories if the user did not request
+            # "-n m" (i.e. don't create mode directories)
+            if opts['nodirs'] == "m":
+                continue
+
             try:
                 os.mkdir(os.path.join(opts['outdir'], mode))
             except OSError as e:
