@@ -140,6 +140,7 @@ def clustered_encode(localworkers=False):
             from flac2all_worker import main as worker
         except ImportError:
             from .flac2all_worker import main as worker
+        mp.set_start_method("fork")
         local_worker = mp.Process(target=worker, args=("localhost",))
         local_worker.start()
 
